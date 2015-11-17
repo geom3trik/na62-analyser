@@ -617,7 +617,7 @@ void spectro::Process( int iEvent )
 			FillHisto( "ClosestSpaceTimeInterval",  ClosestSpaceTimeInterval );
 		}
 	}
-
+*/
  	Event *MCTruthEvent = GetMCEvent();
 	if ( MCTruthEvent -> GetNKineParts() >= 3 )
 	{
@@ -683,7 +683,7 @@ void spectro::Process( int iEvent )
         //FillHisto( "TrueMuonyMomentumHist", TrueMuonFourMomentum(1) );
         //FillHisto( "TrueMuonzMomentumHist", TrueMuonFourMomentum(2) / 1000. );
 	//FillHisto( "TrueMuonEnergyHist", TrueMuonFourMomentum(3) / 1000. );
-	*/
+	
 }
 
 void spectro::PostProcess()

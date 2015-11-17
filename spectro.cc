@@ -257,7 +257,7 @@ void spectro::InitHist()
     h33 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h33 );
 
-    TH2D* h34 = new TH2D( "DecayPoisition", " Decay Poisition ", NumberOfBins, 100, 270, NumberOfBins, -180 , 180 );
+    TH2D* h34 = new TH2D( "DecayPoisition", " Decay Poisition ", NumberOfBins, 0, 270, NumberOfBins, -180 , 180 );
     h34 -> GetXaxis() -> SetTitle( "z metres" );
     h34 -> GetYaxis() -> SetTitle( "x mm" );
     BookHisto( h34 );
