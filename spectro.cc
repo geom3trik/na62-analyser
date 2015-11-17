@@ -412,7 +412,7 @@ void spectro::Process( int iEvent )
     //Define TrueFourMomentum Vector
     TLorentzVector  TrueMuonFourMomentum, TrueFourMomentum, TrueParticleStartingFourPosition, TrueParticleEndingFourPosition, KaonFourMomentum;
 
-	double 		MinimumDistanceToBeamAxis;
+	double 		MinimumDistanceToBeamAxis,MinimumDistanceToBeamAxisAfterFiducial,MinimumDistanceToBeamAxisBeforeFiducial;
                 //EventParticleTime[101000], EventParticleThreePositionBeforeMagnet[101000][3], EventThreeMomentum[101000][3], KaonTimeAtGTK1, EventKaonThreeMomentum[101000][3], EventKaonThreePositionGTK1[101000][3], EventKaonTimeAtGTK1[101000];
 
 
@@ -452,24 +452,45 @@ void spectro::Process( int iEvent )
 			//BeamAxisDirection.RotateY( - BeamAngleFromZAxis );	//Rotate beam so it points along the dirction it should
 			//BeamPointFiducialEntry = { 0, 0, 102000 };
 
-            ClosestPointFromBeamAxisBeforeFiducial = ClosestPointOnVectorToOtherVector( p.position_start, p.momentum, b.fiducial_entry, b.beam_axis );
-			ClosestPointOfBeamApproachedBeforeFiducial = ClosestPointOnVectorToOtherVector( b.fiducial_entry, b.beam_axis, p.position_start, p.momentum );
-            DistanceToBeamAxisBeforeFiducial = ClosestPointOfBeamApproachedBeforeFiducial - ClosestPointFromBeamAxisBeforeFiducial;
+		MinimumDistanceToBeamAxisBeforeFiducial = ( ( b.fiducial_entry - p.position_start ).Dot( b.beam_axis.Cross( p.momentum ) ) ) / ( b.beam_axis.Cross( p.momentum ) ).Mag() ;
+		ClosestPointFromBeamAxisBeforeFiducial = ClosestPointOnVectorToOtherVector( p.position_start, p.momentum, b.fiducial_entry, b.beam_axis );
+		ClosestPointOfBeamApproachedBeforeFiducial = ClosestPointOnVectorToOtherVector( b.fiducial_entry, b.beam_axis, p.position_start, p.momentum );
+		DistanceToBeamAxisBeforeFiducial = -ClosestPointOfBeamApproachedBeforeFiducial + ClosestPointFromBeamAxisBeforeFiducial;
 
+		MinimumDistanceToBeamAxisAfterFiducial = ( ( b.fiducial_entry - p.position_start ).Dot( b.beam_axis_rotated.Cross( p.momentum ) ) ) / ( b.beam_axis_rotated.Cross( p.momentum ) ).Mag() ;
+		ClosestPointFromBeamAxisAfterFiducial = ClosestPointOnVectorToOtherVector( p.position_start, p.momentum, b.fiducial_entry, b.beam_axis_rotated );
+		ClosestPointOfBeamApproachedAfterFiducial = ClosestPointOnVectorToOtherVector( b.fiducial_entry, b.beam_axis_rotated, p.position_start, p.momentum );
+		DistanceToBeamAxisAfterFiducial = -ClosestPointFromBeamAxisAfterFiducial + ClosestPointOfBeamApproachedAfterFiducial;
+            	
+		if ( ClosestPointFromBeamAxisBeforeFiducial( 2 ) <= 102000 && ClosestPointFromBeamAxisAfterFiducial( 2 ) < 102000 )
+            	{
+			ClosestPointFromBeamAxis = ClosestPointFromBeamAxisBeforeFiducial;
+			ClosestPointOfBeamApproached = ClosestPointOfBeamApproachedBeforeFiducial;
+		        DistanceToBeamAxis = DistanceToBeamAxisBeforeFiducial;
+			MinimumDistanceToBeamAxis = MinimumDistanceToBeamAxisBeforeFiducial;
+		}
 
-			MinimumDistanceToBeamAxis = ( ( b.fiducial_entry - p.position_start ).Dot( b.beam_axis_rotated.Cross( p.momentum ) ) ) / ( b.beam_axis_rotated.Cross( p.momentum ) ).Mag() ;
-			ClosestPointFromBeamAxisAfterFiducial = ClosestPointOnVectorToOtherVector( p.position_start, p.momentum, b.fiducial_entry, b.beam_axis_rotated );
-			ClosestPointOfBeamApproachedAfterFiducial = ClosestPointOnVectorToOtherVector( b.fiducial_entry, b.beam_axis_rotated, p.position_start, p.momentum );
-			DistanceToBeamAxisAfterFiducial = ClosestPointFromBeamAxisAfterFiducial - ClosestPointOfBeamApproachedAfterFiducial;
-
-            if ( ClosestPointFromBeamAxisBeforeFiducial( 2 ) <= 102000 && DistanceToBeamAxisBeforeFiducial.Mag() < DistanceToBeamAxisAfterFiducial.Mag() )
-            {
-                DistanceToBeamAxis = DistanceToBeamAxisBeforeFiducial;
-			}
-			else
-			{
-                DistanceToBeamAxis = DistanceToBeamAxisAfterFiducial;
-			}
+		else if ( ClosestPointFromBeamAxisBeforeFiducial( 2 ) <= 102000  && abs( DistanceToBeamAxisBeforeFiducial.Mag() ) < abs ( DistanceToBeamAxisAfterFiducial.Mag() ) )
+		{
+			ClosestPointFromBeamAxis = ClosestPointFromBeamAxisBeforeFiducial;
+			ClosestPointOfBeamApproached = ClosestPointOfBeamApproachedBeforeFiducial;
+		        DistanceToBeamAxis = DistanceToBeamAxisBeforeFiducial;
+			MinimumDistanceToBeamAxis = MinimumDistanceToBeamAxisBeforeFiducial;	
+		}
+		else if ( ClosestPointFromBeamAxisAfterFiducial( 2 ) >= 102000 && ClosestPointFromBeamAxisAfterFiducial( 2 ) > 102000 )
+		{
+			ClosestPointFromBeamAxis = ClosestPointFromBeamAxisAfterFiducial;
+			ClosestPointOfBeamApproached = ClosestPointOfBeamApproachedAfterFiducial;
+			DistanceToBeamAxis = DistanceToBeamAxisAfterFiducial;
+			MinimumDistanceToBeamAxis = MinimumDistanceToBeamAxisAfterFiducial;
+		}
+		else if ( ClosestPointFromBeamAxisBeforeFiducial( 2 ) <= 102000 && abs( DistanceToBeamAxisBeforeFiducial.Mag() ) > abs ( DistanceToBeamAxisAfterFiducial.Mag() ) )
+		{
+			ClosestPointFromBeamAxis = ClosestPointFromBeamAxisAfterFiducial;
+			ClosestPointOfBeamApproached = ClosestPointOfBeamApproachedAfterFiducial;
+			DistanceToBeamAxis = DistanceToBeamAxisAfterFiducial;
+			MinimumDistanceToBeamAxis = MinimumDistanceToBeamAxisAfterFiducial;
+		}
 
 			//Charge = SpectroCandidate -> GetCharge();
 			//TimeAtBeforeMagnet = SpectroCandidate -> GetTime();
@@ -682,5 +703,5 @@ void spectro::EndOfRunUser()
 
 void spectro::DrawPlot()
 {
-    TCanvas* c = new TCanvas()
+
 }
