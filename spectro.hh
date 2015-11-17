@@ -14,6 +14,9 @@ class TH2F;
 class TGraph;
 class TTree;
 
+const int NumberOfBins = 100;
+const double BeamAngleFromZAxis = -1.2E-3, pi = 3.141592653589793, SpeedOfLight = 299792458;
+
 class particle
 {
     public:
@@ -52,12 +55,12 @@ class beam
 {
     public:
         beam()
-          : fiducial_entry(0,0,102000), beam_axis(0,0,1)
+          : fiducial_entry(0,0,102000), beam_axis(0,0,1), beam_axis_rotated(0,0,1)
         {
-
+            beam_axis_rotated.RotateY(-BeamAngleFromZAxis);
         }
 
-        TVector3 fiducial_entry, beam_axis;
+        TVector3 fiducial_entry, beam_axis, beam_axis_rotated;
 };
 
 //Need food. Going for dinner; 18:37.
@@ -80,6 +83,7 @@ class spectro : public NA62Analysis::Analyzer
         beam b;
         //Array of events
         std::vector<event> events;
+
 
 };
 #endif

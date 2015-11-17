@@ -14,8 +14,7 @@ using namespace std;
 using namespace NA62Analysis;
 using namespace NA62Constants;
 
-const int NumberOfBins = 100;
-const double BeamAngleFromZAxis = -1.2E-3, pi = 3.141592653589793, SpeedOfLight = 299792458;
+
 
 
 spectro::spectro( Core::BaseAnalysis *ba ) : Analyzer( ba, "spectro" ), events(100000, event())
@@ -458,10 +457,9 @@ void spectro::Process( int iEvent )
             DistanceToBeamAxisBeforeFiducial = ClosestPointOfBeamApproachedBeforeFiducial - ClosestPointFromBeamAxisBeforeFiducial;
 
 
-            b.beam_axis.RotateY(-BeamAngleFromZAxis);
-			MinimumDistanceToBeamAxis = ( ( b.fiducial_entry - p.position_start ).Dot( b.beam_axis.Cross( p.momentum ) ) ) / ( b.beam_axis.Cross( p.momentum ) ).Mag() ;
-			ClosestPointFromBeamAxisAfterFiducial = ClosestPointOnVectorToOtherVector( p.position_start, p.momentum, b.fiducial_entry, b.beam_axis );
-			ClosestPointOfBeamApproachedAfterFiducial = ClosestPointOnVectorToOtherVector( b.fiducial_entry, b.beam_axis, p.position_start, p.momentum );
+			MinimumDistanceToBeamAxis = ( ( b.fiducial_entry - p.position_start ).Dot( b.beam_axis_rotated.Cross( p.momentum ) ) ) / ( b.beam_axis_rotated.Cross( p.momentum ) ).Mag() ;
+			ClosestPointFromBeamAxisAfterFiducial = ClosestPointOnVectorToOtherVector( p.position_start, p.momentum, b.fiducial_entry, b.beam_axis_rotated );
+			ClosestPointOfBeamApproachedAfterFiducial = ClosestPointOnVectorToOtherVector( b.fiducial_entry, b.beam_axis_rotated, p.position_start, p.momentum );
 			DistanceToBeamAxisAfterFiducial = ClosestPointFromBeamAxisAfterFiducial - ClosestPointOfBeamApproachedAfterFiducial;
 
             if ( ClosestPointFromBeamAxisBeforeFiducial( 2 ) <= 102000 && DistanceToBeamAxisBeforeFiducial.Mag() < DistanceToBeamAxisAfterFiducial.Mag() )
@@ -684,5 +682,5 @@ void spectro::EndOfRunUser()
 
 void spectro::DrawPlot()
 {
-
+    TCanvas* c = new TCanvas()
 }
