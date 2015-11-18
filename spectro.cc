@@ -320,12 +320,12 @@ void spectro::InitHist()
 
     TH2D* h46 = new TH2D( "ParticleEndingPosition", "EndingPositionOfAllParticles", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
     h46 -> GetXaxis() -> SetTitle( "m" );
-    h46 -> GetYaxis() -> SetTitle( "Number of Entries" );
+    h46 -> GetYaxis() -> SetTitle( "mm" );
     BookHisto( h46 );
 	
     TH2D* h47 = new TH2D( "KaonEndingPosition", "EndingPositionOfKaons", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
     h47 -> GetXaxis() -> SetTitle( "m" );
-    h47 -> GetYaxis() -> SetTitle( "Number of Entries" );
+    h47 -> GetYaxis() -> SetTitle( "mm" );
     BookHisto( h47 );
 
 /*
@@ -647,7 +647,7 @@ void spectro::Process( int iEvent )
 	}
 */
  	Event *MCTruthEvent = GetMCEvent();
-	if ( MCTruthEvent -> GetNKineParts() >= 350 )
+	if ( MCTruthEvent -> GetNKineParts() >= 3 )
 	{
 		for( int i = 0; i < MCTruthEvent -> GetNKineParts(); i++ )
 		{
@@ -660,8 +660,8 @@ void spectro::Process( int iEvent )
 			TrueParticleStartingThreePosition = TrueParticleStartingFourPosition.Vect();
 			TrueParticleEndingFourPosition = TrueCandidate -> GetEndPos();
 			TrueParticleEndingThreePosition = TrueParticleEndingFourPosition.Vect();
-			//if ( ParticleTrueThreeMomentum.Mag() != 0 )
-			//{
+			if ( ParticleTrueThreeMomentum.Mag() != 0 )
+			{
 				cout << TrueParticleStartingThreePosition( 0 ) << " " << TrueParticleStartingThreePosition( 1 ) << " " << TrueParticleStartingThreePosition( 2 )
 				<< " " << ParticleTrueThreeMomentum.Mag() << " " << TrueParticleEndingThreePosition( 0 ) << " " << TrueParticleEndingThreePosition( 1 ) << " " <<
 				TrueParticleEndingThreePosition( 2 ) << " " << endl << MCTruthEvent -> GetNKineParts();
@@ -702,7 +702,7 @@ void spectro::Process( int iEvent )
 						FillHisto( "CompareTrueTranverseEnergyVsAzimuthal", ParticleTrueThreeMomentum.Phi(), ParticleTrueThreeMomentum.Perp() / 1000. );
 					}
 				}
-			//}
+			}
 		}
 	}
         //FillHisto( "TrueMuonxMomentumHist", TrueMuonFourMomentum(0) );
