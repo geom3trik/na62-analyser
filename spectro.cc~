@@ -647,7 +647,7 @@ void spectro::Process( int iEvent )
 	}
 */
  	Event *MCTruthEvent = GetMCEvent();
-	if ( MCTruthEvent -> GetNKineParts() >= 3 )
+	if ( MCTruthEvent -> GetNKineParts() >= 2 )
 	{
 		for( int i = 0; i < MCTruthEvent -> GetNKineParts(); i++ )
 		{
