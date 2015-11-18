@@ -318,7 +318,7 @@ void spectro::InitHist()
     BookHisto( h45 );
 
 
-    TH2D* h46 = new TH2D( "ParticleEndingPosition", "EndingPositionOfAllParticles", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
+    TH2D* h46 = new TH2D( "ParticleProductionPosition", "StartingPositionOfJetParticles", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
     h46 -> GetXaxis() -> SetTitle( "m" );
     h46 -> GetYaxis() -> SetTitle( "mm" );
     BookHisto( h46 );
@@ -660,6 +660,11 @@ void spectro::Process( int iEvent )
 			TrueParticleStartingThreePosition = TrueParticleStartingFourPosition.Vect();
 			TrueParticleEndingFourPosition = TrueCandidate -> GetEndPos();
 			TrueParticleEndingThreePosition = TrueParticleEndingFourPosition.Vect();
+			if ( i == 0 )
+			{ 
+				FillHisto( "KaonEndingPosition",TrueParticleEndingThreePosition( 2 ) / 1000., TrueParticleEndingThreePosition( 0 ) );
+			}
+				FillHisto( "ParticleProductionPosition",TrueParticleStartingThreePosition( 2 ) / 1000., TrueParticleStartingThreePosition( 0 ) );
 			if ( ParticleTrueThreeMomentum.Mag() != 0 )
 			{
 				cout << TrueParticleStartingThreePosition( 0 ) << " " << TrueParticleStartingThreePosition( 1 ) << " " << TrueParticleStartingThreePosition( 2 )
@@ -670,11 +675,8 @@ void spectro::Process( int iEvent )
 					KinePart *CandidateN = ( KinePart* )MCTruthEvent -> GetKineParts() -> At( k );
 					cout  << CandidateN -> GetParticleName() << CandidateN -> GetPDGcode() << " ";
 				}
-				if ( i == 0 )
-				{ 
-					FillHisto( "KaonEndingPosition",TrueParticleEndingThreePosition( 2 ) / 1000., TrueParticleEndingThreePosition( 0 ) );
-				}
-				FillHisto( "ParticleEndingPosition",TrueParticleEndingThreePosition( 2 ) / 1000., TrueParticleEndingThreePosition( 0 ) );
+
+
 				if( i == 1 )
 				{
 					if ( TrueCandidate -> GetPDGcode() == -13) //If the kaon decays straight into a muon, do this shit.
