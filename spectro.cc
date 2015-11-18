@@ -386,26 +386,26 @@ TVector3 ClosestPointOnVectorToOtherVector( TVector3 Vector1Position, TVector3 V
 TLorentzVector ClosestSpaceTimePointOnVectorToOtherVector( TVector3 Vector1Position, TVector3 Vector1Momentum, double Mass1, double Time1, TVector3 Vector2Position, TVector3 Vector2Momentum, double Mass2, double Time2) //14th November
 {
 	double d,e,f,g,h, VectorScale1, VectorScale2, c =299792458, ClosestTime1, ClosestTime2;
-	TVector3  A, B, C;
-	A = Vector2Position - Vector1Position;
-	B = Vector2Momentum.Unit();
-	C = Vector1Momentum.Unit();
-	d = Vector2Momentum.Mag() / ( Mass2 * sqrt( 1 + ( Vector2Momentum.Mag2() / pow( Mass2, 2 ) ) ) );
-	e = Vector1Momentum.Mag() / ( Mass1 * sqrt( 1 + ( Vector1Momentum.Mag2() / pow( Mass1, 2 ) ) ) );
-	f = ( d * e * B.Dot(C) + 1 ) / ( pow( d, 2 ) - 1 );
-	g = ( ( Time2 - Time1 ) - ( e / c ) * A.Dot( C ) ) / ( pow( e, 2 ) - 1 );
-	h = ( ( Time2 - Time1 ) - ( d / c ) * A.Dot( B ) ) / ( pow( d, 2 ) - 1 );
-	VectorScale2 = ( ( h - f*g ) * ( pow ( e, 2 ) - 1 ) ) / (  pow( e, 2 ) - 1 + pow( f, 2 ) * ( pow( d, 2 ) - 1 ) );
-	VectorScale1 = ( h - VectorScale2 ) / f;
-	TVector3 ClosestPointOnVector1 = Vector1Position + VectorScale1 * C * e * c;
-	TVector3 ClosestPointOnVector2 = Vector2Position + VectorScale2 * B * d * c;
+	TVector3  A, B, C, D;
+	//MAY NEED TO SCALE TIME1 AND TIME2 TO GET THEM IN SECONDS. DON'T KNOW WHAT THEY OUTPUT.
+	A = Vector1Position / 1000.;
+	B = Vector1Momentum.Unit();
+	C = Vector2Position / 1000.;
+	D = Vector2Momentum.Unit();
+	b = Vector1Momentum.Mag() * pow ( 10 , 6 ) * 5.3442883 * pow( 10, -28 );
+	d = Vector2Momentum.Mag() * pow ( 10 , 6 ) * 5.3442883 * pow( 10, -28 );
+	VectorScale1 = ( ( pow( d, 2 ) - pow( SpeedOfLight, 2 ) ) * ( pow( SpeedOfLight, 2 ) * ( Time2 - Time1 ) - ( C - A ).Dot( b * B ) ) + ( ( d * D ).Dot( b * B ) - pow( SpeedOfLight, 2 ) ) * ( ( C - A ).Dot( d * D ) - pow( SpeedOfLight, 2 ) * ( Time2 - Time1 ) ) ) / ( pow( SpeedOfLight, 2 ) * pow ( ( d - b ), 2 ) )
+
+	VectorScale2 = ( ( pow( b, 2 ) - pow( SpeedOfLight, 2 ) ) * VectorScale1 - ( C - A ).Dot( b * B ) + pow( SpeedOfLight , 2 ) * ( Time2 - Time1 ) ) / ( (d * D ).Dot( b * B ) - pow( SpeedOfLight, 2 ) )
+	TVector3 ClosestPointOnVector1 = A + VectorScale1 * B * b / sqrt( pow( Mass1, 2 ) + pow( b, 2 ) / pow ( SpeedOfLight , 2 ) );
+	TVector3 ClosestPointOnVector2 = C + VectorScale2 * D * d / sqrt( pow( Mass2, 2 ) + pow( d, 2 ) / pow ( SpeedOfLight , 2 ) );
 	ClosestTime1 = Time1 + VectorScale1;
 	ClosestTime2 = Time2 + VectorScale2;
 	TLorentzVector ClosestSpaceTimePointOnVector1, ClosestSpaceTimePointOnVector2;
 	ClosestSpaceTimePointOnVector1.SetVect( ClosestPointOnVector1 );
-	ClosestSpaceTimePointOnVector1(3) = Time1;
+	ClosestSpaceTimePointOnVector1(3) = ClosestTime1;
 	ClosestSpaceTimePointOnVector2.SetVect( ClosestPointOnVector2 );
-	ClosestSpaceTimePointOnVector2(3) = Time2;
+	ClosestSpaceTimePointOnVector2(3) = ClosestTime2;
 	return ClosestSpaceTimePointOnVector1;
 }
 
