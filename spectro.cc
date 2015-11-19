@@ -368,13 +368,13 @@ void spectro::StartOfBurstUser()
 
 TVector3 ClosestPointOnVectorToOtherVector( TVector3 Vector1Position, TVector3 Vector1Direction, TVector3 Vector2Position, TVector3 Vector2Direction) //14th November
 {
-	double a,b,c,d,e,f, VectorScale1, VectorScale2;
+	double a,b,c,d,e, VectorScale1, VectorScale2;
 	a = Vector1Direction.Dot( Vector1Direction );
 	b = Vector1Direction.Dot( Vector2Direction );
 	c = Vector2Direction.Dot( Vector2Direction );
 	d = Vector1Direction.Dot( ( Vector1Position - Vector2Position ) );
 	e = Vector2Direction.Dot( ( Vector1Position - Vector2Position ) );
-	f = ( Vector1Position - Vector2Position ).Dot( ( Vector1Position - Vector2Position ) );
+	//f = ( Vector1Position - Vector2Position ).Dot( ( Vector1Position - Vector2Position ) );
 	VectorScale1 = ( b * e - c * d ) / ( a * c - pow( b, 2 ) );
 	VectorScale2 = ( a * e - b * d ) / ( a * c - pow( b, 2 ) );
 
@@ -385,20 +385,19 @@ TVector3 ClosestPointOnVectorToOtherVector( TVector3 Vector1Position, TVector3 V
 
 TLorentzVector ClosestSpaceTimePointOnVectorToOtherVector( TVector3 Vector1Position, TVector3 Vector1Momentum, double Mass1, double Time1, TVector3 Vector2Position, TVector3 Vector2Momentum, double Mass2, double Time2) //14th November
 {
-	double d,e,f,g,h, VectorScale1, VectorScale2, c =299792458, ClosestTime1, ClosestTime2;
+	double b,d, VectorScale1, VectorScale2, ClosestTime1, ClosestTime2;
 	TVector3  A, B, C, D;
 	//MAY NEED TO SCALE TIME1 AND TIME2 TO GET THEM IN SECONDS. DON'T KNOW WHAT THEY OUTPUT.
-	A = Vector1Position / 1000.;
+	A = Vector1Position * pow( 1000., -1 );
 	B = Vector1Momentum.Unit();
-	C = Vector2Position / 1000.;
+	C = Vector2Position * pow( 1000., -1 );
 	D = Vector2Momentum.Unit();
 	b = Vector1Momentum.Mag() * pow ( 10 , 6 ) * 5.3442883 * pow( 10, -28 );
 	d = Vector2Momentum.Mag() * pow ( 10 , 6 ) * 5.3442883 * pow( 10, -28 );
-	VectorScale1 = ( ( pow( d, 2 ) - pow( SpeedOfLight, 2 ) ) * ( pow( SpeedOfLight, 2 ) * ( Time2 - Time1 ) - ( C - A ).Dot( b * B ) ) + ( ( d * D ).Dot( b * B ) - pow( SpeedOfLight, 2 ) ) * ( ( C - A ).Dot( d * D ) - pow( SpeedOfLight, 2 ) * ( Time2 - Time1 ) ) ) / ( pow( SpeedOfLight, 2 ) * pow ( ( d - b ), 2 ) )
-
-	VectorScale2 = ( ( pow( b, 2 ) - pow( SpeedOfLight, 2 ) ) * VectorScale1 - ( C - A ).Dot( b * B ) + pow( SpeedOfLight , 2 ) * ( Time2 - Time1 ) ) / ( (d * D ).Dot( b * B ) - pow( SpeedOfLight, 2 ) )
-	TVector3 ClosestPointOnVector1 = A + VectorScale1 * B * b / sqrt( pow( Mass1, 2 ) + pow( b, 2 ) / pow ( SpeedOfLight , 2 ) );
-	TVector3 ClosestPointOnVector2 = C + VectorScale2 * D * d / sqrt( pow( Mass2, 2 ) + pow( d, 2 ) / pow ( SpeedOfLight , 2 ) );
+	VectorScale1 = ( ( pow( d, 2 ) - pow( SpeedOfLight, 2 ) ) * ( pow( SpeedOfLight, 2 ) * ( Time2 - Time1 ) - ( C - A ).Dot( b * B ) ) + ( ( d * D ).Dot( b * B ) - pow( SpeedOfLight, 2 ) ) * ( ( C - A ).Dot( d * D ) - pow( SpeedOfLight, 2 ) * ( Time2 - Time1 ) ) ) / ( pow( SpeedOfLight, 2 ) * pow ( ( d - b ), 2 ) );
+	VectorScale2 = ( ( pow( b, 2 ) - pow( SpeedOfLight, 2 ) ) * VectorScale1 - ( C - A ).Dot( b * B ) + pow( SpeedOfLight , 2 ) * ( Time2 - Time1 ) ) / ( (d * D ).Dot( b * B ) - pow( SpeedOfLight, 2 ) );
+	TVector3 ClosestPointOnVector1 = A + VectorScale1 * B * b * pow( sqrt( pow( Mass1, 2 ) + pow( b, 2 ) / pow ( SpeedOfLight , 2 ) ), -1 );
+	TVector3 ClosestPointOnVector2 = C + VectorScale2 * D * d * pow( sqrt( pow( Mass2, 2 ) + pow( d, 2 ) / pow ( SpeedOfLight , 2 ) ), -1 );
 	ClosestTime1 = Time1 + VectorScale1;
 	ClosestTime2 = Time2 + VectorScale2;
 	TLorentzVector ClosestSpaceTimePointOnVector1, ClosestSpaceTimePointOnVector2;
@@ -523,16 +522,6 @@ void spectro::Process( int iEvent )
             /*Remove events that aren't a single positive particle being detected in the spectrometer (as this is not k->munu), Charge == 1 gets rid of 29 events, then && Candidates == 1 gets rid of another 12  */
 			if ( p.charge == 1 && SpectrometerEvent->GetNCandidates() == 1 )
 			{
-				/*
-				EventThreeMomentum[iEvent][0] = ParticleThreeMomentum( 0 );
-				EventThreeMomentum[iEvent][1] = ParticleThreeMomentum( 1 );
-				EventThreeMomentum[iEvent][2] = ParticleThreeMomentum( 2 );
-				EventParticleThreePositionBeforeMagnet[iEvent][0] = ParticleThreePositionBeforeMagnet( 0 );
-				EventParticleThreePositionBeforeMagnet[iEvent][1] = ParticleThreePositionBeforeMagnet( 1 );
-				EventParticleThreePositionBeforeMagnet[iEvent][2] = ParticleThreePositionBeforeMagnet( 2 );
-				EventParticleTime[iEvent] = TimeAtBeforeMagnet;
-				ParticleThreeMomentum.RotateY( BeamAngleFromZAxis );	//Switch to a reference frame with particle momentum along the z axis.
-                */
 				p.momentum.RotateY(BeamAngleFromZAxis);
 
 				FillHisto( "MomentumHist",  p.momentum.Mag() / 1000. );
@@ -545,8 +534,7 @@ void spectro::Process( int iEvent )
 				FillHisto( "EnergyVsAzimuthal", p.momentum.Phi(), p.momentum.Mag() / 1000. );
 				FillHisto( "EnergyVsPolar", p.momentum.Theta(), p.momentum.Mag() / 1000. );
 				FillHisto( "TranverseEnergyVsAzimuthal", p.momentum.Phi(), p.momentum.Perp() / 1000. );
-
-				if ( CheckIfEventCanBeMatchedToBeam = 1 )
+				if ( CheckIfEventCanBeMatchedToBeam == 1 )
 				{
 					FillHisto( "ClosestPointFromBeamAxis", ClosestPointFromBeamAxis.Mag() / 1000. );
 					FillHisto( "ClosestxPointFromBeamAxis", ClosestPointFromBeamAxis( 0 ) );
@@ -563,10 +551,12 @@ void spectro::Process( int iEvent )
 		}
 	}
 
+            particle kaon;
+            events[iEvent].add_particle(&kaon);
+            //Set the properties of the particle
 
-    /*
     TRecoGigaTrackerEvent *GTKEvent = ( TRecoGigaTrackerEvent* )GetEvent( "GigaTracker" );
-    //	cout << "GTKEVENTNUMBER:" << GTKEvent -> GetNHits() << " " << "SPECTROMETEREVENTNUMBER:" << SpectrometerEvent -> GetNCandidates() << " ";
+    	//cout << "GTKEVENTNUMBER:" << GTKEvent -> GetNCandidates() << " " << "SPECTROMETEREVENTNUMBER:" << SpectrometerEvent -> GetNCandidates() << " ";
 	//FOR SOME REASON  GTKEvent -> GetNCandidates() ALWAYS RETURNS 0 //
 	if( GTKEvent -> GetNCandidates() >= 1 ) //Loop through every distinguishable detected event
     	{
@@ -576,18 +566,13 @@ void spectro::Process( int iEvent )
 			KaonCandidate -> SetEvent( GTKEvent ); //THIS LINE CAUSES SEGMENTATION VIOLATION
 			cout << "IS IT HERE????";
 			KaonFourMomentum = KaonCandidate -> GetMomentum();
-			KaonThreeMomentum = KaonFourMomentum.Vect();
-			KaonThreePositionGTK1 = KaonCandidate -> GetPosition( 0 );
-			KaonTimeAtGTK1 = KaonCandidate -> GetTime1();
-			EventKaonThreeMomentum[iEvent][0] = KaonThreeMomentum( 0 );
-			EventKaonThreeMomentum[iEvent][1] = KaonThreeMomentum( 1 );
-			EventKaonThreeMomentum[iEvent][2] = KaonThreeMomentum( 2 );
-			EventKaonThreePositionGTK1[iEvent][0] = KaonThreePositionGTK1( 0 );
-			EventKaonThreePositionGTK1[iEvent][1] = KaonThreePositionGTK1( 1 );
-			EventKaonThreePositionGTK1[iEvent][2] = KaonThreePositionGTK1( 2 );
-			EventKaonTimeAtGTK1[iEvent] = KaonTimeAtGTK1;
+			kaon.momentum = KaonFourMomentum.Vect();
+			kaon.position_start = KaonCandidate -> GetPosition( 0 );
+			kaon.time_start = KaonCandidate -> GetTime1();
 		}
 	}
+
+/*
 	TVector3 MuonThreePosition, MuonMomentum, KaonThreePosition, KaonMomentum, ClosestPointOfMuon, ClosestPointOfKaon, ClosestDistanceFromMuonToKaon;
 	TLorentzVector ClosestSpaceTimePointOfMuon, ClosestSpaceTimePointOfKaon;
 	double MuonMass = 105.6583715, MuonDetectionTime, KaonMass = 493.667, KaonDetectionTime, SpaceTimeInterval, MinimumInterval, ClosestTimeOfMuon, ClosestTimeOfKaon, ClosestSpaceTimeInterval, ClosestTimeFromMuonToKaon;
@@ -647,7 +632,7 @@ void spectro::Process( int iEvent )
 	}
 */
  	Event *MCTruthEvent = GetMCEvent();
-	if ( MCTruthEvent -> GetNKineParts() <= 2 )
+	if ( MCTruthEvent -> GetNKineParts() >= 3 )
 	{
 		for( int i = 0; i < MCTruthEvent -> GetNKineParts(); i++ )
 		{
