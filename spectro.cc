@@ -17,7 +17,7 @@ using namespace NA62Constants;
 
 
 
-spectro::spectro( Core::BaseAnalysis *ba ) : Analyzer( ba, "spectro" ), events(100000, event())
+spectro::spectro( Core::BaseAnalysis *ba ) : Analyzer( ba, "spectro" )
 {
 	RequestTree( "GigaTracker", new TRecoGigaTrackerEvent );
 	RequestTree( "Spectrometer", new TRecoSpectrometerEvent );
@@ -322,7 +322,7 @@ void spectro::InitHist()
     h46 -> GetXaxis() -> SetTitle( "m" );
     h46 -> GetYaxis() -> SetTitle( "mm" );
     BookHisto( h46 );
-	
+
     TH2D* h47 = new TH2D( "KaonEndingPosition", "EndingPositionOfKaons", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
     h47 -> GetXaxis() -> SetTitle( "m" );
     h47 -> GetYaxis() -> SetTitle( "mm" );
@@ -365,6 +365,58 @@ void spectro::StartOfBurstUser()
 {
 
 }
+
+void spectro::SaveAllPlotsPDF()
+{
+
+    NA62Analysis::NA62Map<TString,CanvasOrganizer*>::type::iterator ptr;
+
+    NA62Analysis::NA62Map<TString,CanvasOrganizer*>::type canvases = GetCanvases();
+
+    for(ptr = canvases.begin(); ptr != canvases.end(); ptr++)
+    {
+        ptr->second->GetCanvas()->SaveAs(TString(ptr->first + ".pdf"));
+    }
+    /*
+    std::vector<TString>::iterator itOrder;
+    NA62Analysis::NA62Map<TString,TH1*>::type::iterator ptr1;
+    NA62Analysis::NA62Map<TString,TH2*>::type::iterator ptr2;
+    NA62Analysis::NA62Map<TString,TGraph*>::type::iterator ptr3;
+    NA62Analysis::NA62Map<TString,CanvasOrganizer*>::type::iterator ptr4;
+    CanvasOrganizer *c;
+
+    for(itOrder=fHisto.fHistoOrder.begin(); itOrder!=fHisto.fHistoOrder.end(); itOrder++)
+    {
+        if((ptr1=fHisto.fHisto.find(*itOrder))!=fHisto.end()){
+            c = new CanvasOrganizer(TString("c_" + fAnalyzerName + "_") + *itOrder);
+            c->AddHisto(ptr1->second);
+            c->Draw();
+            c->GetCanvas()->SaveAs(TString(ptr1->first + ".pdf"));
+            fCanvas.insert(std::make_pair(c->GetName(), c));
+        }
+        else if((ptr2=fHisto.fHisto2.find(*itOrder))!=fHisto.fHisto2.end()){
+            c = new CanvasOrganizer(TString("c_" + fAnalyzerName + "_") + *itOrder);
+            c->AddHisto(ptr2->second);
+            c->Draw();
+            c->GetCanvas()->SaveAs(TString(ptr2->first + ".pdf"));
+            fCanvas.insert(std::make_pair(c->GetName(), c));
+        }
+        else if((ptr3=fGraph.find(*itOrder))!=fGraph.end()){
+            c = new CanvasOrganizer(TString("c_" + fAnalyzerName + "_") + *itOrder);
+            c->AddHisto(ptr3->second);
+            c->Draw();
+            c->GetCanvas()->SaveAs(TString(ptr3->first + ".pdf"));
+            fCanvas.insert(std::make_pair(c->GetName(), c));
+        }
+    }
+
+    for(ptr4=fCanvas.begin(); ptr4!=fCanvas.end(); ptr4++)
+    {
+        ptr4->second->Draw();
+    }
+    */
+}
+
 
 TVector3 ClosestPointOnVectorToOtherVector( TVector3 Vector1Position, TVector3 Vector1Direction, TVector3 Vector2Position, TVector3 Vector2Direction) //14th November
 {
@@ -411,6 +463,10 @@ TLorentzVector ClosestSpaceTimePointOnVectorToOtherVector( TVector3 Vector1Posit
 
 void spectro::Process( int iEvent )
 {
+    //Add event to list of events
+    event* new_event = new event();
+
+        events.push_back(new_event);
 	if( fMCSimple.fStatus == MCSimple::kMissing ){printIncompleteMCWarning( iEvent );return;}
 	if( fMCSimple.fStatus == MCSimple::kEmpty ){printNoMCWarning();return;}
  	//Get the spectrometer event
@@ -438,21 +494,13 @@ void spectro::Process( int iEvent )
 			SpectroCandidate->SetEvent( SpectrometerEvent );
 
             //Create a new particle and add it to the event
-            particle p;
-            events[iEvent].add_particle(&p);
+            particle* p = new particle();
+            new_event->add_particle(p);
             //Set the properties of the particle
-            p.momentum = SpectroCandidate->GetThreeMomentumBeforeMagnet();
-            p.position_start = SpectroCandidate->GetPositionBeforeMagnet();
-            p.time_start = SpectroCandidate -> GetTime();
-            p.charge = SpectroCandidate -> GetCharge();
-
-            //Alternatively
-            /*
-                //Create and add a particle to the event
-                events[iEvent].add_particle();
-                //I've overloaded the [] operator so you can access the particles directly from the event
-                events[iEvent][0].momentum = TimeCandidate->GetThreeMomentumBeforeMagnet();
-            */
+            p->momentum = SpectroCandidate->GetThreeMomentumBeforeMagnet();
+            p->position_start = SpectroCandidate->GetPositionBeforeMagnet();
+            p->time_start = SpectroCandidate -> GetTime();
+            p->charge = SpectroCandidate -> GetCharge();
 
 
 			//ParticleThreeMomentum = SpectroCandidate->GetThreeMomentumBeforeMagnet();
@@ -462,78 +510,79 @@ void spectro::Process( int iEvent )
 			//BeamAxisDirection.RotateY( - BeamAngleFromZAxis );	//Rotate beam so it points along the dirction it should
 			//BeamPointFiducialEntry = { 0, 0, 102000 };
 
-		MinimumDistanceToBeamAxisBeforeFiducial = ( ( b.fiducial_entry - p.position_start ).Dot( b.beam_axis.Cross( p.momentum ) ) ) / ( b.beam_axis.Cross( p.momentum ) ).Mag() ;
-		ClosestPointFromBeamAxisBeforeFiducial = ClosestPointOnVectorToOtherVector( p.position_start, p.momentum, b.fiducial_entry, b.beam_axis );
-		ClosestPointOfBeamApproachedBeforeFiducial = ClosestPointOnVectorToOtherVector( b.fiducial_entry, b.beam_axis, p.position_start, p.momentum );
-		DistanceToBeamAxisBeforeFiducial = -ClosestPointOfBeamApproachedBeforeFiducial + ClosestPointFromBeamAxisBeforeFiducial;
+            MinimumDistanceToBeamAxisBeforeFiducial = ( ( b.fiducial_entry - p->position_start ).Dot( b.beam_axis.Cross( p->momentum ) ) ) / ( b.beam_axis.Cross( p->momentum ) ).Mag() ;
+            ClosestPointFromBeamAxisBeforeFiducial = ClosestPointOnVectorToOtherVector( p->position_start, p->momentum, b.fiducial_entry, b.beam_axis );
+            ClosestPointOfBeamApproachedBeforeFiducial = ClosestPointOnVectorToOtherVector( b.fiducial_entry, b.beam_axis, p->position_start, p->momentum );
+            DistanceToBeamAxisBeforeFiducial = -ClosestPointOfBeamApproachedBeforeFiducial + ClosestPointFromBeamAxisBeforeFiducial;
 
-		MinimumDistanceToBeamAxisAfterFiducial = ( ( b.fiducial_entry - p.position_start ).Dot( b.beam_axis_rotated.Cross( p.momentum ) ) ) / ( b.beam_axis_rotated.Cross( p.momentum ) ).Mag() ;
-		ClosestPointFromBeamAxisAfterFiducial = ClosestPointOnVectorToOtherVector( p.position_start, p.momentum, b.fiducial_entry, b.beam_axis_rotated );
-		ClosestPointOfBeamApproachedAfterFiducial = ClosestPointOnVectorToOtherVector( b.fiducial_entry, b.beam_axis_rotated, p.position_start, p.momentum );
-		DistanceToBeamAxisAfterFiducial = -ClosestPointFromBeamAxisAfterFiducial + ClosestPointOfBeamApproachedAfterFiducial;
-            	
-		if ( ClosestPointFromBeamAxisBeforeFiducial( 2 ) <= 102000 && ( ClosestPointFromBeamAxisAfterFiducial( 2 ) < 102000 || abs( DistanceToBeamAxisBeforeFiducial.Mag() ) < abs ( DistanceToBeamAxisAfterFiducial.Mag() ) ) )
-            	{
-			ClosestPointFromBeamAxis = ClosestPointFromBeamAxisBeforeFiducial;
-			ClosestPointOfBeamApproached = ClosestPointOfBeamApproachedBeforeFiducial;
-		        DistanceToBeamAxis = DistanceToBeamAxisBeforeFiducial;
-			MinimumDistanceToBeamAxis = MinimumDistanceToBeamAxisBeforeFiducial;
-			CheckIfEventCanBeMatchedToBeam = 1;
-		}
+            MinimumDistanceToBeamAxisAfterFiducial = ( ( b.fiducial_entry - p->position_start ).Dot( b.beam_axis_rotated.Cross( p->momentum ) ) ) / ( b.beam_axis_rotated.Cross( p->momentum ) ).Mag() ;
+            ClosestPointFromBeamAxisAfterFiducial = ClosestPointOnVectorToOtherVector( p->position_start, p->momentum, b.fiducial_entry, b.beam_axis_rotated );
+            ClosestPointOfBeamApproachedAfterFiducial = ClosestPointOnVectorToOtherVector( b.fiducial_entry, b.beam_axis_rotated, p->position_start, p->momentum );
+            DistanceToBeamAxisAfterFiducial = -ClosestPointFromBeamAxisAfterFiducial + ClosestPointOfBeamApproachedAfterFiducial;
 
-		else if ( ClosestPointFromBeamAxisAfterFiducial( 2 ) >= 102000 )
-		{
-			ClosestPointFromBeamAxis = ClosestPointFromBeamAxisAfterFiducial;
-			ClosestPointOfBeamApproached = ClosestPointOfBeamApproachedAfterFiducial;
-			DistanceToBeamAxis = DistanceToBeamAxisAfterFiducial;
-			MinimumDistanceToBeamAxis = MinimumDistanceToBeamAxisAfterFiducial;
-			CheckIfEventCanBeMatchedToBeam = 1;	
-		}
-		/*
-		else if ( ClosestPointFromBeamAxisBeforeFiducial( 2 ) <= 102000  && abs( DistanceToBeamAxisBeforeFiducial.Mag() ) < abs ( DistanceToBeamAxisAfterFiducial.Mag() ) )
-		{
-			ClosestPointFromBeamAxis = ClosestPointFromBeamAxisBeforeFiducial;
-			ClosestPointOfBeamApproached = ClosestPointOfBeamApproachedBeforeFiducial;
-		        DistanceToBeamAxis = DistanceToBeamAxisBeforeFiducial;
-			MinimumDistanceToBeamAxis = MinimumDistanceToBeamAxisBeforeFiducial;	
-			CheckIfEventCanBeMatchedToBeam = 1;
-		}
-		else if ( ClosestPointFromBeamAxisBeforeFiducial( 2 ) >= 102000 && ClosestPointFromBeamAxisAfterFiducial( 2 ) > 102000 )
-		{
-			ClosestPointFromBeamAxis = ClosestPointFromBeamAxisAfterFiducial;
-			ClosestPointOfBeamApproached = ClosestPointOfBeamApproachedAfterFiducial;
-			DistanceToBeamAxis = DistanceToBeamAxisAfterFiducial;
-			MinimumDistanceToBeamAxis = MinimumDistanceToBeamAxisAfterFiducial;
-			CheckIfEventCanBeMatchedToBeam = 1;
-		}
-		else if ( ClosestPointFromBeamAxisBeforeFiducial( 2 ) <= 102000 && abs( DistanceToBeamAxisBeforeFiducial.Mag() ) > abs ( DistanceToBeamAxisAfterFiducial.Mag() ) )
-		{
-			ClosestPointFromBeamAxis = ClosestPointFromBeamAxisAfterFiducial;
-			ClosestPointOfBeamApproached = ClosestPointOfBeamApproachedAfterFiducial;
-			DistanceToBeamAxis = DistanceToBeamAxisAfterFiducial;
-			MinimumDistanceToBeamAxis = MinimumDistanceToBeamAxisAfterFiducial;
-			CheckIfEventCanBeMatchedToBeam = 1;
-		}
-		*/
+            if ( ClosestPointFromBeamAxisBeforeFiducial( 2 ) <= 102000 && ( ClosestPointFromBeamAxisAfterFiducial( 2 ) < 102000 || abs( DistanceToBeamAxisBeforeFiducial.Mag() ) < abs ( DistanceToBeamAxisAfterFiducial.Mag() ) ) )
+                    {
+                ClosestPointFromBeamAxis = ClosestPointFromBeamAxisBeforeFiducial;
+                ClosestPointOfBeamApproached = ClosestPointOfBeamApproachedBeforeFiducial;
+                    DistanceToBeamAxis = DistanceToBeamAxisBeforeFiducial;
+                MinimumDistanceToBeamAxis = MinimumDistanceToBeamAxisBeforeFiducial;
+                CheckIfEventCanBeMatchedToBeam = 1;
+            }
+
+            else if ( ClosestPointFromBeamAxisAfterFiducial( 2 ) >= 102000 )
+            {
+                ClosestPointFromBeamAxis = ClosestPointFromBeamAxisAfterFiducial;
+                ClosestPointOfBeamApproached = ClosestPointOfBeamApproachedAfterFiducial;
+                DistanceToBeamAxis = DistanceToBeamAxisAfterFiducial;
+                MinimumDistanceToBeamAxis = MinimumDistanceToBeamAxisAfterFiducial;
+                CheckIfEventCanBeMatchedToBeam = 1;
+            }
+            /*
+            else if ( ClosestPointFromBeamAxisBeforeFiducial( 2 ) <= 102000  && abs( DistanceToBeamAxisBeforeFiducial.Mag() ) < abs ( DistanceToBeamAxisAfterFiducial.Mag() ) )
+            {
+                ClosestPointFromBeamAxis = ClosestPointFromBeamAxisBeforeFiducial;
+                ClosestPointOfBeamApproached = ClosestPointOfBeamApproachedBeforeFiducial;
+                    DistanceToBeamAxis = DistanceToBeamAxisBeforeFiducial;
+                MinimumDistanceToBeamAxis = MinimumDistanceToBeamAxisBeforeFiducial;
+                CheckIfEventCanBeMatchedToBeam = 1;
+            }
+            else if ( ClosestPointFromBeamAxisBeforeFiducial( 2 ) >= 102000 && ClosestPointFromBeamAxisAfterFiducial( 2 ) > 102000 )
+            {
+                ClosestPointFromBeamAxis = ClosestPointFromBeamAxisAfterFiducial;
+                ClosestPointOfBeamApproached = ClosestPointOfBeamApproachedAfterFiducial;
+                DistanceToBeamAxis = DistanceToBeamAxisAfterFiducial;
+                MinimumDistanceToBeamAxis = MinimumDistanceToBeamAxisAfterFiducial;
+                CheckIfEventCanBeMatchedToBeam = 1;
+            }
+            else if ( ClosestPointFromBeamAxisBeforeFiducial( 2 ) <= 102000 && abs( DistanceToBeamAxisBeforeFiducial.Mag() ) > abs ( DistanceToBeamAxisAfterFiducial.Mag() ) )
+            {
+                ClosestPointFromBeamAxis = ClosestPointFromBeamAxisAfterFiducial;
+                ClosestPointOfBeamApproached = ClosestPointOfBeamApproachedAfterFiducial;
+                DistanceToBeamAxis = DistanceToBeamAxisAfterFiducial;
+                MinimumDistanceToBeamAxis = MinimumDistanceToBeamAxisAfterFiducial;
+                CheckIfEventCanBeMatchedToBeam = 1;
+            }
+            */
 
 			//Charge = SpectroCandidate -> GetCharge();
 			//TimeAtBeforeMagnet = SpectroCandidate -> GetTime();
 
             /*Remove events that aren't a single positive particle being detected in the spectrometer (as this is not k->munu), Charge == 1 gets rid of 29 events, then && Candidates == 1 gets rid of another 12  */
-			if ( p.charge == 1 && SpectrometerEvent->GetNCandidates() == 1 )
+			if ( p->charge == 1 && SpectrometerEvent->GetNCandidates() == 1 )
 			{
-				p.momentum.RotateY(BeamAngleFromZAxis);
+				p->momentum.RotateY(BeamAngleFromZAxis);
 
-				FillHisto( "MomentumHist",  p.momentum.Mag() / 1000. );
-				FillHisto( "xMomentumHist", p.momentum[0] / 1000. );
-				FillHisto( "yMomentumHist", p.momentum[1] / 1000. );
-				FillHisto( "zMomentumHist", p.momentum[2] / 1000. );
-				FillHisto( "TransverseMomentumHist",  p.momentum.Perp() );
-				FillHisto( "AzimuthalMomentumHist", p.momentum.Phi() );
-				FillHisto( "PolarMomentumHist", p.momentum.Theta() );
-				FillHisto( "EnergyVsAzimuthal", p.momentum.Phi(), p.momentum.Mag() / 1000. );
-				FillHisto( "EnergyVsPolar", p.momentum.Theta(), p.momentum.Mag() / 1000. );
-				FillHisto( "TranverseEnergyVsAzimuthal", p.momentum.Phi(), p.momentum.Perp() / 1000. );
+				FillHisto( "MomentumHist",  p->momentum.Mag() / 1000. );
+				FillHisto( "xMomentumHist", p->momentum[0] / 1000. );
+				FillHisto( "yMomentumHist", p->momentum[1] / 1000. );
+				FillHisto( "zMomentumHist", p->momentum[2] / 1000. );
+				FillHisto( "TransverseMomentumHist",  p->momentum.Perp() );
+				FillHisto( "AzimuthalMomentumHist", p->momentum.Phi() );
+				FillHisto( "PolarMomentumHist", p->momentum.Theta() );
+				FillHisto( "EnergyVsAzimuthal", p->momentum.Phi(), p->momentum.Mag() / 1000. );
+				FillHisto( "EnergyVsPolar", p->momentum.Theta(), p->momentum.Mag() / 1000. );
+				FillHisto( "TranverseEnergyVsAzimuthal", p->momentum.Phi(), p->momentum.Perp() / 1000. );
+
 				if ( CheckIfEventCanBeMatchedToBeam == 1 )
 				{
 					FillHisto( "ClosestPointFromBeamAxis", ClosestPointFromBeamAxis.Mag() / 1000. );
@@ -551,8 +600,8 @@ void spectro::Process( int iEvent )
 		}
 	}
 
-            particle kaon;
-            events[iEvent].add_particle(&kaon);
+    particle* kaon = new particle();
+    new_event->add_particle(kaon);
             //Set the properties of the particle
 
     TRecoGigaTrackerEvent *GTKEvent = ( TRecoGigaTrackerEvent* )GetEvent( "GigaTracker" );
@@ -566,9 +615,9 @@ void spectro::Process( int iEvent )
 			KaonCandidate -> SetEvent( GTKEvent ); //THIS LINE CAUSES SEGMENTATION VIOLATION
 			cout << "IS IT HERE????";
 			KaonFourMomentum = KaonCandidate -> GetMomentum();
-			kaon.momentum = KaonFourMomentum.Vect();
-			kaon.position_start = KaonCandidate -> GetPosition( 0 );
-			kaon.time_start = KaonCandidate -> GetTime1();
+			kaon->momentum = KaonFourMomentum.Vect();
+			kaon->position_start = KaonCandidate -> GetPosition( 0 );
+			kaon->time_start = KaonCandidate -> GetTime1();
 		}
 	}
 
@@ -646,7 +695,7 @@ void spectro::Process( int iEvent )
 			TrueParticleEndingFourPosition = TrueCandidate -> GetEndPos();
 			TrueParticleEndingThreePosition = TrueParticleEndingFourPosition.Vect();
 			if ( i == 0 )
-			{ 
+			{
 				FillHisto( "KaonEndingPosition",TrueParticleEndingThreePosition( 2 ) / 1000., TrueParticleEndingThreePosition( 0 ) );
 			}
 				FillHisto( "ParticleProductionPosition",TrueParticleStartingThreePosition( 2 ) / 1000., TrueParticleStartingThreePosition( 0 ) );
@@ -696,7 +745,7 @@ void spectro::Process( int iEvent )
         //FillHisto( "TrueMuonyMomentumHist", TrueMuonFourMomentum(1) );
         //FillHisto( "TrueMuonzMomentumHist", TrueMuonFourMomentum(2) / 1000. );
 	//FillHisto( "TrueMuonEnergyHist", TrueMuonFourMomentum(3) / 1000. );
-	
+
 }
 
 void spectro::PostProcess()
@@ -716,5 +765,10 @@ void spectro::EndOfRunUser()
 
 void spectro::DrawPlot()
 {
-
+    DrawAllPlots();
+    SaveAllPlotsPDF();
+    //TCanvas* c = new TCanvas("canvas","canvas",800,450);
+    //TH1D* h = (TH1D*)fHisto.GetHisto("MomentumHist");
+    //iterator->second->Draw();
+    //c->SaveAs("testy.pdf");
 }

@@ -79,10 +79,11 @@ class spectro : public NA62Analysis::Analyzer
 		void EndOfRunUser();
 		void PostProcess();
 		void DrawPlot();
+		void SaveAllPlotsPDF();
 	protected:
         beam b;
         //Array of events
-        std::vector<event> events;
+        std::vector<event*> events;
 
 
 };
