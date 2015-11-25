@@ -675,10 +675,11 @@ void spectro::Process( int iEvent )
 				for ( int k = 0; k < MCTruthEvent -> GetNKineParts(); k++ )
 				{
 					KinePart *CandidateN = ( KinePart* )MCTruthEvent -> GetKineParts() -> At( k );
-					cout  << CandidateN -> GetParticleName() << CandidateN -> GetPDGcode() << " " << endl;
+					cout  << CandidateN -> GetParticleName() << CandidateN -> GetPDGcode() << " ";
 				}
 				if( i == 1 && true_particle->position_start[2] > 101000)
 				{
+					cout << endl;
 					if ( TrueCandidate -> GetPDGcode() == -13) //If the kaon decays straight into a muon, do this shit.
 					{
 						FillHisto( "TrueMomentumHist",  true_particle->momentum.Mag() / 1000. );
@@ -710,7 +711,6 @@ void spectro::Process( int iEvent )
 			}
 		}
 	}
-//Greg
 }
 
 void spectro::PostProcess()
