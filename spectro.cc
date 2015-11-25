@@ -349,6 +349,11 @@ void spectro::InitHist()
     h51 -> GetYaxis() -> SetTitle( "mm" );
     BookHisto( h51 );
 
+    THD1* h52 = new THD1("MissingMass", "Missing Mass Squared", NumberOfBins, 0, 0);
+    h52 -> GetXaxis() -> SetTitle( "Missing Mass Squared" );
+    h52 -> GetYaxis() -> SetTitle( "Number of Entries" );
+    BookHisto( h52 );
+
 /*
     TH1D* h14 = new TH1D( "TrueMuonxMomentumHist", "True Muon x Momentum", NumberOfBins, 0, 0 );
     h14 -> GetXaxis() -> SetTitle( "Momentum MeV" );
@@ -540,6 +545,11 @@ void spectro::Process( int iEvent )
 				FillHisto( "EnergyVsPolar", p->momentum.Theta(), p->momentum.Mag() / 1000. );
 				FillHisto( "TranverseEnergyVsAzimuthal", p->momentum.Phi(), p->momentum.Perp() / 1000. );
 
+                KaonMass = 493.667;
+                double KaonMomentum = 75e9 - KaonMass;
+                double MissingMass = KaonMomentum - p->momentum.Mag();
+                double MissingMass2 = MissingMass*MissingMass;
+
 				if ( CheckIfEventCanBeMatchedToBeam == 1 )
 				{
 					FillHisto( "ClosestPointFromBeamAxis", ClosestPointFromBeamAxis.Mag() / 1000. );
@@ -578,11 +588,6 @@ void spectro::Process( int iEvent )
 			kaon->time_start = KaonCandidate -> GetTime1();
 		}
 	}
-
-	KaonMass = 493.667;
-	double KaonMomentum = 75e9 - KaonMass;
-	double MissingMass = KaonMomentum - p->momentum.Mag();
-
 
 
 /*
@@ -724,11 +729,6 @@ void spectro::Process( int iEvent )
 			}
 		}
 	}
-        //FillHisto( "TrueMuonxMomentumHist", TrueMuonFourMomentum(0) );
-        //FillHisto( "TrueMuonyMomentumHist", TrueMuonFourMomentum(1) );
-        //FillHisto( "TrueMuonzMomentumHist", TrueMuonFourMomentum(2) / 1000. );
-	//FillHisto( "TrueMuonEnergyHist", TrueMuonFourMomentum(3) / 1000. );
-
 }
 
 void spectro::PostProcess()
