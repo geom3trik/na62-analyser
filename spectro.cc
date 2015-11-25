@@ -534,9 +534,21 @@ void spectro::Process( int iEvent )
 				FillHisto( "EnergyVsPolar", p->momentum.Theta(), p->momentum.Mag() / 1000. );
 				FillHisto( "TranverseEnergyVsAzimuthal", p->momentum.Phi(), p->momentum.Perp() / 1000. );
 
+
 				double KaonMass = 493.667;
-				double KaonMomentum = 75e9 - KaonMass;
-				double MissingMass = KaonMomentum - p->momentum.Mag();
+				double KaonEnergy = sqrt((75e3*75e3) + (KaonMass*KaonMass));
+				TLorentzVector KaonMomentum;
+				KaonMomentum[2] = 75e3;
+				KaonMomentum[3] = KaonEnergy;
+				KaonMomentum.RotateY(BeamAngleFromZAxis);
+
+				double MuonMass = 105.6583715;
+				double MuonEnergy = sqrt((p->momentum.Mag2()) + (MuonMass*MuonMass));
+				TLorentzVector MuonMomentum;
+				MuonMomentum.SetVect(p->momentum);
+				MuonMomentum[3] = MuonEnergy;
+
+				double MissingMass = KaonMomentum.Mag() - p->momentum.Mag();
 				double MissingMass2 = MissingMass*MissingMass;
 
                 FillHisto("MissingMass", MissingMass2);
