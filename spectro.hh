@@ -83,7 +83,8 @@ class spectro : public NA62Analysis::Analyzer
 	protected:
         beam b;
         //Array of events
-        std::vector<event*> events;
+        std::vector<event*> reco_events;
+        std::vector<event*> true_events;
 
 
 };
