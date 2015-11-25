@@ -428,7 +428,7 @@ void spectro::Process( int iEvent )
 {
     //Add event to list of events
     event* reco_event = new event();
-    reco_events.push_back(new_event);
+    reco_events.push_back(reco_event);
 
     event* true_event = new event();
     true_events.push_back(true_event);
