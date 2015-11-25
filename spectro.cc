@@ -653,14 +653,14 @@ void spectro::Process( int iEvent )
 			//TrueParticleStartingThreePosition = TrueParticleStartingFourPosition.Vect();
 			//TrueParticleEndingFourPosition = TrueCandidate -> GetEndPos();
 			//TrueParticleEndingThreePosition = TrueParticleEndingFourPosition.Vect();
-			true_particle->momentum = TrueCandidate -> GetMomAtCheckPoint( 2 ).Vect();
+			true_particle->momentum = TrueCandidate -> GetMomAtCheckPoint( -1 ).Vect();
 			true_particle->momentum.RotateY(BeamAngleFromZAxis);
 			true_particle->position_start = TrueCandidate -> GetProdPos().Vect();
 			true_particle->position_end = TrueCandidate -> GetEndPos().Vect();
 			if ( i == 0 )
 				FillHisto( "KaonEndingPosition",true_particle->position_end[2] / 1000., true_particle->position_end[0] );
 			FillHisto( "ParticleProductionPosition",true_particle->position_start[2] / 1000., true_particle->position_start[0] );
-			if ( i == 1 && true_particle->momentum.Mag() != 0 && TrueCandidate -> GetPDGcode() == -13 && abs(true_particle->momentum[0]) > 250 )
+			if ( i == 1 && true_particle->momentum.Mag() != 0 && TrueCandidate -> GetPDGcode() == -13 && abs(true_particle->momentum.Theta()) > 0.00 )
 			{
 				cout    << true_particle->position_start[0] << " "
                         << true_particle->position_start[1] << " "
