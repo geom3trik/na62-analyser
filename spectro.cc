@@ -328,6 +328,27 @@ void spectro::InitHist()
     h47 -> GetYaxis() -> SetTitle( "mm" );
     BookHisto( h47 );
 
+    TH1D* h48 = new TH1D( "TrueProuductionPositionx", " MuonProductionPointx", NumberOfBins, 0, 0 );
+    h48 -> GetXaxis() -> SetTitle( "m" );
+    h48 -> GetYaxis() -> SetTitle( "Number of Entries" );
+    BookHisto( h48 );
+
+    TH1D* h49 = new TH1D( "TrueProuductionPositiony", " MuonProductionPointy", NumberOfBins, 0, 0 );
+    h49 -> GetXaxis() -> SetTitle( "m" );
+    h49 -> GetYaxis() -> SetTitle( "Number of Entries" );
+    BookHisto( h49 );
+
+    TH1D* h50 = new TH1D( "TrueProuductionPositionz", " MuonProductionPointz", NumberOfBins, 0, 0 );
+    h50 -> GetXaxis() -> SetTitle( "m" );
+    h50 -> GetYaxis() -> SetTitle( "Number of Entries" );
+    BookHisto( h50 );
+
+
+    TH2D* h51 = new TH2D( "TrueProuductionPosition", "MuonProductionPoint", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
+    h51 -> GetXaxis() -> SetTitle( "m" );
+    h51 -> GetYaxis() -> SetTitle( "mm" );
+    BookHisto( h51 );
+
 /*
     TH1D* h14 = new TH1D( "TrueMuonxMomentumHist", "True Muon x Momentum", NumberOfBins, 0, 0 );
     h14 -> GetXaxis() -> SetTitle( "Momentum MeV" );
@@ -680,6 +701,7 @@ void spectro::Process( int iEvent )
 		}
 	}
 */
+	cout << "TESTING";
  	Event *MCTruthEvent = GetMCEvent();
 	if ( MCTruthEvent -> GetNKineParts() >= 3 )
 	{
@@ -711,7 +733,7 @@ void spectro::Process( int iEvent )
 				}
 
 
-				if( i == 1 )
+				if( i == 1 && TrueParticleStartingThreePosition( 2 ) > 101000 )
 				{
 					if ( TrueCandidate -> GetPDGcode() == -13) //If the kaon decays straight into a muon, do this shit.
 					{
@@ -736,6 +758,10 @@ void spectro::Process( int iEvent )
 						FillHisto( "CompareTrueEnergyVsAzimuthal", ParticleTrueThreeMomentum.Phi(), ParticleTrueThreeMomentum.Mag() / 1000. );
 						FillHisto( "CompareTrueEnergyVsPolar", ParticleTrueThreeMomentum.Theta(), ParticleTrueThreeMomentum.Mag() / 1000. );
 						FillHisto( "CompareTrueTranverseEnergyVsAzimuthal", ParticleTrueThreeMomentum.Phi(), ParticleTrueThreeMomentum.Perp() / 1000. );
+						FillHisto( "TrueProuductionPositionx", TrueParticleStartingThreePosition(0) );
+						FillHisto( "TrueProuductionPositiony", TrueParticleStartingThreePosition(1) );
+						FillHisto( "TrueProuductionPositionz", TrueParticleStartingThreePosition(2) / 1000. );
+						FillHisto( "TrueProuductionPosition", TrueParticleStartingThreePosition(2) / 1000., TrueParticleStartingThreePosition(0) ); 						
 					}
 				}
 			}
