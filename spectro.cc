@@ -579,6 +579,12 @@ void spectro::Process( int iEvent )
 		}
 	}
 
+	KaonMass = 493.667;
+	double KaonMomentum = 75e9 - KaonMass;
+	double MissingMass = KaonMomentum - p->momentum.Mag();
+
+
+
 /*
 	TVector3 MuonThreePosition, MuonMomentum, KaonThreePosition, KaonMomentum, ClosestPointOfMuon, ClosestPointOfKaon, ClosestDistanceFromMuonToKaon;
 	TLorentzVector ClosestSpaceTimePointOfMuon, ClosestSpaceTimePointOfKaon;
@@ -685,37 +691,7 @@ void spectro::Process( int iEvent )
 					cout  << CandidateN -> GetParticleName() << CandidateN -> GetPDGcode() << " " << endl;
 				}
 
-
-				if( i == 1 && TrueParticleStartingThreePosition( 2 ) > 101000 )
-				{
-					if ( TrueCandidate -> GetPDGcode() == -13) //If the kaon decays straight into a muon, do this shit.
-					{
-						cout << endl;
-						FillHisto( "TrueMomentumHist",  ParticleTrueThreeMomentum.Mag() / 1000. );
-						FillHisto( "TruexMomentumHist", ParticleTrueThreeMomentum(0) / 1000. );
-						FillHisto( "TrueyMomentumHist", ParticleTrueThreeMomentum(1) / 1000. );
-						FillHisto( "TruezMomentumHist", ParticleTrueThreeMomentum(2) / 1000. );
-						FillHisto( "TrueTransverseMomentumHist",  ParticleTrueThreeMomentum.Perp() );
-						FillHisto( "TrueAzimuthalMomentumHist", ParticleTrueThreeMomentum.Phi() );
-						FillHisto( "TruePolarMomentumHist", ParticleTrueThreeMomentum.Theta() );
-						FillHisto( "TrueEnergyVsAzimuthal", ParticleTrueThreeMomentum.Phi(), ParticleTrueThreeMomentum.Mag() / 1000. );
-						FillHisto( "TrueEnergyVsPolar", ParticleTrueThreeMomentum.Theta(), ParticleTrueThreeMomentum.Mag() / 1000. );
-						FillHisto( "TrueTranverseEnergyVsAzimuthal", ParticleTrueThreeMomentum.Phi(), ParticleTrueThreeMomentum.Perp() / 1000. );
-						FillHisto( "CompareTrueMomentumHist",  ParticleTrueThreeMomentum.Mag() / 1000. );
-						FillHisto( "CompareTruexMomentumHist", ParticleTrueThreeMomentum(0) / 1000. );
-						FillHisto( "CompareTrueyMomentumHist", ParticleTrueThreeMomentum(1) / 1000. );
-						FillHisto( "CompareTruezMomentumHist", ParticleTrueThreeMomentum(2) / 1000. );
-						FillHisto( "CompareTrueTransverseMomentumHist",  ParticleTrueThreeMomentum.Perp() );
-						FillHisto( "CompareTrueAzimuthalMomentumHist", ParticleTrueThreeMomentum.Phi() );
-						FillHisto( "CompareTruePolarMomentumHist", ParticleTrueThreeMomentum.Theta() );
-						FillHisto( "CompareTrueEnergyVsAzimuthal", ParticleTrueThreeMomentum.Phi(), ParticleTrueThreeMomentum.Mag() / 1000. );
-						FillHisto( "CompareTrueEnergyVsPolar", ParticleTrueThreeMomentum.Theta(), ParticleTrueThreeMomentum.Mag() / 1000. );
-						FillHisto( "CompareTrueTranverseEnergyVsAzimuthal", ParticleTrueThreeMomentum.Phi(), ParticleTrueThreeMomentum.Perp() / 1000. );
-						FillHisto( "TrueProuductionPositionx", TrueParticleStartingThreePosition(0) );
-						FillHisto( "TrueProuductionPositiony", TrueParticleStartingThreePosition(1) );
-						FillHisto( "TrueProuductionPositionz", TrueParticleStartingThreePosition(2) / 1000. );
-						FillHisto( "TrueProuductionPosition", TrueParticleStartingThreePosition(2) / 1000., TrueParticleStartingThreePosition(0) ); 						
-				if( i == 1 )
+				if( i == 1 && true_particle->position_start[2] > 101000)
 				{
 					if ( TrueCandidate -> GetPDGcode() == -13) //If the kaon decays straight into a muon, do this shit.
 					{
@@ -739,6 +715,10 @@ void spectro::Process( int iEvent )
 						FillHisto( "CompareTrueEnergyVsAzimuthal", true_particle->momentum.Phi(), true_particle->momentum.Mag() / 1000. );
 						FillHisto( "CompareTrueEnergyVsPolar", true_particle->momentum.Theta(), true_particle->momentum.Mag() / 1000. );
 						FillHisto( "CompareTrueTranverseEnergyVsAzimuthal", true_particle->momentum.Phi(), true_particle->momentum.Perp() / 1000. );
+                        FillHisto( "TrueProuductionPositionx", true_particle->position_start[0]);
+						FillHisto( "TrueProuductionPositiony", true_particle->position_start[1]);
+						FillHisto( "TrueProuductionPositionz", true_particle->position_start[2]/ 1000. );
+						FillHisto( "TrueProuductionPosition", true_particle->position_start[2] / 1000., true_particle->position_start[0] );
 					}
 				}
 			}
