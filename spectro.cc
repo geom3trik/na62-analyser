@@ -558,7 +558,7 @@ void spectro::Process( int iEvent )
 		}
 	}
 	TRecoGigaTrackerEvent *GTKEvent = ( TRecoGigaTrackerEvent* )GetEvent( "GigaTracker" );
-	//cout << "GTKEVENTNUMBER:" << GTKEvent -> GetNCandidates() << " " << "SPECTROMETEREVENTNUMBER:" << SpectrometerEvent -> GetNCandidates() << " ";
+	cout << "GTKEVENTNUMBER:" << GTKEvent -> GetNCandidates() << " " << "SPECTROMETEREVENTNUMBER:" << SpectrometerEvent -> GetNCandidates() << " ";
 	//FOR SOME REASON  GTKEvent -> GetNCandidates() ALWAYS RETURNS 0 //
 	if( GTKEvent -> GetNCandidates() >= 1 ) //Loop through every distinguishable detected event
 	{
@@ -653,14 +653,14 @@ void spectro::Process( int iEvent )
 			//TrueParticleStartingThreePosition = TrueParticleStartingFourPosition.Vect();
 			//TrueParticleEndingFourPosition = TrueCandidate -> GetEndPos();
 			//TrueParticleEndingThreePosition = TrueParticleEndingFourPosition.Vect();
-			true_particle->momentum = TrueCandidate -> GetMomAtCheckPoint( -1 ).Vect();
+			true_particle->momentum = TrueCandidate -> GetMomAtCheckPoint( 2 ).Vect();
 			true_particle->momentum.RotateY(BeamAngleFromZAxis);
 			true_particle->position_start = TrueCandidate -> GetProdPos().Vect();
 			true_particle->position_end = TrueCandidate -> GetEndPos().Vect();
 			if ( i == 0 )
 				FillHisto( "KaonEndingPosition",true_particle->position_end[2] / 1000., true_particle->position_end[0] );
 			FillHisto( "ParticleProductionPosition",true_particle->position_start[2] / 1000., true_particle->position_start[0] );
-			if ( true_particle->momentum.Mag() != 0 )
+			if ( i == 1 && true_particle->momentum.Mag() != 0 && TrueCandidate -> GetPDGcode() == -13 )
 			{
 				cout    << true_particle->position_start[0] << " "
                         << true_particle->position_start[1] << " "
