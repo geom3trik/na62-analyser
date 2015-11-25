@@ -349,7 +349,7 @@ void spectro::InitHist()
     h51 -> GetYaxis() -> SetTitle( "mm" );
     BookHisto( h51 );
 
-    THD1* h52 = new THD1("MissingMass", "Missing Mass Squared", NumberOfBins, 0, 0);
+    TH1D* h52 = new TH1D("MissingMass", "Missing Mass Squared", NumberOfBins, 0, 0);
     h52 -> GetXaxis() -> SetTitle( "Missing Mass Squared" );
     h52 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h52 );
@@ -494,31 +494,36 @@ void spectro::Process( int iEvent )
 			//BeamAxisDirection = { 0, 0, 1 };
 			//BeamAxisDirection.RotateY( - BeamAngleFromZAxis );	//Rotate beam so it points along the dirction it should
 			//BeamPointFiducialEntry = { 0, 0, 102000 };
-			MinimumDistanceToBeamAxisBeforeFiducial = ( ( b.fiducial_entry - p->position_start ).Dot( b.beam_axis.Cross( p->momentum ) ) ) / ( b.beam_axis.Cross( p->momentum ) ).Mag() ;
-			ClosestPointFromBeamAxisBeforeFiducial = ClosestPointOnVectorToOtherVector( p->position_start, p->momentum, b.fiducial_entry, b.beam_axis );
-			ClosestPointOfBeamApproachedBeforeFiducial = ClosestPointOnVectorToOtherVector( b.fiducial_entry, b.beam_axis, p->position_start, p->momentum );
-			DistanceToBeamAxisBeforeFiducial = -ClosestPointOfBeamApproachedBeforeFiducial + ClosestPointFromBeamAxisBeforeFiducial;
+
+            MinimumDistanceToBeamAxisBeforeFiducial = ( ( b.fiducial_entry - p->position_start ).Dot( b.beam_axis.Cross( p->momentum ) ) ) / ( b.beam_axis.Cross( p->momentum ) ).Mag() ;
+            ClosestPointFromBeamAxisBeforeFiducial = ClosestPointOnVectorToOtherVector( p->position_start, p->momentum, b.fiducial_entry, b.beam_axis );
+            ClosestPointOfBeamApproachedBeforeFiducial = ClosestPointOnVectorToOtherVector( b.fiducial_entry, b.beam_axis, p->position_start, p->momentum );
+            DistanceToBeamAxisBeforeFiducial = -ClosestPointOfBeamApproachedBeforeFiducial + ClosestPointFromBeamAxisBeforeFiducial;
+
 			MinimumDistanceToBeamAxisAfterFiducial = ( ( b.fiducial_entry - p->position_start ).Dot( b.beam_axis_rotated.Cross( p->momentum ) ) ) / ( b.beam_axis_rotated.Cross( p->momentum ) ).Mag() ;
 			ClosestPointFromBeamAxisAfterFiducial = ClosestPointOnVectorToOtherVector( p->position_start, p->momentum, b.fiducial_entry, b.beam_axis_rotated );
 			ClosestPointOfBeamApproachedAfterFiducial = ClosestPointOnVectorToOtherVector( b.fiducial_entry, b.beam_axis_rotated, p->position_start, p->momentum );
 			DistanceToBeamAxisAfterFiducial = -ClosestPointFromBeamAxisAfterFiducial + ClosestPointOfBeamApproachedAfterFiducial;
-			if ( ClosestPointFromBeamAxisBeforeFiducial( 2 ) <= 102000 && ( ClosestPointFromBeamAxisAfterFiducial( 2 ) < 102000 || abs( DistanceToBeamAxisBeforeFiducial.Mag() ) < abs ( DistanceToBeamAxisAfterFiducial.Mag() ) ) )
+
+            if ( ClosestPointFromBeamAxisBeforeFiducial( 2 ) <= 102000 && ( ClosestPointFromBeamAxisAfterFiducial( 2 ) < 102000 || abs( DistanceToBeamAxisBeforeFiducial.Mag() ) < abs ( DistanceToBeamAxisAfterFiducial.Mag() ) ) )
 			{
-                		ClosestPointFromBeamAxis = ClosestPointFromBeamAxisBeforeFiducial;
-                		ClosestPointOfBeamApproached = ClosestPointOfBeamApproachedBeforeFiducial;
+				ClosestPointFromBeamAxis = ClosestPointFromBeamAxisBeforeFiducial;
+				ClosestPointOfBeamApproached = ClosestPointOfBeamApproachedBeforeFiducial;
 				DistanceToBeamAxis = DistanceToBeamAxisBeforeFiducial;
-                		MinimumDistanceToBeamAxis = MinimumDistanceToBeamAxisBeforeFiducial;
-                		CheckIfEventCanBeMatchedToBeam = 1;
-			}
-			else if ( ClosestPointFromBeamAxisAfterFiducial( 2 ) >= 102000 )
-			{
-				ClosestPointFromBeamAxis = ClosestPointFromBeamAxisAfterFiducial;
-				ClosestPointOfBeamApproached = ClosestPointOfBeamApproachedAfterFiducial;
-				DistanceToBeamAxis = DistanceToBeamAxisAfterFiducial;
-				MinimumDistanceToBeamAxis = MinimumDistanceToBeamAxisAfterFiducial;
+				MinimumDistanceToBeamAxis = MinimumDistanceToBeamAxisBeforeFiducial;
 				CheckIfEventCanBeMatchedToBeam = 1;
-			}
-            		/*Remove events that aren't a single positive particle being detected in the spectrometer (as this is not k->munu), Charge == 1 gets rid of 29 events, then && Candidates == 1 gets rid of another 12  */
+            }
+
+            else if ( ClosestPointFromBeamAxisAfterFiducial( 2 ) >= 102000 )
+            {
+                ClosestPointFromBeamAxis = ClosestPointFromBeamAxisAfterFiducial;
+                ClosestPointOfBeamApproached = ClosestPointOfBeamApproachedAfterFiducial;
+                DistanceToBeamAxis = DistanceToBeamAxisAfterFiducial;
+                MinimumDistanceToBeamAxis = MinimumDistanceToBeamAxisAfterFiducial;
+                CheckIfEventCanBeMatchedToBeam = 1;
+            }
+
+            /*Remove events that aren't a single positive particle being detected in the spectrometer (as this is not k->munu), Charge == 1 gets rid of 29 events, then && Candidates == 1 gets rid of another 12  */
 			if ( p->charge == 1 && SpectrometerEvent->GetNCandidates() == 1 )
 			{
 				p->momentum.RotateY(BeamAngleFromZAxis);
@@ -532,10 +537,14 @@ void spectro::Process( int iEvent )
 				FillHisto( "EnergyVsAzimuthal", p->momentum.Phi(), p->momentum.Mag() / 1000. );
 				FillHisto( "EnergyVsPolar", p->momentum.Theta(), p->momentum.Mag() / 1000. );
 				FillHisto( "TranverseEnergyVsAzimuthal", p->momentum.Phi(), p->momentum.Perp() / 1000. );
-				KaonMass = 493.667;
+
+				double KaonMass = 493.667;
 				double KaonMomentum = 75e9 - KaonMass;
 				double MissingMass = KaonMomentum - p->momentum.Mag();
 				double MissingMass2 = MissingMass*MissingMass;
+
+                FillHisto("MissingMass", MissingMass2);
+
 				if ( CheckIfEventCanBeMatchedToBeam == 1 )
 				{
 					FillHisto( "ClosestPointFromBeamAxis", ClosestPointFromBeamAxis.Mag() / 1000. );
@@ -658,14 +667,15 @@ void spectro::Process( int iEvent )
 			if ( true_particle->momentum.Mag() != 0 )
 			{
 				cout    << true_particle->position_start[0] << " "
-					<< true_particle->position_start[1] << " "
-					<< true_particle->position_start[2] << " "
-					<< true_particle->momentum.Mag() << " "
-					<< true_particle->position_end[0] << " "
-					<< true_particle->position_end[1] << " "
-					<< true_particle->position_end[2] << " "
-					<< endl
-					<< MCTruthEvent -> GetNKineParts();
+                        << true_particle->position_start[1] << " "
+						<< true_particle->position_start[2] << " "
+                        << true_particle->momentum.Mag() << " "
+                        << true_particle->position_end[0] << " "
+                        << true_particle->position_end[1] << " "
+                        << true_particle->position_end[2] << " "
+                        << endl
+                        << MCTruthEvent -> GetNKineParts();
+
 				for ( int k = 0; k < MCTruthEvent -> GetNKineParts(); k++ )
 				{
 					KinePart *CandidateN = ( KinePart* )MCTruthEvent -> GetKineParts() -> At( k );
