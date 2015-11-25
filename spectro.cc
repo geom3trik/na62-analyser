@@ -14,9 +14,6 @@ using namespace std;
 using namespace NA62Analysis;
 using namespace NA62Constants;
 
-
-
-
 spectro::spectro( Core::BaseAnalysis *ba ) : Analyzer( ba, "spectro" )
 {
 	RequestTree( "GigaTracker", new TRecoGigaTrackerEvent );
@@ -343,7 +340,6 @@ void spectro::InitHist()
     h50 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h50 );
 
-
     TH2D* h51 = new TH2D( "TrueProuductionPosition", "MuonProductionPoint", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
     h51 -> GetXaxis() -> SetTitle( "m" );
     h51 -> GetYaxis() -> SetTitle( "mm" );
@@ -657,7 +653,7 @@ void spectro::Process( int iEvent )
 			//TrueParticleStartingThreePosition = TrueParticleStartingFourPosition.Vect();
 			//TrueParticleEndingFourPosition = TrueCandidate -> GetEndPos();
 			//TrueParticleEndingThreePosition = TrueParticleEndingFourPosition.Vect();
-			true_particle->momentum = TrueCandidate -> GetMomAtCheckPoint( 2 ).Vect();
+			true_particle->momentum = TrueCandidate -> GetMomAtCheckPoint( -1 ).Vect();
 			true_particle->momentum.RotateY(BeamAngleFromZAxis);
 			true_particle->position_start = TrueCandidate -> GetProdPos().Vect();
 			true_particle->position_end = TrueCandidate -> GetEndPos().Vect();
@@ -705,7 +701,7 @@ void spectro::Process( int iEvent )
 						FillHisto( "CompareTrueEnergyVsAzimuthal", true_particle->momentum.Phi(), true_particle->momentum.Mag() / 1000. );
 						FillHisto( "CompareTrueEnergyVsPolar", true_particle->momentum.Theta(), true_particle->momentum.Mag() / 1000. );
 						FillHisto( "CompareTrueTranverseEnergyVsAzimuthal", true_particle->momentum.Phi(), true_particle->momentum.Perp() / 1000. );
-                        			FillHisto( "TrueProuductionPositionx", true_particle->position_start[0]);
+                        FillHisto( "TrueProuductionPositionx", true_particle->position_start[0]);
 						FillHisto( "TrueProuductionPositiony", true_particle->position_start[1]);
 						FillHisto( "TrueProuductionPositionz", true_particle->position_start[2]/ 1000. );
 						FillHisto( "TrueProuductionPosition", true_particle->position_start[2] / 1000., true_particle->position_start[0] );
@@ -714,6 +710,7 @@ void spectro::Process( int iEvent )
 			}
 		}
 	}
+//Greg
 }
 
 void spectro::PostProcess()
