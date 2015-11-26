@@ -350,7 +350,7 @@ void spectro::InitHist()
     h52 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h52 );
 
-	TH1D* h53 = new TH1D("TrueMissingMass", "True Missing Mass Squared", NumberOfBins, 0, 0);
+	TH1D* h53 = new TH1D("TrueMissingMass", "True Missing Mass Squared", 1000, 0, 0);
     h53 -> GetXaxis() -> SetTitle( "True Missing Mass Squared" );
     h53 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h53 );
@@ -575,7 +575,7 @@ void spectro::Process( int iEvent )
 		}
 	}
 	TRecoGigaTrackerEvent *GTKEvent = ( TRecoGigaTrackerEvent* )GetEvent( "GigaTracker" );
-	cout << "GTKEVENTNUMBER:" << GTKEvent -> GetNCandidates() << " " << "SPECTROMETEREVENTNUMBER:" << SpectrometerEvent -> GetNCandidates() << " ";
+	//cout << "GTKEVENTNUMBER:" << GTKEvent -> GetNCandidates() << " " << "SPECTROMETEREVENTNUMBER:" << SpectrometerEvent -> GetNCandidates() << " ";
 	//FOR SOME REASON  GTKEvent -> GetNCandidates() ALWAYS RETURNS 0 //
 	if( GTKEvent -> GetNCandidates() >= 1 ) //Loop through every distinguishable detected event
 	{
@@ -653,7 +653,6 @@ void spectro::Process( int iEvent )
 		}
 	}
 */
-	cout << "TESTING";
 	Event *MCTruthEvent = GetMCEvent();
 	if ( MCTruthEvent -> GetNKineParts() >= 3 )
 	{
@@ -683,10 +682,11 @@ void spectro::Process( int iEvent )
 			if ( i == 0 )
 				FillHisto( "KaonEndingPosition",true_particle->position_end[2] / 1000., true_particle->position_end[0] );
 			FillHisto( "ParticleProductionPosition",true_particle->position_start[2] / 1000., true_particle->position_start[0] );
-			if ( i == 1 && true_particle->momentum.Mag() != 0 && TrueCandidate -> GetPDGcode() == -13 && abs(true_particle->momentum.Theta()) > 0.016 )
+			if ( i == 1 && true_particle->momentum.Mag() != 0 && TrueCandidate -> GetPDGcode() == -13 && abs(true_particle->momentum.Theta()) > 0 )
 			{
 
-				TLorentzVector TrueMuonMomentum = TrueCandidate->GetMomAtCheckPoint(2);
+				TLorentzVector TrueMuonMomentum = TrueCandidate->GetInitial4Momentum();
+				//TLorentzVector TrueMuonMomentum = TrueCandidate->GetMomAtCheckPoint(2);
 				TLorentzVector TrueMissingMass = TrueKaonMomentum - TrueMuonMomentum;
 				double TrueMissingMass2 = TrueMissingMass.Mag2();
 
