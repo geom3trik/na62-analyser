@@ -350,6 +350,11 @@ void spectro::InitHist()
     h52 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h52 );
 
+	TH1D* h53 = new TH1D("TrueMissingMass", "True Missing Mass Squared", NumberOfBins, 0, 0);
+    h53 -> GetXaxis() -> SetTitle( "True Missing Mass Squared" );
+    h53 -> GetYaxis() -> SetTitle( "Number of Entries" );
+    BookHisto( h53 );
+
 /*
     TH1D* h14 = new TH1D( "TrueMuonxMomentumHist", "True Muon x Momentum", NumberOfBins, 0, 0 );
     h14 -> GetXaxis() -> SetTitle( "Momentum MeV" );
@@ -540,7 +545,7 @@ void spectro::Process( int iEvent )
 				TLorentzVector KaonMomentum;
 				KaonMomentum[2] = 75e3;
 				KaonMomentum[3] = KaonEnergy;
-				KaonMomentum.RotateY(BeamAngleFromZAxis);
+				KaonMomentum.RotateY(-BeamAngleFromZAxis);
 
 				double MuonMass = 105.6583715;
 				double MuonEnergy = sqrt((p->momentum.Mag2()) + (MuonMass*MuonMass));
@@ -548,8 +553,8 @@ void spectro::Process( int iEvent )
 				MuonMomentum.SetVect(p->momentum);
 				MuonMomentum[3] = MuonEnergy;
 
-				double MissingMass = KaonMomentum.Mag() - p->momentum.Mag();
-				double MissingMass2 = MissingMass*MissingMass;
+				TLorentzVector MissingMass = KaonMomentum - MuonMomentum;
+				double MissingMass2 = MissingMass.Mag2();
 
                 FillHisto("MissingMass", MissingMass2);
 
@@ -657,6 +662,12 @@ void spectro::Process( int iEvent )
 			particle* true_particle = new particle();
 			true_event->add_particle(true_particle);
 			KinePart *TrueCandidate = ( KinePart* )MCTruthEvent -> GetKineParts() -> At( i );
+
+			KinePart *KaonCandidate = ( KinePart* )MCTruthEvent -> GetKineParts() -> At( 0 );
+			TLorentzVector TrueKaonMomentum = KaonCandidate->GetFinal4Momentum();
+			//KaonMomentum.RotateY(-BeamAngleFromZAxis);
+
+
 			//TrueMuonFourMomentum = TrueCandidate -> GetMomSpectrometerEntry();
 			//TrueFourMomentum = TrueCandidate -> GetMomAtCheckPoint( 2 );
 			//ParticleTrueThreeMomentum = TrueFourMomentum.Vect();
@@ -674,6 +685,13 @@ void spectro::Process( int iEvent )
 			FillHisto( "ParticleProductionPosition",true_particle->position_start[2] / 1000., true_particle->position_start[0] );
 			if ( i == 1 && true_particle->momentum.Mag() != 0 && TrueCandidate -> GetPDGcode() == -13 && abs(true_particle->momentum.Theta()) > 0.00 )
 			{
+
+				TLorentzVector TrueMuonMomentum = TrueCandidate->GetMomAtCheckPoint(2);
+				TLorentzVector TrueMissingMass = TrueKaonMomentum - TrueMuonMomentum;
+				double TrueMissingMass2 = TrueMissingMass.Mag2();
+
+				FillHisto("TrueMissingMass", TrueMissingMass2);
+
 				cout    << true_particle->position_start[0] << " "
                         << true_particle->position_start[1] << " "
 						<< true_particle->position_start[2] << " "
