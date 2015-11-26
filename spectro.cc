@@ -676,7 +676,7 @@ void spectro::Process( int iEvent )
 			//TrueParticleStartingThreePosition = TrueParticleStartingFourPosition.Vect();
 			//TrueParticleEndingFourPosition = TrueCandidate -> GetEndPos();
 			//TrueParticleEndingThreePosition = TrueParticleEndingFourPosition.Vect();
-			true_particle->momentum = TrueCandidate -> GetMomAtCheckPoint( -1 ).Vect();
+			true_particle->momentum = TrueCandidate -> GetMomAtCheckPoint( 2 ).Vect();
 			true_particle->momentum.RotateY(BeamAngleFromZAxis);
 			true_particle->position_start = TrueCandidate -> GetProdPos().Vect();
 			true_particle->position_end = TrueCandidate -> GetEndPos().Vect();
