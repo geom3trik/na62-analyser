@@ -22,15 +22,16 @@ class particle
     public:
 
         particle()
-          : name("unknown"), PDGcode(0), charge(0), time_start(0)
+          : name("unknown"), PDGcode(0), charge(0), time_start(0),kmunu(0),plot_beam_distance(0),minimum_beam_distance(0),plot_momentum(0),plot_true_kmunu(0)
         {
 
         }
 
         std::string name;
         int PDGcode;
-        TVector3 position_start, position_end, momentum;
-        double charge, time_start;
+        TVector3 position_start, position_end, momentum, origin,beam_distance;
+        double charge, time_start,minimum_beam_distance;
+        bool kmunu, plot_beam_distance,plot_momentum,plot_true_kmunu;
 };
 
 class event
