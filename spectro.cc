@@ -481,8 +481,8 @@ void spectro::Process( int iEvent )
 	event* true_event = new event();
 	true_events.push_back(true_event);
 
-	if( fMCSimple.fStatus == MCSimple::kMissing ){printIncompleteMCWarning( iEvent );return;}
-	if( fMCSimple.fStatus == MCSimple::kEmpty ){printNoMCWarning();return;}
+	//if( fMCSimple.fStatus == MCSimple::kMissing ){printIncompleteMCWarning( iEvent );return;}
+	//if( fMCSimple.fStatus == MCSimple::kEmpty ){printNoMCWarning();return;}
 
 	TRecoSpectrometerEvent *SpectrometerEvent = ( TRecoSpectrometerEvent* )GetEvent( "Spectrometer" );
 	TVector3    	ParticleTrueThreeMomentum, TrueParticleStartingThreePosition, TrueParticleEndingThreePosition,
@@ -558,10 +558,11 @@ void spectro::Process( int iEvent )
 				TLorentzVector MissingMass = KaonMomentum - MuonMomentum;
 				double MissingMass2 = MissingMass.Mag2();
 
-                FillHisto( "MissingMass", MissingMass2 / ( pow( 1000, 2 ) ) );
 
 				if ( CheckIfEventCanBeMatchedToBeam == 1 )
 				{
+                FillHisto( "MissingMass", MissingMass2 / ( pow( 1000, 2 ) ) );
+
                     p->plot_beam_distance = true;
 					if ( abs( MissingMass2 ) / ( pow( 1000, 2 ) ) < 0.1 ) //This is very likey k->munu. One detected candidate in spec, correct charge, came from beam, kinematics consistent within resolution to this process.
 					{
@@ -577,6 +578,8 @@ void spectro::Process( int iEvent )
 	TRecoGigaTrackerEvent *GTKEvent = ( TRecoGigaTrackerEvent* )GetEvent( "GigaTracker" );
 	//cout << "GTKEVENTNUMBER:" << GTKEvent -> GetNCandidates() << " " << "SPECTROMETEREVENTNUMBER:" << SpectrometerEvent -> GetNCandidates() << " ";
 	//FOR SOME REASON  GTKEvent -> GetNCandidates() ALWAYS RETURNS 0 //
+
+
 	if( GTKEvent -> GetNCandidates() >= 1 ) //Loop through every distinguishable detected event
 	{
 		for ( int k = 0; k < GTKEvent -> GetNHits(); k++)
@@ -586,7 +589,6 @@ void spectro::Process( int iEvent )
 			reco_event->add_particle(kaon);
 			TRecoGigaTrackerCandidate *KaonCandidate = ( TRecoGigaTrackerCandidate* )GTKEvent->GetCandidate( 0 );
 			KaonCandidate -> SetEvent( GTKEvent ); //THIS LINE CAUSES SEGMENTATION VIOLATION
-			cout << "IS IT HERE????";
 			//Set the properties of the particle
 			KaonFourMomentum = KaonCandidate -> GetMomentum();
 			kaon->momentum = KaonFourMomentum.Vect();
@@ -654,6 +656,7 @@ void spectro::Process( int iEvent )
 		}
 	}
 */
+/*
 	Event *MCTruthEvent = GetMCEvent();
 	if ( MCTruthEvent -> GetNKineParts() >= 3 )
 	{
@@ -696,8 +699,10 @@ void spectro::Process( int iEvent )
 					KinePart *CandidateN = ( KinePart* )MCTruthEvent -> GetKineParts() -> At( k );
 					cout  << CandidateN -> GetParticleName() << CandidateN -> GetPDGcode() << " ";
 				}
-				if( i == 1 && true_particle->position_start[2] > 101000)
+				true_particle->momentum.RotateY(BeamAngleFromZAxis);
+				if( i == 1 && true_particle->position_start[2] > 101000 && abs(true_particle->momentum[0]) <= 235 && abs(true_particle->momentum[1]) <= 235 && true_particle->momentum.Theta() <= 0.020 )
 				{
+                    true_particle->momentum.RotateY(-BeamAngleFromZAxis);
 					cout << endl;
 					if ( TrueCandidate -> GetPDGcode() == -13) //If the kaon decays straight into a muon, do this shit.
 					{
@@ -707,6 +712,7 @@ void spectro::Process( int iEvent )
 			}
 		}
 	}
+*/
 }
 
 void spectro::PostProcess()
@@ -723,38 +729,42 @@ void spectro::EndOfRunUser()
 {
 
 
-        for ( int i = 0; i < 100000; i++ )
+        for ( int i = 0; i < true_events.size(); i++ )
         {
             int NumberDetected = reco_events[i]->particles.size();
-            int TrueNumber = true_events[i]->particles.size();
-            if  ( NumberDetected == 1 &&  reco_events[i]->particles[0]->plot_beam_distance == true )
+            //int TrueNumber = true_events[i]->particles.size();
+            for ( int j = 0; j < NumberDetected;j++ )
             {
-                FillHisto( "ClosestPointFromBeamAxis", reco_events[i]->particles[0]->origin.Mag() / 1000. );
-                FillHisto( "ClosestxPointFromBeamAxis", reco_events[i]->particles[0]->origin[0] );
-                FillHisto( "ClosestyPointFromBeamAxis", reco_events[i]->particles[0]->origin[1] );
-                FillHisto( "ClosestzPointFromBeamAxis", reco_events[i]->particles[0]->origin[2] / 1000. );
-                FillHisto( "MinimumDistanceToBeamAxis", reco_events[i]->particles[0]->minimum_beam_distance );
-                FillHisto( "ClosestDistanceToBeamAxis", reco_events[i]->particles[0]->beam_distance.Mag() );
-                FillHisto( "ClosestxDistanceToBeamAxis", reco_events[i]->particles[0]->beam_distance[0] );
-                FillHisto( "ClosestyDistanceToBeamAxis", reco_events[i]->particles[0]->beam_distance[1] );
-                FillHisto( "ClosestzDistanceToBeamAxis", reco_events[i]->particles[0]->beam_distance[2] );
-                FillHisto( "DecayPoisition", reco_events[i]->particles[0]->origin[2] / 1000. , reco_events[i]->particles[0]->origin[0] );
+                if  ( NumberDetected > 0 &&  reco_events[i]->particles[j]->plot_beam_distance == true && reco_events[i]->particles[j]->kmunu == true )
+                {
+                    FillHisto( "ClosestPointFromBeamAxis", reco_events[i]->particles[j]->origin.Mag() / 1000. );
+                    FillHisto( "ClosestxPointFromBeamAxis", reco_events[i]->particles[j]->origin[0] );
+                    FillHisto( "ClosestyPointFromBeamAxis", reco_events[i]->particles[j]->origin[1] );
+                    FillHisto( "ClosestzPointFromBeamAxis", reco_events[i]->particles[j]->origin[2] / 1000. );
+                    FillHisto( "MinimumDistanceToBeamAxis", reco_events[i]->particles[j]->minimum_beam_distance );
+                    FillHisto( "ClosestDistanceToBeamAxis", reco_events[i]->particles[j]->beam_distance.Mag() );
+                    FillHisto( "ClosestxDistanceToBeamAxis", reco_events[i]->particles[j]->beam_distance[0] );
+                    FillHisto( "ClosestyDistanceToBeamAxis", reco_events[i]->particles[j]->beam_distance[1] );
+                    FillHisto( "ClosestzDistanceToBeamAxis", reco_events[i]->particles[j]->beam_distance[2] );
+                    FillHisto( "DecayPoisition", reco_events[i]->particles[j]->origin[2] / 1000. , reco_events[i]->particles[j]->origin[0] );
+                }
+                if ( NumberDetected > 0 &&  reco_events[i]->particles[j]->plot_momentum == true && reco_events[i]->particles[j]->kmunu == true )
+                {
+                    reco_events[i]->particles[0]->momentum.RotateY(BeamAngleFromZAxis); //Switch to  reference system where beam is along z axis.
+                    FillHisto( "MomentumHist",  reco_events[i]->particles[j]->momentum.Mag() / 1000. );
+                    FillHisto( "xMomentumHist", reco_events[i]->particles[j]->momentum[0] / 1000. );
+                    FillHisto( "yMomentumHist", reco_events[i]->particles[j]->momentum[1] / 1000. );
+                    FillHisto( "zMomentumHist", reco_events[i]->particles[j]->momentum[2] / 1000. );
+                    FillHisto( "TransverseMomentumHist",  reco_events[i]->particles[j]->momentum.Perp() );
+                    FillHisto( "AzimuthalMomentumHist", reco_events[i]->particles[j]->momentum.Phi() );
+                    FillHisto( "PolarMomentumHist", reco_events[i]->particles[j]->momentum.Theta() );
+                    FillHisto( "EnergyVsAzimuthal", reco_events[i]->particles[j]->momentum.Phi(), reco_events[i]->particles[j]->momentum.Mag() / 1000. );
+                    FillHisto( "EnergyVsPolar", reco_events[i]->particles[j]->momentum.Theta(), reco_events[i]->particles[j]->momentum.Mag() / 1000. );
+                    FillHisto( "TranverseEnergyVsAzimuthal", reco_events[i]->particles[j]->momentum.Phi(), reco_events[i]->particles[j]->momentum.Perp() / 1000. );
+                    reco_events[i]->particles[0]->momentum.RotateY( -BeamAngleFromZAxis ); //Switch back to standard reference frame.
+                }
             }
-            if ( NumberDetected == 1 &&  reco_events[i]->particles[0]->plot_momentum == true )
-            {
-                reco_events[i]->particles[0]->momentum.RotateY(BeamAngleFromZAxis); //Switch to  reference system where beam is along z axis.
-				FillHisto( "MomentumHist",  reco_events[i]->particles[0]->momentum.Mag() / 1000. );
-				FillHisto( "xMomentumHist", reco_events[i]->particles[0]->momentum[0] / 1000. );
-				FillHisto( "yMomentumHist", reco_events[i]->particles[0]->momentum[1] / 1000. );
-				FillHisto( "zMomentumHist", reco_events[i]->particles[0]->momentum[2] / 1000. );
-				FillHisto( "TransverseMomentumHist",  reco_events[i]->particles[0]->momentum.Perp() );
-				FillHisto( "AzimuthalMomentumHist", reco_events[i]->particles[0]->momentum.Phi() );
-				FillHisto( "PolarMomentumHist", reco_events[i]->particles[0]->momentum.Theta() );
-				FillHisto( "EnergyVsAzimuthal", reco_events[i]->particles[0]->momentum.Phi(), reco_events[i]->particles[0]->momentum.Mag() / 1000. );
-				FillHisto( "EnergyVsPolar", reco_events[i]->particles[0]->momentum.Theta(), reco_events[i]->particles[0]->momentum.Mag() / 1000. );
-				FillHisto( "TranverseEnergyVsAzimuthal", reco_events[i]->particles[0]->momentum.Phi(), reco_events[i]->particles[0]->momentum.Perp() / 1000. );
-                reco_events[i]->particles[0]->momentum.RotateY( -BeamAngleFromZAxis ); //Switch back to standard reference frame.
-            }
+            /*
             if ( TrueNumber >= 3 && true_events[i]->particles[1]->plot_true_kmunu == true )
             {
                 true_events[i]->particles[1]->momentum.RotateY(BeamAngleFromZAxis);
@@ -782,9 +792,9 @@ void spectro::EndOfRunUser()
                 FillHisto( "TrueProuductionPositiony", true_events[i]->particles[1]->position_start[1]);
                 FillHisto( "TrueProuductionPositionz", true_events[i]->particles[1]->position_start[2]/ 1000. );
                 true_events[i]->particles[1]->momentum.RotateY(-BeamAngleFromZAxis);
-
             }
-            if  ( NumberDetected == 1  )
+
+            if  ( NumberDetected == 1 && true_events[i]->particles[1]->plot_true_kmunu == true && reco_events[i]->particles[0]->plot_beam_distance == true  )
             {
                 true_events[i]->particles[1]->momentum.RotateY(BeamAngleFromZAxis);
                 reco_events[i]->particles[0]->momentum.RotateY(BeamAngleFromZAxis);
@@ -796,12 +806,52 @@ void spectro::EndOfRunUser()
                 true_events[i]->particles[1]->momentum.RotateY(-BeamAngleFromZAxis);
                 reco_events[i]->particles[0]->momentum.RotateY(-BeamAngleFromZAxis);
             }
-
+            */
         }
 
-        TH1D* h58 = h101;
-        BookHisto(h58);
-        h58->Divide(fHisto.GetHisto("MomentumHist"));
+/*
+    TH1D* h58 = new TH1D("DetectorEfficiencyMomentum", "Detector Efficiency Momentum", NumberOfBins, 0, 0 );
+    BookHisto(h58);
+    fHisto.GetHisto("MomentumHist")->Copy(*h58);
+    h58->Divide(fHisto.GetHisto("CompareTrueMomentumHist"));
+
+    TH1D* h59 = new TH1D("DetectorxEfficiencyMomentum", "Detector Efficiency xMomentum", NumberOfBins, 0, 0 );
+    BookHisto(h59);
+    fHisto.GetHisto("xMomentumHist")->Copy(*h59);
+    h59->Divide(fHisto.GetHisto("CompareTruexMomentumHist"));
+
+    TH1D* h60 = new TH1D("DetectoryEfficiencyMomentum", "Detector Efficiency yMomentum", NumberOfBins, 0, 0 );
+    BookHisto(h60);
+    fHisto.GetHisto("yMomentumHist")->Copy(*h60);
+    h60->Divide(fHisto.GetHisto("CompareTrueyMomentumHist"));
+
+    TH1D* h61 = new TH1D("DetectorzEfficiencyMomentum", "Detector Efficiency zMomentum", NumberOfBins, 0, 0 );
+    BookHisto(h61);
+    fHisto.GetHisto("zMomentumHist")->Copy(*h61);
+    h61->Divide(fHisto.GetHisto("CompareTruezMomentumHist"));
+
+
+
+    TH1D* h62 = new TH1D("Reconstructed Momentum", "Reconstructed Momentum", NumberOfBins, 0, 0 );
+    BookHisto(h62);
+    fHisto.GetHisto("MomentumHist")->Copy(*h62);
+    h62->Divide(fHisto.GetHisto("DetectorEfficiencyMomentum"));
+
+    TH1D* h63 = new TH1D("Reconstructed x Momentum", "Reconstructed x Momentum", NumberOfBins, 0, 0 );
+    BookHisto(h63);
+    fHisto.GetHisto("xMomentumHist")->Copy(*h63);
+    h63->Divide(fHisto.GetHisto("DetectorxEfficiencyMomentum"));
+
+    TH1D* h64 = new TH1D("Reconstructed y Momentum", "Reconstructed y Momentum", NumberOfBins, 0, 0 );
+    BookHisto(h64);
+    fHisto.GetHisto("yMomentumHist")->Copy(*h64);
+    h64->Divide(fHisto.GetHisto("DetectoryEfficiencyMomentum"));
+
+    TH1D* h65 = new TH1D("Reconstructed z Momentum", "Reconstructed z Momentum", NumberOfBins, 0, 0 );
+    BookHisto(h65);
+    fHisto.GetHisto("zMomentumHist")->Copy(*h65);
+    h65->Divide(fHisto.GetHisto("DetectorzEfficiencyMomentum"));
+*/
     SaveAllPlots();
 }
 
