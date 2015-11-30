@@ -564,7 +564,7 @@ void spectro::Process( int iEvent )
                 FillHisto( "MissingMass", MissingMass2 / ( pow( 1000, 2 ) ) );
 
                     p->plot_beam_distance = true;
-					if ( abs( MissingMass2 ) / ( pow( 1000, 2 ) ) < 0.1 ) //This is very likey k->munu. One detected candidate in spec, correct charge, came from beam, kinematics consistent within resolution to this process.
+					if ( abs( MissingMass2 ) / ( pow( 1000, 2 ) ) < 0.02 ) //This is very likey k->munu. One detected candidate in spec, correct charge, came from beam, kinematics consistent within resolution to this process.
 					{
                         p->name = "Muon";
                         p->PDGcode = -13;
