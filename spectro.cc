@@ -528,7 +528,7 @@ void spectro::Process( int iEvent )
 				CheckIfEventCanBeMatchedToBeam = 0;
             }
 
-            else if ( ClosestPointFromBeamAxisAfterFiducial( 2 ) >= 102000 )
+            else if ( ClosestPointFromBeamAxisAfterFiducial( 2 ) >= 102000 && ClosestPointFromBeamAxisBeforeFiducial( 2 ) <= 166000 )
             {
                 p->origin = ClosestPointFromBeamAxisAfterFiducial;
                 ClosestPointOfBeamApproached = ClosestPointOfBeamApproachedAfterFiducial;
