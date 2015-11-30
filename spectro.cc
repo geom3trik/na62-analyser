@@ -356,7 +356,27 @@ void spectro::InitHist()
     h53 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h53 );
 
-/*
+    TH1D* h54 = new TH1D("SpectrometerxMomentumResolution", "Spectrometer x Momentum Resolution", NumberOfBins, 0, 0);
+    h54 -> GetXaxis() -> SetTitle( "x Momentum MeV" );
+    h54 -> GetYaxis() -> SetTitle( "Number of Entries" );
+    BookHisto( h54 );
+
+    TH1D* h55 = new TH1D("SpectrometeryMomentumResolution", "Spectrometer y Momentum Resolution", NumberOfBins, 0, 0);
+    h55 -> GetXaxis() -> SetTitle( "y Momentum MeV" );
+    h55 -> GetYaxis() -> SetTitle( "Number of Entries" );
+    BookHisto( h55 );
+
+    TH1D* h56 = new TH1D("SpectrometerzMomentumResolution", "Spectrometer z Momentum Resolution", NumberOfBins, 0, 0);
+    h56 -> GetXaxis() -> SetTitle( "z Momentum GeV" );
+    h56 -> GetYaxis() -> SetTitle( "Number of Entries" );
+    BookHisto( h56 );
+
+    TH1D* h57 = new TH1D("SpectrometerMomentumResolution", "Spectrometer Momentum Resolution", NumberOfBins, 0, 0);
+    h57 -> GetXaxis() -> SetTitle( "Momentum GeV" );
+    h57 -> GetYaxis() -> SetTitle( "Number of Entries" );
+    BookHisto( h57 );
+
+    /*
     TH1D* h14 = new TH1D( "TrueMuonxMomentumHist", "True Muon x Momentum", NumberOfBins, 0, 0 );
     h14 -> GetXaxis() -> SetTitle( "Momentum MeV" );
     h14 -> GetYaxis() -> SetTitle( "Number of Entries" );
@@ -574,6 +594,7 @@ void spectro::Process( int iEvent )
 			kaon->time_start = KaonCandidate -> GetTime1();
 		}
 	}
+
 	/*
 	TVector3 	MuonThreePosition, MuonMomentum, KaonThreePosition, KaonMomentum, ClosestPointOfMuon, ClosestPointOfKaon, ClosestDistanceFromMuonToKaon;
 	TLorentzVector 	ClosestSpaceTimePointOfMuon, ClosestSpaceTimePointOfKaon;
@@ -646,7 +667,6 @@ void spectro::Process( int iEvent )
 			TrueKaonMomentum = KaonCandidate->GetFinal4Momentum();
 
 			true_particle->momentum = TrueCandidate -> GetMomAtCheckPoint( 2 ).Vect();
-			true_particle->momentum.RotateY(BeamAngleFromZAxis);
 			true_particle->position_start = TrueCandidate -> GetProdPos().Vect();
 			true_particle->position_end = TrueCandidate -> GetEndPos().Vect();
 			if ( i == 0 )
@@ -654,7 +674,6 @@ void spectro::Process( int iEvent )
 			FillHisto( "ParticleProductionPosition",true_particle->position_start[2] / 1000., true_particle->position_start[0] );
 			if ( i == 1 && true_particle->momentum.Mag() != 0 && TrueCandidate -> GetPDGcode() == -13 && abs(true_particle->momentum.Theta()) > 0 )
 			{
-
 				TLorentzVector TrueMuonMomentum = TrueCandidate->GetInitial4Momentum();
 				//TLorentzVector TrueMuonMomentum = TrueCandidate->GetMomAtCheckPoint(2);
 				TLorentzVector TrueMissingMass = TrueKaonMomentum - TrueMuonMomentum;
@@ -738,6 +757,7 @@ void spectro::EndOfRunUser()
             }
             if ( TrueNumber >= 3 && true_events[i]->particles[1]->plot_true_kmunu == true )
             {
+                true_events[i]->particles[1]->momentum.RotateY(BeamAngleFromZAxis);
                 FillHisto( "TrueMomentumHist",  true_events[i]->particles[1]->momentum.Mag() / 1000. );
                 FillHisto( "TruexMomentumHist", true_events[i]->particles[1]->momentum[0] / 1000. );
                 FillHisto( "TrueyMomentumHist", true_events[i]->particles[1]->momentum[1] / 1000. );
@@ -761,8 +781,22 @@ void spectro::EndOfRunUser()
                 FillHisto( "TrueProuductionPositionx", true_events[i]->particles[1]->position_start[0]);
                 FillHisto( "TrueProuductionPositiony", true_events[i]->particles[1]->position_start[1]);
                 FillHisto( "TrueProuductionPositionz", true_events[i]->particles[1]->position_start[2]/ 1000. );
-                FillHisto( "TrueProuductionPosition", true_events[i]->particles[1]->position_start[2] / 1000., true_events[i]->particles[1]->position_start[0] );
+                true_events[i]->particles[1]->momentum.RotateY(-BeamAngleFromZAxis);
+
             }
+            if  ( NumberDetected == 1  )
+            {
+                true_events[i]->particles[1]->momentum.RotateY(BeamAngleFromZAxis);
+                reco_events[i]->particles[0]->momentum.RotateY(BeamAngleFromZAxis);
+                TVector3 ResolutionTemp = true_events[i]->particles[1]->momentum - reco_events[i]->particles[0]->momentum;
+                FillHisto( "SpectrometerxMomentumResolution",  ResolutionTemp[0] ) ;
+                FillHisto( "SpectrometeryMomentumResolution", ResolutionTemp[1] );
+                FillHisto( "SpectrometerzMomentumResolution", ResolutionTemp[2] / 1000. );
+                FillHisto( "SpectrometerMomentumResolution", ResolutionTemp.Mag() / 1000. );
+                true_events[i]->particles[1]->momentum.RotateY(-BeamAngleFromZAxis);
+                reco_events[i]->particles[0]->momentum.RotateY(-BeamAngleFromZAxis);
+            }
+
         }
     SaveAllPlots();
 }
