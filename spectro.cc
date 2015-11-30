@@ -525,7 +525,7 @@ void spectro::Process( int iEvent )
 				ClosestPointOfBeamApproached = ClosestPointOfBeamApproachedBeforeFiducial;
 				p->beam_distance = DistanceToBeamAxisBeforeFiducial;
 				p->minimum_beam_distance = MinimumDistanceToBeamAxisBeforeFiducial;
-				CheckIfEventCanBeMatchedToBeam = 1;
+				CheckIfEventCanBeMatchedToBeam = 0;
             }
 
             else if ( ClosestPointFromBeamAxisAfterFiducial( 2 ) >= 102000 )
@@ -728,7 +728,7 @@ void spectro::EndOfBurstUser()
 void spectro::EndOfRunUser()
 {
 
-
+        double startime = 999999999999999,endtime = 0, timeofevent;
         for ( int i = 0; i < true_events.size(); i++ )
         {
             int NumberDetected = reco_events[i]->particles.size();
@@ -747,6 +747,16 @@ void spectro::EndOfRunUser()
                     FillHisto( "ClosestyDistanceToBeamAxis", reco_events[i]->particles[j]->beam_distance[1] );
                     FillHisto( "ClosestzDistanceToBeamAxis", reco_events[i]->particles[j]->beam_distance[2] );
                     FillHisto( "DecayPoisition", reco_events[i]->particles[j]->origin[2] / 1000. , reco_events[i]->particles[j]->origin[0] );
+
+                    timeofevent = reco_events[i]->particles[j]->time_start;
+                    if ( timeofevent > endtime)
+                    {
+                        endtime = timeofevent;
+                    }
+                    else if ( timeofevent < startime )
+                    {
+                        startime = timeofevent;
+                    }
                 }
                 if ( NumberDetected > 0 &&  reco_events[i]->particles[j]->plot_momentum == true && reco_events[i]->particles[j]->kmunu == true )
                 {
@@ -763,6 +773,7 @@ void spectro::EndOfRunUser()
                     FillHisto( "TranverseEnergyVsAzimuthal", reco_events[i]->particles[j]->momentum.Phi(), reco_events[i]->particles[j]->momentum.Perp() / 1000. );
                     reco_events[i]->particles[0]->momentum.RotateY( -BeamAngleFromZAxis ); //Switch back to standard reference frame.
                 }
+
             }
             /*
             if ( TrueNumber >= 3 && true_events[i]->particles[1]->plot_true_kmunu == true )
@@ -808,6 +819,8 @@ void spectro::EndOfRunUser()
             }
             */
         }
+        cout<<"start" << startime << "end:" << endtime << endl << "TotalTime:" << endtime - startime;
+
 
 /*
     TH1D* h58 = new TH1D("DetectorEfficiencyMomentum", "Detector Efficiency Momentum", NumberOfBins, 0, 0 );
