@@ -56,7 +56,7 @@ class beam
 {
     public:
         beam()
-          : fiducial_entry(0,0,102000), beam_axis(0,0,1), beam_axis_rotated(0,0,1)
+          : fiducial_entry(0,0,104000), beam_axis(0,0,1), beam_axis_rotated(0,0,1)
         {
             beam_axis_rotated.RotateY(-BeamAngleFromZAxis);
         }

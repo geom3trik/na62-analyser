@@ -519,7 +519,7 @@ void spectro::Process( int iEvent )
 			ClosestPointOfBeamApproachedAfterFiducial = ClosestPointOnVectorToOtherVector( b.fiducial_entry, b.beam_axis_rotated, p->position_start, p->momentum );
 			DistanceToBeamAxisAfterFiducial = -ClosestPointFromBeamAxisAfterFiducial + ClosestPointOfBeamApproachedAfterFiducial;
 
-            if ( ClosestPointFromBeamAxisBeforeFiducial( 2 ) <= 102000 && ( ClosestPointFromBeamAxisAfterFiducial( 2 ) < 102000 || abs( DistanceToBeamAxisBeforeFiducial.Mag() ) < abs ( DistanceToBeamAxisAfterFiducial.Mag() ) ) )
+            if ( ClosestPointFromBeamAxisBeforeFiducial( 2 ) <= 104000 && ( ClosestPointFromBeamAxisAfterFiducial( 2 ) < 104000 || abs( DistanceToBeamAxisBeforeFiducial.Mag() ) < abs ( DistanceToBeamAxisAfterFiducial.Mag() ) ) )
 			{
 				p->origin = ClosestPointFromBeamAxisBeforeFiducial;
 				ClosestPointOfBeamApproached = ClosestPointOfBeamApproachedBeforeFiducial;
@@ -528,7 +528,7 @@ void spectro::Process( int iEvent )
 				CheckIfEventCanBeMatchedToBeam = 0;
             }
 
-            else if ( ClosestPointFromBeamAxisAfterFiducial( 2 ) >= 102000 && ClosestPointFromBeamAxisAfterFiducial( 2 ) <= 166000 )
+            else if ( ClosestPointFromBeamAxisAfterFiducial( 2 ) >= 104000 && ClosestPointFromBeamAxisAfterFiducial( 2 ) <= 166000 )
             {
                 p->origin = ClosestPointFromBeamAxisAfterFiducial;
                 ClosestPointOfBeamApproached = ClosestPointOfBeamApproachedAfterFiducial;
