@@ -798,6 +798,10 @@ void spectro::EndOfRunUser()
             }
 
         }
+
+        TH1D* h58 = h101;
+        BookHisto(h58);
+        h58->Divide(fHisto.GetHisto("MomentumHist"));
     SaveAllPlots();
 }
 
