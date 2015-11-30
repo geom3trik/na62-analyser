@@ -735,7 +735,7 @@ void spectro::EndOfRunUser()
             //int TrueNumber = true_events[i]->particles.size();
             for ( int j = 0; j < NumberDetected;j++ )
             {
-                if  ( NumberDetected > 0 &&  reco_events[i]->particles[j]->plot_beam_distance == true && reco_events[i]->particles[j]->kmunu == true )
+                if  ( NumberDetected > 0 &&  reco_events[i]->particles[j]->plot_beam_distance == true && reco_events[i]->particles[j]->kmunu == true && reco_events[i]->particles[j]->minimum_beam_distance < 20 )
                 {
                     FillHisto( "ClosestPointFromBeamAxis", reco_events[i]->particles[j]->origin.Mag() / 1000. );
                     FillHisto( "ClosestxPointFromBeamAxis", reco_events[i]->particles[j]->origin[0] );
@@ -758,7 +758,7 @@ void spectro::EndOfRunUser()
                         startime = timeofevent;
                     }
                 }
-                if ( NumberDetected > 0 &&  reco_events[i]->particles[j]->plot_momentum == true && reco_events[i]->particles[j]->kmunu == true )
+                if ( NumberDetected > 0 &&  reco_events[i]->particles[j]->plot_momentum == true && reco_events[i]->particles[j]->kmunu == true && reco_events[i]->particles[j]->minimum_beam_distance < 20 )
                 {
                     reco_events[i]->particles[0]->momentum.RotateY(BeamAngleFromZAxis); //Switch to  reference system where beam is along z axis.
                     FillHisto( "MomentumHist",  reco_events[i]->particles[j]->momentum.Mag() / 1000. );
