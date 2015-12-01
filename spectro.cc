@@ -260,57 +260,57 @@ void spectro::InitHist()
     h34 -> GetYaxis() -> SetTitle( "x mm" );
     BookHisto( h34 );
 
-    TH1D* h35 = new TH1D( "ClosestPointOfMuon", " ClosestPointOfMuon", NumberOfBins, 0, 0 );
+    TH1D* h35 = new TH1D( "ClosestPointOfMuon", " ClosestPointOfMuon", NumberOfBins*10, 0, 0 );
     h35 -> GetXaxis() -> SetTitle( "m" );
     h35 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h35 );
 
-    TH1D* h36 = new TH1D( "ClosestxPointOfMuon", " ClosestxPointOfMuon", NumberOfBins, 0, 0 );
+    TH1D* h36 = new TH1D( "ClosestxPointOfMuon", " ClosestxPointOfMuon", NumberOfBins*10, 0, 0 );
     h36 -> GetXaxis() -> SetTitle( "mm" );
     h36 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h36 );
 
-    TH1D* h37 = new TH1D( "ClosestyPointOfMuon", " ClosestyPointOfMuon", NumberOfBins, 0, 0 );
+    TH1D* h37 = new TH1D( "ClosestyPointOfMuon", " ClosestyPointOfMuon", NumberOfBins*10, 0, 0 );
     h37 -> GetXaxis() -> SetTitle( "mm" );
     h37 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h37 );
 
-    TH1D* h38 = new TH1D( "ClosestzPointOfMuon", " ClosestzPointOfMuon", NumberOfBins, 0, 0 );
+    TH1D* h38 = new TH1D( "ClosestzPointOfMuon", " ClosestzPointOfMuon", NumberOfBins*10, 0, 0 );
     h38 -> GetXaxis() -> SetTitle( "m" );
     h38 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h38 );
 
-    TH1D* h39 = new TH1D( "ClosestTimeOfMuon", " ClosestTimeOfMuon", NumberOfBins, 0, 0 );
+    TH1D* h39 = new TH1D( "ClosestTimeOfMuon", " ClosestTimeOfMuon", NumberOfBins*10, 0, 0 );
     h39 -> GetXaxis() -> SetTitle( "s" );
     h39 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h39 );
 
-    TH1D* h40 = new TH1D( "ClosestTimeOfKaon", " ClosestTimeOfKaon", NumberOfBins, 0, 0 );
+    TH1D* h40 = new TH1D( "ClosestTimeOfKaon", " ClosestTimeOfKaon", NumberOfBins*10, 0, 0 );
     h40 -> GetXaxis() -> SetTitle( "s" );
     h40 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h40 );
 
-    TH1D* h41 = new TH1D( "ClosestDistanceOfMuonToKaon", " ClosestDistanceOfMuonToKaon", NumberOfBins, 0, 0 );
+    TH1D* h41 = new TH1D( "ClosestDistanceOfMuonToKaon", " ClosestDistanceOfMuonToKaon", NumberOfBins*10, 0, 0 );
     h41 -> GetXaxis() -> SetTitle( "mm" );
     h41 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h41 );
 
-    TH1D* h42 = new TH1D( "ClosestxDistanceOfMuonToKaon", " ClosestxDistanceOfMuonToKaon", NumberOfBins, 0, 0 );
+    TH1D* h42 = new TH1D( "ClosestxDistanceOfMuonToKaon", " ClosestxDistanceOfMuonToKaon", NumberOfBins*10, 0, 0 );
     h42 -> GetXaxis() -> SetTitle( "mm" );
     h42 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h42 );
 
-    TH1D* h43 = new TH1D( "ClosestyDistanceOfMuonToKaon", " ClosestyDistanceOfMuonToKaon", NumberOfBins, 0, 0 );
+    TH1D* h43 = new TH1D( "ClosestyDistanceOfMuonToKaon", " ClosestyDistanceOfMuonToKaon", NumberOfBins*10, 0, 0 );
     h43 -> GetXaxis() -> SetTitle( "mm" );
     h43 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h43 );
 
-    TH1D* h44 = new TH1D( "ClosestzDistanceOfMuonToKaon", " ClosestzDistanceOfMuonToKaon", NumberOfBins, 0, 0 );
+    TH1D* h44 = new TH1D( "ClosestzDistanceOfMuonToKaon", " ClosestzDistanceOfMuonToKaon", NumberOfBins*10, 0, 0 );
     h44 -> GetXaxis() -> SetTitle( "mm" );
     h44 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h44 );
 
-    TH1D* h45 = new TH1D( "ClosestSpaceTimeInterval", " ClosestSpaceTimeInterval", NumberOfBins, 0, 0 );
+    TH1D* h45 = new TH1D( "ClosestSpaceTimeInterval", " ClosestSpaceTimeInterval", NumberOfBins*10, 0, 0 );
     h45 -> GetXaxis() -> SetTitle( "m^2" );
     h45 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h45 );
@@ -457,6 +457,8 @@ TLorentzVector ClosestSpaceTimePointOnVectorToOtherVector( TVector3 Vector1Posit
 	D = Vector2Momentum.Unit();
 	b = Vector1Momentum.Mag() * pow ( 10 , 6 ) * 5.3442883 * pow( 10, -28 );
 	d = Vector2Momentum.Mag() * pow ( 10 , 6 ) * 5.3442883 * pow( 10, -28 );
+	//Time1 = Time1;
+    //Time2 = Time2;
 	VectorScale1 = ( ( pow( d, 2 ) - pow( SpeedOfLight, 2 ) ) * ( pow( SpeedOfLight, 2 ) * ( Time2 - Time1 ) - ( C - A ).Dot( b * B ) ) + ( ( d * D ).Dot( b * B ) - pow( SpeedOfLight, 2 ) ) * ( ( C - A ).Dot( d * D ) - pow( SpeedOfLight, 2 ) * ( Time2 - Time1 ) ) ) / ( pow( SpeedOfLight, 2 ) * pow ( ( d - b ), 2 ) );
 	VectorScale2 = ( ( pow( b, 2 ) - pow( SpeedOfLight, 2 ) ) * VectorScale1 - ( C - A ).Dot( b * B ) + pow( SpeedOfLight , 2 ) * ( Time2 - Time1 ) ) / ( (d * D ).Dot( b * B ) - pow( SpeedOfLight, 2 ) );
 	TVector3 ClosestPointOnVector1 = A + VectorScale1 * B * b * pow( sqrt( pow( Mass1, 2 ) + pow( b, 2 ) / pow ( SpeedOfLight , 2 ) ), -1 );
@@ -507,7 +509,7 @@ void spectro::Process( int iEvent )
 			//Set the properties of the particle
 			p->momentum = SpectroCandidate->GetThreeMomentumBeforeMagnet();
 			p->position_start = SpectroCandidate->GetPositionBeforeMagnet();
-			p->time_start = SpectroCandidate -> GetTime();
+			p->time_start = SpectroCandidate -> GetTime() * pow( 10, 1 ) / pow( 10 , 9 );
 			p->charge = SpectroCandidate -> GetCharge();
 
             MinimumDistanceToBeamAxisBeforeFiducial = ( ( b.fiducial_entry - p->position_start ).Dot( b.beam_axis.Cross( p->momentum ) ) ) / ( b.beam_axis.Cross( p->momentum ) ).Mag() ;
@@ -561,14 +563,15 @@ void spectro::Process( int iEvent )
 
 				if ( CheckIfEventCanBeMatchedToBeam == 1 )
 				{
-                FillHisto( "MissingMass", MissingMass2 / ( pow( 1000, 2 ) ) );
 
                     p->plot_beam_distance = true;
-					if ( abs( MissingMass2 ) / ( pow( 1000, 2 ) ) < 0.02 ) //This is very likey k->munu. One detected candidate in spec, correct charge, came from beam, kinematics consistent within resolution to this process.
+					if ( abs( MissingMass2 ) / ( pow( 1000, 2 ) ) < 0.01 ) //This is very likey k->munu. One detected candidate in spec, correct charge, came from beam, kinematics consistent within resolution to this process.
 					{
+                        FillHisto( "MissingMass", MissingMass2 / ( pow( 1000, 2 ) ) );
                         p->name = "Muon";
                         p->PDGcode = -13;
                         p->kmunu = true;
+                        cout << "Muon:" << p->time_start <<endl;
 					}
 				}
 			}
@@ -580,8 +583,9 @@ void spectro::Process( int iEvent )
 	//FOR SOME REASON  GTKEvent -> GetNCandidates() ALWAYS RETURNS 0 //
 
 
-	if( GTKEvent -> GetNCandidates() >= 1 ) //Loop through every distinguishable detected event
+	if( GTKEvent -> GetNCandidates() == 1 ) //Loop through every distinguishable detected event
 	{
+
 		for ( int k = 0; k < GTKEvent -> GetNHits(); k++)
 		{
 			// Create the Kaon and add it to the event
@@ -593,69 +597,16 @@ void spectro::Process( int iEvent )
 			KaonFourMomentum = KaonCandidate -> GetMomentum();
 			kaon->momentum = KaonFourMomentum.Vect();
 			kaon->position_start = KaonCandidate -> GetPosition( 0 );
-			kaon->time_start = KaonCandidate -> GetTime1();
+			kaon->time_start = KaonCandidate -> GetTime1() / pow( 10,18 ) ;
+			kaon->detected = true;
+			cout << "Kaon:" << kaon->time_start << endl;
+
 		}
 	}
 
-	/*
-	TVector3 	MuonThreePosition, MuonMomentum, KaonThreePosition, KaonMomentum, ClosestPointOfMuon, ClosestPointOfKaon, ClosestDistanceFromMuonToKaon;
-	TLorentzVector 	ClosestSpaceTimePointOfMuon, ClosestSpaceTimePointOfKaon;
-	double 		MuonMass = 105.6583715, MuonDetectionTime, KaonMass = 493.667, KaonDetectionTime, SpaceTimeInterval, MinimumInterval, ClosestTimeOfMuon, ClosestTimeOfKaon, 				ClosestSpaceTimeInterval, ClosestTimeFromMuonToKaon;
-	int 		K[10], KaonPosition[10], KaonDecayed;
-	if ( iEvent == 100999 )
-	{
-		for( int i = 0; i < 10; i++ )
-		{
-			MinimumInterval = 99999999999999;
-			for ( int k = 0; k < 101000; k++ )
-			{
-				MuonThreePosition.SetXYZ(EventParticleThreePositionBeforeMagnet[i][0],EventParticleThreePositionBeforeMagnet[i][1],EventParticleThreePositionBeforeMagnet[i][2]);
-				MuonMomentum.SetXYZ(EventThreeMomentum[i][0], EventThreeMomentum[i][1], EventThreeMomentum[i][2] );
-				MuonDetectionTime = EventParticleTime[i];
-				KaonThreePosition.SetXYZ(EventKaonThreePositionGTK1[k][0],EventKaonThreePositionGTK1[k][1],EventKaonThreePositionGTK1[k][2]);
-				KaonMomentum.SetXYZ(EventKaonThreeMomentum[k][0], EventKaonThreeMomentum[k][1], EventKaonThreeMomentum[k][2] );
-				KaonDetectionTime = EventKaonTimeAtGTK1[k];
-				ClosestSpaceTimePointOfMuon = ClosestSpaceTimePointOnVectorToOtherVector(MuonThreePosition, MuonMomentum, MuonMass, MuonDetectionTime, KaonThreePosition, KaonMomentum, KaonMass, KaonDetectionTime );
-				SpaceTimeInterval = ClosestSpaceTimePointOfMuon.Mag();
-				if ( SpaceTimeInterval < MinimumInterval )	//For each muon, find the kaon that has the smallest spacetime interval between them
-				{
-					MinimumInterval = SpaceTimeInterval;
-					KaonPosition[i] = k; //Note which kaon corresponds to which muon.
-				}
-			}
-		}
-		for( int j = 0; j < 10; j++ )
-		{
-			KaonDecayed = KaonPosition[j];
-			MuonThreePosition.SetXYZ(EventParticleThreePositionBeforeMagnet[j][0],EventParticleThreePositionBeforeMagnet[j][1],EventParticleThreePositionBeforeMagnet[j][2]);
-			MuonMomentum.SetXYZ(EventThreeMomentum[j][0], EventThreeMomentum[j][1], EventThreeMomentum[j][2] );
-			MuonDetectionTime = EventParticleTime[j];
-			KaonThreePosition.SetXYZ(EventKaonThreePositionGTK1[KaonDecayed][0],EventKaonThreePositionGTK1[KaonDecayed][1],EventKaonThreePositionGTK1[KaonDecayed][2]);
-			KaonMomentum.SetXYZ(EventKaonThreeMomentum[KaonDecayed][0], EventKaonThreeMomentum[KaonDecayed][1], EventKaonThreeMomentum[KaonDecayed][2] );
-			KaonDetectionTime = EventKaonTimeAtGTK1[KaonDecayed];
-			ClosestSpaceTimePointOfMuon = ClosestSpaceTimePointOnVectorToOtherVector(MuonThreePosition, MuonMomentum, MuonMass, MuonDetectionTime, KaonThreePosition, KaonMomentum, KaonMass, KaonDetectionTime );
-			ClosestPointOfMuon = ClosestSpaceTimePointOfMuon.Vect();
-			ClosestTimeOfMuon = ClosestSpaceTimePointOfMuon( 3 );
-			ClosestSpaceTimePointOfKaon = ClosestSpaceTimePointOnVectorToOtherVector(KaonThreePosition, KaonMomentum, KaonMass, KaonDetectionTime, MuonThreePosition, MuonMomentum, MuonMass, MuonDetectionTime );
-			ClosestPointOfKaon = ClosestSpaceTimePointOfKaon.Vect();
-			ClosestTimeOfKaon = ClosestSpaceTimePointOfKaon( 3 );
-			ClosestDistanceFromMuonToKaon = ClosestPointOfKaon - ClosestPointOfMuon;
-			ClosestTimeFromMuonToKaon = ClosestTimeOfKaon - ClosestTimeOfMuon;
-			ClosestSpaceTimeInterval =  ClosestDistanceFromMuonToKaon.Mag2() - pow( SpeedOfLight, 2 ) * pow( ClosestTimeFromMuonToKaon, 2 );
-			FillHisto( "ClosestPointOfMuon",  ClosestPointOfMuon.Mag() );
-			FillHisto( "ClosestxPointOfMuon",  ClosestPointOfMuon( 0 ) );
-			FillHisto( "ClosestyPointOfMuon",  ClosestPointOfMuon( 1 ) );
-			FillHisto( "ClosestzPointOfMuon",  ClosestPointOfMuon( 2 ) / 1000. );
-			FillHisto( "ClosestTimeOfMuon",  ClosestTimeOfMuon );
-			FillHisto( "ClosestTimeOfKaon",  ClosestTimeOfKaon );
-			FillHisto( "ClosestDistanceOfMuonToKaon",  ClosestDistanceFromMuonToKaon.Mag() );
-			FillHisto( "ClosestxDistanceOfMuonToKaon",  ClosestDistanceFromMuonToKaon( 0 ) );
-			FillHisto( "ClosestyDistanceOfMuonToKaon",  ClosestDistanceFromMuonToKaon( 1 ) );
-			FillHisto( "ClosestzDistanceOfMuonToKaon",  ClosestDistanceFromMuonToKaon( 2 ) );
-			FillHisto( "ClosestSpaceTimeInterval",  ClosestSpaceTimeInterval );
-		}
-	}
-*/
+
+
+
 /*
 	Event *MCTruthEvent = GetMCEvent();
 	if ( MCTruthEvent -> GetNKineParts() >= 3 )
@@ -729,7 +680,7 @@ void spectro::EndOfRunUser()
 {
 
         double startime = 999999999999999,endtime = 0, timeofevent;
-        for ( int i = 0; i < true_events.size(); i++ )
+        for ( int i = 0; i < reco_events.size(); i++ )
         {
             int NumberDetected = reco_events[i]->particles.size();
             //int TrueNumber = true_events[i]->particles.size();
@@ -775,6 +726,9 @@ void spectro::EndOfRunUser()
                 }
 
             }
+
+
+
             /*
             if ( TrueNumber >= 3 && true_events[i]->particles[1]->plot_true_kmunu == true )
             {
@@ -819,6 +773,57 @@ void spectro::EndOfRunUser()
             }
             */
         }
+        for ( int i = 0; i < reco_events.size(); i ++)
+        {
+            for ( int j = 0; j < reco_events.size(); j ++)
+            {
+                for ( int k1 = 0; k1 < reco_events[i]->particles.size(); k1++ )
+                {
+                    if ( reco_events[i]->particles[k1]-> kmunu == true )
+                    {
+                        for ( int k2 = 0; k2 < reco_events[j]->particles.size(); k2++ )
+                        {
+                            if ( reco_events[j]->particles[k2]-> detected == true )
+                            {
+                                reco_events[i]->particles[k1]->closest_spacetime_point = ClosestSpaceTimePointOnVectorToOtherVector( reco_events[i]->particles[k1]->position_start, reco_events[i]->particles[k1]->momentum, 105.6583715, reco_events[i]->particles[k1]->time_start, reco_events[j]->particles[k2]-> position_start, reco_events[j]->particles[k2]->momentum, 493.667, reco_events[j]->particles[k2]->time_start);
+                                reco_events[j]->particles[k2]->closest_spacetime_point = ClosestSpaceTimePointOnVectorToOtherVector( reco_events[j]->particles[k2]->position_start, reco_events[j]->particles[k2]->momentum, 493.667, reco_events[j]->particles[k2]->time_start, reco_events[i]->particles[k1]-> position_start, reco_events[i]->particles[k1]->momentum, 105.6583715, reco_events[i]->particles[k1]->time_start);
+                                reco_events[i]->particles[k1]->kaon_link = j;
+                                if( abs( reco_events[i]->particles[k1]->minimum_spacetime_interval.Mag() ) > abs( (reco_events[j]->particles[k2]->closest_spacetime_point - reco_events[i]->particles[k1]->closest_spacetime_point).Mag() ) )
+                                {
+                                    reco_events[i]->particles[k1]->minimum_spacetime_interval = reco_events[j]->particles[k2]->closest_spacetime_point - reco_events[i]->particles[k1]->closest_spacetime_point;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        for ( int i = 0; i < reco_events.size(); i ++)
+        {
+            for ( int k1 = 0; k1 < reco_events[i]->particles.size(); k1++ )
+            {
+                if ( reco_events[i]->particles[k1]-> kmunu == true )
+                {
+                    FillHisto( "ClosestPointOfMuon",  reco_events[i]->particles[k1]->closest_spacetime_point.Mag() );
+                    FillHisto( "ClosestxPointOfMuon",  reco_events[i]->particles[k1]->closest_spacetime_point[0] );
+                    FillHisto( "ClosestyPointOfMuon",  reco_events[i]->particles[k1]->closest_spacetime_point[1] );
+                    FillHisto( "ClosestzPointOfMuon",  reco_events[i]->particles[k1]->closest_spacetime_point[2] / 1000. );
+                    FillHisto( "ClosestTimeOfMuon",  reco_events[i]->particles[k1]->closest_spacetime_point[3] );
+                    //FillHisto( "ClosestDistanceOfMuonToKaon",  reco_events[i]->particles[k1]->minimum_spacetime_interval.Vect.Mag() );
+                    FillHisto( "ClosestxDistanceOfMuonToKaon",  reco_events[i]->particles[k1]->minimum_spacetime_interval[0] );
+                    FillHisto( "ClosestyDistanceOfMuonToKaon",  reco_events[i]->particles[k1]->minimum_spacetime_interval[1] );
+                    FillHisto( "ClosestzDistanceOfMuonToKaon",  reco_events[i]->particles[k1]->minimum_spacetime_interval[2] );
+                    FillHisto( "ClosestSpaceTimeInterval",  reco_events[i]->particles[k1]->minimum_spacetime_interval.Mag() );
+                }
+                else if ( reco_events[i]->particles[k1]->detected == true )
+                {
+                    FillHisto( "ClosestTimeOfKaon",  reco_events[i]->particles[k1]->closest_spacetime_point[3] );
+                }
+            }
+        }
+
+
         cout<<"start" << startime << "end:" << endtime << endl << "TotalTime:" << endtime - startime;
 
 
