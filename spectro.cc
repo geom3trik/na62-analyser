@@ -605,9 +605,6 @@ void spectro::Process( int iEvent )
 	}
 
 
-
-
-/*
 	Event *MCTruthEvent = GetMCEvent();
 	if ( MCTruthEvent -> GetNKineParts() >= 3 )
 	{
@@ -663,7 +660,6 @@ void spectro::Process( int iEvent )
 			}
 		}
 	}
-*/
 }
 
 void spectro::PostProcess()
@@ -683,7 +679,7 @@ void spectro::EndOfRunUser()
         for ( int i = 0; i < reco_events.size(); i++ )
         {
             int NumberDetected = reco_events[i]->particles.size();
-            //int TrueNumber = true_events[i]->particles.size();
+            int TrueNumber = true_events[i]->particles.size();
             for ( int j = 0; j < NumberDetected;j++ )
             {
                 if  ( NumberDetected > 0 &&  reco_events[i]->particles[j]->plot_beam_distance == true && reco_events[i]->particles[j]->kmunu == true && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 20 )
@@ -725,12 +721,9 @@ void spectro::EndOfRunUser()
                     reco_events[i]->particles[0]->momentum.RotateY( -BeamAngleFromZAxis ); //Switch back to standard reference frame.
                 }
 
-            }
 
 
-
-            /*
-            if ( TrueNumber >= 3 && true_events[i]->particles[1]->plot_true_kmunu == true )
+            if ( TrueNumber >= 3 && true_events[i]->particles[1]->plot_true_kmunu == true && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 20  )
             {
                 true_events[i]->particles[1]->momentum.RotateY(BeamAngleFromZAxis);
                 FillHisto( "TrueMomentumHist",  true_events[i]->particles[1]->momentum.Mag() / 1000. );
@@ -759,7 +752,7 @@ void spectro::EndOfRunUser()
                 true_events[i]->particles[1]->momentum.RotateY(-BeamAngleFromZAxis);
             }
 
-            if  ( NumberDetected == 1 && true_events[i]->particles[1]->plot_true_kmunu == true && reco_events[i]->particles[0]->plot_beam_distance == true  )
+            if  ( NumberDetected == 1 && true_events[i]->particles[1]->plot_true_kmunu == true && reco_events[i]->particles[0]->plot_beam_distance == true && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 20  )
             {
                 true_events[i]->particles[1]->momentum.RotateY(BeamAngleFromZAxis);
                 reco_events[i]->particles[0]->momentum.RotateY(BeamAngleFromZAxis);
@@ -771,7 +764,8 @@ void spectro::EndOfRunUser()
                 true_events[i]->particles[1]->momentum.RotateY(-BeamAngleFromZAxis);
                 reco_events[i]->particles[0]->momentum.RotateY(-BeamAngleFromZAxis);
             }
-            */
+
+		}
         }
         for ( int i = 0; i < reco_events.size(); i ++)
         {
@@ -826,8 +820,6 @@ void spectro::EndOfRunUser()
 
         cout<<"start" << startime << "end:" << endtime << endl << "TotalTime:" << endtime - startime;
 
-
-/*
     TH1D* h58 = new TH1D("DetectorEfficiencyMomentum", "Detector Efficiency Momentum", NumberOfBins, 0, 0 );
     BookHisto(h58);
     fHisto.GetHisto("MomentumHist")->Copy(*h58);
@@ -869,7 +861,7 @@ void spectro::EndOfRunUser()
     BookHisto(h65);
     fHisto.GetHisto("zMomentumHist")->Copy(*h65);
     h65->Divide(fHisto.GetHisto("DetectorzEfficiencyMomentum"));
-*/
+
     SaveAllPlots();
 }
 

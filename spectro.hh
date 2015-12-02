@@ -22,14 +22,14 @@ class particle
     public:
 
         particle()
-          : name("unknown"), PDGcode(0), charge(0), time_start(0),kmunu(0),plot_beam_distance(0),minimum_beam_distance(0),plot_momentum(0),plot_true_kmunu(0),detected(0),kaon_link(0)
+          : name("unknown"), PDGcode(0), charge(0), time_start(0),kmunu(0),plot_beam_distance(0),minimum_beam_distance(0),plot_momentum(0),plot_true_kmunu(0),detected(0),kaon_link(0),minimum_spacetime_interval(9999999999,9999999999,9999999999,9999999999)
         {
 
         }
 
         std::string name;
         int PDGcode, kaon_link;
-        TLorentzVector closest_spacetime_point,minimum_spacetime_interval = [9999999999999,9999999999999,9999999999999,9999999999999];
+        TLorentzVector closest_spacetime_point,minimum_spacetime_interval;
         TVector3 position_start, position_end, momentum, origin,beam_distance;
         double charge, time_start,minimum_beam_distance;
         bool kmunu, plot_beam_distance,plot_momentum,plot_true_kmunu,detected;
