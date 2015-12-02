@@ -578,6 +578,7 @@ void spectro::Process( int iEvent )
 		}
 	}
 
+	/*
 	TRecoGigaTrackerEvent *GTKEvent = ( TRecoGigaTrackerEvent* )GetEvent( "GigaTracker" );
 	//cout << "GTKEVENTNUMBER:" << GTKEvent -> GetNCandidates() << " " << "SPECTROMETEREVENTNUMBER:" << SpectrometerEvent -> GetNCandidates() << " ";
 	//FOR SOME REASON  GTKEvent -> GetNCandidates() ALWAYS RETURNS 0 //
@@ -603,7 +604,7 @@ void spectro::Process( int iEvent )
 
 		}
 	}
-
+	*/
 
 	Event *MCTruthEvent = GetMCEvent();
 	if ( MCTruthEvent -> GetNKineParts() >= 3 )
