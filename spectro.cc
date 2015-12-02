@@ -767,6 +767,7 @@ void spectro::EndOfRunUser()
 
 		}
         }
+        /*
         for ( int i = 0; i < reco_events.size(); i ++)
         {
             for ( int j = 0; j < reco_events.size(); j ++)
@@ -816,7 +817,7 @@ void spectro::EndOfRunUser()
                 }
             }
         }
-
+		*/
 
         cout<<"start" << startime << "end:" << endtime << endl << "TotalTime:" << endtime - startime;
 
