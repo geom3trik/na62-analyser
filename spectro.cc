@@ -565,7 +565,7 @@ void spectro::Process( int iEvent )
 				{
 
                     p->plot_beam_distance = true;
-					if ( abs( MissingMass2 ) / ( pow( 1000, 2 ) ) < 0.01 ) //This is very likey k->munu. One detected candidate in spec, correct charge, came from beam, kinematics consistent within resolution to this process.
+					if ( abs( MissingMass2 ) / ( pow( 1000, 2 ) ) < 4000 ) //This is very likey k->munu. One detected candidate in spec, correct charge, came from beam, kinematics consistent within resolution to this process.
 					{
                         FillHisto( "MissingMass", MissingMass2 / ( pow( 1000, 2 ) ) );
                         p->name = "Muon";
@@ -605,7 +605,7 @@ void spectro::Process( int iEvent )
 		}
 	}
 	*/
-
+	/*
 	Event *MCTruthEvent = GetMCEvent();
 	if ( MCTruthEvent -> GetNKineParts() >= 3 )
 	{
@@ -661,6 +661,7 @@ void spectro::Process( int iEvent )
 			}
 		}
 	}
+	*/
 }
 
 void spectro::PostProcess()
@@ -680,7 +681,7 @@ void spectro::EndOfRunUser()
         for ( int i = 0; i < reco_events.size(); i++ )
         {
             int NumberDetected = reco_events[i]->particles.size();
-            int TrueNumber = true_events[i]->particles.size();
+            //int TrueNumber = true_events[i]->particles.size();
             for ( int j = 0; j < NumberDetected;j++ )
             {
                 if  ( NumberDetected > 0 &&  reco_events[i]->particles[j]->plot_beam_distance == true && reco_events[i]->particles[j]->kmunu == true && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 20 )
@@ -722,51 +723,51 @@ void spectro::EndOfRunUser()
                     reco_events[i]->particles[0]->momentum.RotateY( -BeamAngleFromZAxis ); //Switch back to standard reference frame.
                 }
 
+				/*
 
+				if ( TrueNumber >= 3 && true_events[i]->particles[1]->plot_true_kmunu == true && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 20  )
+				{
+					true_events[i]->particles[1]->momentum.RotateY(BeamAngleFromZAxis);
+					FillHisto( "TrueMomentumHist",  true_events[i]->particles[1]->momentum.Mag() / 1000. );
+					FillHisto( "TruexMomentumHist", true_events[i]->particles[1]->momentum[0] / 1000. );
+					FillHisto( "TrueyMomentumHist", true_events[i]->particles[1]->momentum[1] / 1000. );
+					FillHisto( "TruezMomentumHist", true_events[i]->particles[1]->momentum[2] / 1000. );
+					FillHisto( "TrueTransverseMomentumHist",  true_events[i]->particles[1]->momentum.Perp() );
+					FillHisto( "TrueAzimuthalMomentumHist", true_events[i]->particles[1]->momentum.Phi() );
+					FillHisto( "TruePolarMomentumHist", true_events[i]->particles[1]->momentum.Theta() );
+					FillHisto( "TrueEnergyVsAzimuthal", true_events[i]->particles[1]->momentum.Phi(), true_events[i]->particles[1]->momentum.Mag() / 1000. );
+					FillHisto( "TrueEnergyVsPolar", true_events[i]->particles[1]->momentum.Theta(), true_events[i]->particles[1]->momentum.Mag() / 1000. );
+					FillHisto( "TrueTranverseEnergyVsAzimuthal", true_events[i]->particles[1]->momentum.Phi(), true_events[i]->particles[1]->momentum.Perp() / 1000. );
+					FillHisto( "CompareTrueMomentumHist",  true_events[i]->particles[1]->momentum.Mag() / 1000. );
+					FillHisto( "CompareTruexMomentumHist", true_events[i]->particles[1]->momentum[0] / 1000. );
+					FillHisto( "CompareTrueyMomentumHist", true_events[i]->particles[1]->momentum[1] / 1000. );
+					FillHisto( "CompareTruezMomentumHist", true_events[i]->particles[1]->momentum[2] / 1000. );
+					FillHisto( "CompareTrueTransverseMomentumHist",  true_events[i]->particles[1]->momentum.Perp() );
+					FillHisto( "CompareTrueAzimuthalMomentumHist", true_events[i]->particles[1]->momentum.Phi() );
+					FillHisto( "CompareTruePolarMomentumHist", true_events[i]->particles[1]->momentum.Theta() );
+					FillHisto( "CompareTrueEnergyVsAzimuthal", true_events[i]->particles[1]->momentum.Phi(), true_events[i]->particles[1]->momentum.Mag() / 1000. );
+					FillHisto( "CompareTrueEnergyVsPolar", true_events[i]->particles[1]->momentum.Theta(), true_events[i]->particles[1]->momentum.Mag() / 1000. );
+					FillHisto( "CompareTrueTranverseEnergyVsAzimuthal", true_events[i]->particles[1]->momentum.Phi(), true_events[i]->particles[1]->momentum.Perp() / 1000. );
+					FillHisto( "TrueProuductionPositionx", true_events[i]->particles[1]->position_start[0]);
+					FillHisto( "TrueProuductionPositiony", true_events[i]->particles[1]->position_start[1]);
+					FillHisto( "TrueProuductionPositionz", true_events[i]->particles[1]->position_start[2]/ 1000. );
+					true_events[i]->particles[1]->momentum.RotateY(-BeamAngleFromZAxis);
+				}
 
-            if ( TrueNumber >= 3 && true_events[i]->particles[1]->plot_true_kmunu == true && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 20  )
-            {
-                true_events[i]->particles[1]->momentum.RotateY(BeamAngleFromZAxis);
-                FillHisto( "TrueMomentumHist",  true_events[i]->particles[1]->momentum.Mag() / 1000. );
-                FillHisto( "TruexMomentumHist", true_events[i]->particles[1]->momentum[0] / 1000. );
-                FillHisto( "TrueyMomentumHist", true_events[i]->particles[1]->momentum[1] / 1000. );
-                FillHisto( "TruezMomentumHist", true_events[i]->particles[1]->momentum[2] / 1000. );
-                FillHisto( "TrueTransverseMomentumHist",  true_events[i]->particles[1]->momentum.Perp() );
-                FillHisto( "TrueAzimuthalMomentumHist", true_events[i]->particles[1]->momentum.Phi() );
-                FillHisto( "TruePolarMomentumHist", true_events[i]->particles[1]->momentum.Theta() );
-                FillHisto( "TrueEnergyVsAzimuthal", true_events[i]->particles[1]->momentum.Phi(), true_events[i]->particles[1]->momentum.Mag() / 1000. );
-                FillHisto( "TrueEnergyVsPolar", true_events[i]->particles[1]->momentum.Theta(), true_events[i]->particles[1]->momentum.Mag() / 1000. );
-                FillHisto( "TrueTranverseEnergyVsAzimuthal", true_events[i]->particles[1]->momentum.Phi(), true_events[i]->particles[1]->momentum.Perp() / 1000. );
-                FillHisto( "CompareTrueMomentumHist",  true_events[i]->particles[1]->momentum.Mag() / 1000. );
-                FillHisto( "CompareTruexMomentumHist", true_events[i]->particles[1]->momentum[0] / 1000. );
-                FillHisto( "CompareTrueyMomentumHist", true_events[i]->particles[1]->momentum[1] / 1000. );
-                FillHisto( "CompareTruezMomentumHist", true_events[i]->particles[1]->momentum[2] / 1000. );
-                FillHisto( "CompareTrueTransverseMomentumHist",  true_events[i]->particles[1]->momentum.Perp() );
-                FillHisto( "CompareTrueAzimuthalMomentumHist", true_events[i]->particles[1]->momentum.Phi() );
-                FillHisto( "CompareTruePolarMomentumHist", true_events[i]->particles[1]->momentum.Theta() );
-                FillHisto( "CompareTrueEnergyVsAzimuthal", true_events[i]->particles[1]->momentum.Phi(), true_events[i]->particles[1]->momentum.Mag() / 1000. );
-                FillHisto( "CompareTrueEnergyVsPolar", true_events[i]->particles[1]->momentum.Theta(), true_events[i]->particles[1]->momentum.Mag() / 1000. );
-                FillHisto( "CompareTrueTranverseEnergyVsAzimuthal", true_events[i]->particles[1]->momentum.Phi(), true_events[i]->particles[1]->momentum.Perp() / 1000. );
-                FillHisto( "TrueProuductionPositionx", true_events[i]->particles[1]->position_start[0]);
-                FillHisto( "TrueProuductionPositiony", true_events[i]->particles[1]->position_start[1]);
-                FillHisto( "TrueProuductionPositionz", true_events[i]->particles[1]->position_start[2]/ 1000. );
-                true_events[i]->particles[1]->momentum.RotateY(-BeamAngleFromZAxis);
-            }
-
-            if  ( NumberDetected == 1 && true_events[i]->particles[1]->plot_true_kmunu == true && reco_events[i]->particles[0]->plot_beam_distance == true && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 20  )
-            {
-                true_events[i]->particles[1]->momentum.RotateY(BeamAngleFromZAxis);
-                reco_events[i]->particles[0]->momentum.RotateY(BeamAngleFromZAxis);
-                TVector3 ResolutionTemp = true_events[i]->particles[1]->momentum - reco_events[i]->particles[0]->momentum;
-                FillHisto( "SpectrometerxMomentumResolution",  ResolutionTemp[0] ) ;
-                FillHisto( "SpectrometeryMomentumResolution", ResolutionTemp[1] );
-                FillHisto( "SpectrometerzMomentumResolution", ResolutionTemp[2] / 1000. );
-                FillHisto( "SpectrometerMomentumResolution", ResolutionTemp.Mag() / 1000. );
-                true_events[i]->particles[1]->momentum.RotateY(-BeamAngleFromZAxis);
-                reco_events[i]->particles[0]->momentum.RotateY(-BeamAngleFromZAxis);
-            }
-
-		}
+				if  ( NumberDetected == 1 && true_events[i]->particles[1]->plot_true_kmunu == true && reco_events[i]->particles[0]->plot_beam_distance == true && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 20  )
+				{
+					true_events[i]->particles[1]->momentum.RotateY(BeamAngleFromZAxis);
+					reco_events[i]->particles[0]->momentum.RotateY(BeamAngleFromZAxis);
+					TVector3 ResolutionTemp = true_events[i]->particles[1]->momentum - reco_events[i]->particles[0]->momentum;
+					FillHisto( "SpectrometerxMomentumResolution",  ResolutionTemp[0] ) ;
+					FillHisto( "SpectrometeryMomentumResolution", ResolutionTemp[1] );
+					FillHisto( "SpectrometerzMomentumResolution", ResolutionTemp[2] / 1000. );
+					FillHisto( "SpectrometerMomentumResolution", ResolutionTemp.Mag() / 1000. );
+					true_events[i]->particles[1]->momentum.RotateY(-BeamAngleFromZAxis);
+					reco_events[i]->particles[0]->momentum.RotateY(-BeamAngleFromZAxis);
+				}
+				*/
+			}
         }
         /*
         for ( int i = 0; i < reco_events.size(); i ++)
