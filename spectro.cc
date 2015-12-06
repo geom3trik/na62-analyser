@@ -681,7 +681,7 @@ void spectro::EndOfRunUser()
         for ( int i = 0; i < reco_events.size(); i++ )
         {
             int NumberDetected = reco_events[i]->particles.size();
-            //int TrueNumber = true_events[i]->particles.size();
+            int TrueNumber = true_events[i]->particles.size();
             for ( int j = 0; j < NumberDetected;j++ )
             {
                 if  ( NumberDetected > 0 &&  reco_events[i]->particles[j]->plot_beam_distance == true && reco_events[i]->particles[j]->kmunu == true && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 20 )
