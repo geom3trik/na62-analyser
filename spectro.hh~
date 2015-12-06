@@ -22,7 +22,7 @@ class particle
     public:
 
         particle()
-          : name("unknown"), PDGcode(0), charge(0), time_start(0),kmunu(0),plot_beam_distance(0),minimum_beam_distance(0),plot_momentum(0),plot_true_kmunu(0),detected(0),kaon_link(0)//,minimum_spacetime_interval(9999999999,9999999999,9999999999,9999999999)
+          : name("unknown"), PDGcode(0), charge(0), time_start(0),kmunu(0),plot_beam_distance(0),minimum_beam_distance(0),plot_momentum(0),plot_true_kmunu(0),detected(0),kaon_link(0),minimum_spacetime_interval(9999999999,9999999999,9999999999,9999999999)
         {
 
         }

@@ -347,7 +347,7 @@ void spectro::InitHist()
     BookHisto( h51 );
 
     TH1D* h52 = new TH1D("MissingMass", "Missing Mass Squared", NumberOfBins, 0, 0);
-    h52 -> GetXaxis() -> SetTitle( "Missing Mass Squared" );
+    h52 -> GetXaxis() -> SetTitle( "Missing Mass Squared, GeV²/c⁴" );
     h52 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h52 );
 
@@ -565,7 +565,7 @@ void spectro::Process( int iEvent )
 				{
 
                     p->plot_beam_distance = true;
-					if ( abs( MissingMass2 ) / ( pow( 1000, 2 ) ) < 4000 ) //This is very likey k->munu. One detected candidate in spec, correct charge, came from beam, kinematics consistent within resolution to this process.
+					if ( abs( MissingMass2 ) / ( pow( 1000, 2 ) ) < 1000000) //This is very likey k->munu. One detected candidate in spec, correct charge, came from beam, kinematics consistent within resolution to this process.
 					{
                         FillHisto( "MissingMass", MissingMass2 / ( pow( 1000, 2 ) ) );
                         p->name = "Muon";
@@ -605,7 +605,7 @@ void spectro::Process( int iEvent )
 		}
 	}
 	*/
-	/*
+
 	Event *MCTruthEvent = GetMCEvent();
 	if ( MCTruthEvent -> GetNKineParts() >= 3 )
 	{
@@ -723,7 +723,7 @@ void spectro::EndOfRunUser()
                     reco_events[i]->particles[0]->momentum.RotateY( -BeamAngleFromZAxis ); //Switch back to standard reference frame.
                 }
 
-				/*
+
 
 				if ( TrueNumber >= 3 && true_events[i]->particles[1]->plot_true_kmunu == true && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 20  )
 				{
