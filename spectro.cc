@@ -661,7 +661,7 @@ void spectro::Process( int iEvent )
 			}
 		}
 	}
-	*/
+
 }
 
 void spectro::PostProcess()
