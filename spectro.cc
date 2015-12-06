@@ -347,7 +347,7 @@ void spectro::InitHist()
     BookHisto( h51 );
 
     TH1D* h52 = new TH1D("MissingMass", "Missing Mass Squared", NumberOfBins, 0, 0);
-    h52 -> GetXaxis() -> SetTitle( "Missing Mass Squared, GeV²/c⁴" );
+    h52 -> GetXaxis() -> SetTitle( "Missing Mass Squared, GeV /c " );
     h52 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h52 );
 
