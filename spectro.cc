@@ -766,7 +766,7 @@ void spectro::EndOfRunUser()
 					true_events[i]->particles[1]->momentum.RotateY(-BeamAngleFromZAxis);
 					reco_events[i]->particles[0]->momentum.RotateY(-BeamAngleFromZAxis);
 				}
-				*/
+
 			}
         }
         /*
