@@ -346,7 +346,7 @@ void spectro::InitHist()
     h51 -> GetYaxis() -> SetTitle( "mm" );
     BookHisto( h51 );
 
-    TH1D* h52 = new TH1D("MissingMass", "Missing Mass Squared", NumberOfBins, 0, 0);
+    TH1D* h52 = new TH1D("MissingMass", "Missing Mass Squared", NumberOfBins, -0.2, 0.2);
     h52 -> GetXaxis() -> SetTitle( "Missing Mass Squared, GeV /c " );
     h52 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h52 );
@@ -766,6 +766,7 @@ void spectro::EndOfRunUser()
 					true_events[i]->particles[1]->momentum.RotateY(-BeamAngleFromZAxis);
 					reco_events[i]->particles[0]->momentum.RotateY(-BeamAngleFromZAxis);
 				}
+
 
 			}
         }
