@@ -607,7 +607,7 @@ void spectro::Process( int iEvent )
 	*/
 
 	Event *MCTruthEvent = GetMCEvent();
-	if ( MCTruthEvent -> GetNKineParts() >= 3 )
+	if ( MCTruthEvent -> GetNKineParts() >= 1 )
 	{
 		for( int i = 0; i < MCTruthEvent -> GetNKineParts(); i++ )
 		{
@@ -621,11 +621,17 @@ void spectro::Process( int iEvent )
 			true_particle->momentum = TrueCandidate -> GetMomAtCheckPoint( 2 ).Vect();
 			true_particle->position_start = TrueCandidate -> GetProdPos().Vect();
 			true_particle->position_end = TrueCandidate -> GetEndPos().Vect();
+
 			if ( i == 0 )
 				FillHisto( "KaonEndingPosition",true_particle->position_end[2] / 1000., true_particle->position_end[0] );
 			FillHisto( "ParticleProductionPosition",true_particle->position_start[2] / 1000., true_particle->position_start[0] );
 			if ( i == 1 && true_particle->momentum.Mag() != 0 && TrueCandidate -> GetPDGcode() == -13 && abs(true_particle->momentum.Theta()) > 0 )
 			{
+                for ( int k = 0; k < MCTruthEvent -> GetNKineParts(); k++ )
+				{
+					KinePart *CandidateN = ( KinePart* )MCTruthEvent -> GetKineParts() -> At( k );
+					cout  << CandidateN -> GetParticleName() << CandidateN -> GetPDGcode() << " ";
+				}
 				TLorentzVector TrueMuonMomentum = TrueCandidate->GetInitial4Momentum();
 				//TLorentzVector TrueMuonMomentum = TrueCandidate->GetMomAtCheckPoint(2);
 				TLorentzVector TrueMissingMass = TrueKaonMomentum - TrueMuonMomentum;
@@ -643,11 +649,7 @@ void spectro::Process( int iEvent )
                         << endl
                         << MCTruthEvent -> GetNKineParts();
 
-				for ( int k = 0; k < MCTruthEvent -> GetNKineParts(); k++ )
-				{
-					KinePart *CandidateN = ( KinePart* )MCTruthEvent -> GetKineParts() -> At( k );
-					cout  << CandidateN -> GetParticleName() << CandidateN -> GetPDGcode() << " ";
-				}
+
 				true_particle->momentum.RotateY(BeamAngleFromZAxis);
 				if( i == 1 && true_particle->position_start[2] > 101000 && abs(true_particle->momentum[0]) <= 235 && abs(true_particle->momentum[1]) <= 235 && true_particle->momentum.Theta() <= 0.020 )
 				{
@@ -874,3 +876,4 @@ void spectro::DrawPlot()
     DrawAllPlots();
     SaveAllPlotsPDF();
 }
+
