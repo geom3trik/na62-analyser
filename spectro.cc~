@@ -14,9 +14,7 @@ using namespace std;
 using namespace NA62Analysis;
 using namespace NA62Constants;
 
-
-
-
+int COUNTNUMBER = 0;
 spectro::spectro( Core::BaseAnalysis *ba ) : Analyzer( ba, "spectro" )
 {
 	RequestTree( "GigaTracker", new TRecoGigaTrackerEvent );
@@ -262,57 +260,57 @@ void spectro::InitHist()
     h34 -> GetYaxis() -> SetTitle( "x mm" );
     BookHisto( h34 );
 
-    TH1D* h35 = new TH1D( "ClosestPointOfMuon", " ClosestPointOfMuon", NumberOfBins, 0, 0 );
+    TH1D* h35 = new TH1D( "ClosestPointOfMuon", " ClosestPointOfMuon", NumberOfBins*10, 0, 0 );
     h35 -> GetXaxis() -> SetTitle( "m" );
     h35 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h35 );
 
-    TH1D* h36 = new TH1D( "ClosestxPointOfMuon", " ClosestxPointOfMuon", NumberOfBins, 0, 0 );
+    TH1D* h36 = new TH1D( "ClosestxPointOfMuon", " ClosestxPointOfMuon", NumberOfBins*10, 0, 0 );
     h36 -> GetXaxis() -> SetTitle( "mm" );
     h36 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h36 );
 
-    TH1D* h37 = new TH1D( "ClosestyPointOfMuon", " ClosestyPointOfMuon", NumberOfBins, 0, 0 );
+    TH1D* h37 = new TH1D( "ClosestyPointOfMuon", " ClosestyPointOfMuon", NumberOfBins*10, 0, 0 );
     h37 -> GetXaxis() -> SetTitle( "mm" );
     h37 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h37 );
 
-    TH1D* h38 = new TH1D( "ClosestzPointOfMuon", " ClosestzPointOfMuon", NumberOfBins, 0, 0 );
+    TH1D* h38 = new TH1D( "ClosestzPointOfMuon", " ClosestzPointOfMuon", NumberOfBins*10, 0, 0 );
     h38 -> GetXaxis() -> SetTitle( "m" );
     h38 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h38 );
 
-    TH1D* h39 = new TH1D( "ClosestTimeOfMuon", " ClosestTimeOfMuon", NumberOfBins, 0, 0 );
+    TH1D* h39 = new TH1D( "ClosestTimeOfMuon", " ClosestTimeOfMuon", NumberOfBins*10, 0, 0 );
     h39 -> GetXaxis() -> SetTitle( "s" );
     h39 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h39 );
 
-    TH1D* h40 = new TH1D( "ClosestTimeOfKaon", " ClosestTimeOfKaon", NumberOfBins, 0, 0 );
+    TH1D* h40 = new TH1D( "ClosestTimeOfKaon", " ClosestTimeOfKaon", NumberOfBins*10, 0, 0 );
     h40 -> GetXaxis() -> SetTitle( "s" );
     h40 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h40 );
 
-    TH1D* h41 = new TH1D( "ClosestDistanceOfMuonToKaon", " ClosestDistanceOfMuonToKaon", NumberOfBins, 0, 0 );
+    TH1D* h41 = new TH1D( "ClosestDistanceOfMuonToKaon", " ClosestDistanceOfMuonToKaon", NumberOfBins*10, 0, 0 );
     h41 -> GetXaxis() -> SetTitle( "mm" );
     h41 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h41 );
 
-    TH1D* h42 = new TH1D( "ClosestxDistanceOfMuonToKaon", " ClosestxDistanceOfMuonToKaon", NumberOfBins, 0, 0 );
+    TH1D* h42 = new TH1D( "ClosestxDistanceOfMuonToKaon", " ClosestxDistanceOfMuonToKaon", NumberOfBins*10, 0, 0 );
     h42 -> GetXaxis() -> SetTitle( "mm" );
     h42 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h42 );
 
-    TH1D* h43 = new TH1D( "ClosestyDistanceOfMuonToKaon", " ClosestyDistanceOfMuonToKaon", NumberOfBins, 0, 0 );
+    TH1D* h43 = new TH1D( "ClosestyDistanceOfMuonToKaon", " ClosestyDistanceOfMuonToKaon", NumberOfBins*10, 0, 0 );
     h43 -> GetXaxis() -> SetTitle( "mm" );
     h43 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h43 );
 
-    TH1D* h44 = new TH1D( "ClosestzDistanceOfMuonToKaon", " ClosestzDistanceOfMuonToKaon", NumberOfBins, 0, 0 );
+    TH1D* h44 = new TH1D( "ClosestzDistanceOfMuonToKaon", " ClosestzDistanceOfMuonToKaon", NumberOfBins*10, 0, 0 );
     h44 -> GetXaxis() -> SetTitle( "mm" );
     h44 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h44 );
 
-    TH1D* h45 = new TH1D( "ClosestSpaceTimeInterval", " ClosestSpaceTimeInterval", NumberOfBins, 0, 0 );
+    TH1D* h45 = new TH1D( "ClosestSpaceTimeInterval", " ClosestSpaceTimeInterval", NumberOfBins*10, 0, 0 );
     h45 -> GetXaxis() -> SetTitle( "m^2" );
     h45 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h45 );
@@ -343,18 +341,42 @@ void spectro::InitHist()
     h50 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h50 );
 
-
     TH2D* h51 = new TH2D( "TrueProuductionPosition", "MuonProductionPoint", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
     h51 -> GetXaxis() -> SetTitle( "m" );
     h51 -> GetYaxis() -> SetTitle( "mm" );
     BookHisto( h51 );
 
-    THD1* h52 = new THD1("MissingMass", "Missing Mass Squared", NumberOfBins, 0, 0);
-    h52 -> GetXaxis() -> SetTitle( "Missing Mass Squared" );
+    TH1D* h52 = new TH1D("MissingMass", "Missing Mass Squared", NumberOfBins, 0, 0);
+    h52 -> GetXaxis() -> SetTitle( "Missing Mass Squared, GeV /c " );
     h52 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h52 );
 
-/*
+	TH1D* h53 = new TH1D("TrueMissingMass", "True Missing Mass Squared", 1000, 0, 0);
+    h53 -> GetXaxis() -> SetTitle( "True Missing Mass Squared" );
+    h53 -> GetYaxis() -> SetTitle( "Number of Entries" );
+    BookHisto( h53 );
+
+    TH1D* h54 = new TH1D("SpectrometerxMomentumResolution", "Spectrometer x Momentum Resolution", NumberOfBins, 0, 0);
+    h54 -> GetXaxis() -> SetTitle( "x Momentum MeV" );
+    h54 -> GetYaxis() -> SetTitle( "Number of Entries" );
+    BookHisto( h54 );
+
+    TH1D* h55 = new TH1D("SpectrometeryMomentumResolution", "Spectrometer y Momentum Resolution", NumberOfBins, 0, 0);
+    h55 -> GetXaxis() -> SetTitle( "y Momentum MeV" );
+    h55 -> GetYaxis() -> SetTitle( "Number of Entries" );
+    BookHisto( h55 );
+
+    TH1D* h56 = new TH1D("SpectrometerzMomentumResolution", "Spectrometer z Momentum Resolution", NumberOfBins, 0, 0);
+    h56 -> GetXaxis() -> SetTitle( "z Momentum GeV" );
+    h56 -> GetYaxis() -> SetTitle( "Number of Entries" );
+    BookHisto( h56 );
+
+    TH1D* h57 = new TH1D("SpectrometerMomentumResolution", "Spectrometer Momentum Resolution", NumberOfBins, 0, 0);
+    h57 -> GetXaxis() -> SetTitle( "Momentum GeV" );
+    h57 -> GetYaxis() -> SetTitle( "Number of Entries" );
+    BookHisto( h57 );
+
+    /*
     TH1D* h14 = new TH1D( "TrueMuonxMomentumHist", "True Muon x Momentum", NumberOfBins, 0, 0 );
     h14 -> GetXaxis() -> SetTitle( "Momentum MeV" );
     h14 -> GetYaxis() -> SetTitle( "Number of Entries" );
@@ -435,6 +457,8 @@ TLorentzVector ClosestSpaceTimePointOnVectorToOtherVector( TVector3 Vector1Posit
 	D = Vector2Momentum.Unit();
 	b = Vector1Momentum.Mag() * pow ( 10 , 6 ) * 5.3442883 * pow( 10, -28 );
 	d = Vector2Momentum.Mag() * pow ( 10 , 6 ) * 5.3442883 * pow( 10, -28 );
+	//Time1 = Time1;
+    //Time2 = Time2;
 	VectorScale1 = ( ( pow( d, 2 ) - pow( SpeedOfLight, 2 ) ) * ( pow( SpeedOfLight, 2 ) * ( Time2 - Time1 ) - ( C - A ).Dot( b * B ) ) + ( ( d * D ).Dot( b * B ) - pow( SpeedOfLight, 2 ) ) * ( ( C - A ).Dot( d * D ) - pow( SpeedOfLight, 2 ) * ( Time2 - Time1 ) ) ) / ( pow( SpeedOfLight, 2 ) * pow ( ( d - b ), 2 ) );
 	VectorScale2 = ( ( pow( b, 2 ) - pow( SpeedOfLight, 2 ) ) * VectorScale1 - ( C - A ).Dot( b * B ) + pow( SpeedOfLight , 2 ) * ( Time2 - Time1 ) ) / ( (d * D ).Dot( b * B ) - pow( SpeedOfLight, 2 ) );
 	TVector3 ClosestPointOnVector1 = A + VectorScale1 * B * b * pow( sqrt( pow( Mass1, 2 ) + pow( b, 2 ) / pow ( SpeedOfLight , 2 ) ), -1 );
@@ -452,237 +476,166 @@ TLorentzVector ClosestSpaceTimePointOnVectorToOtherVector( TVector3 Vector1Posit
 
 void spectro::Process( int iEvent )
 {
-    //Add event to list of events
-    event* reco_event = new event();
-    reco_events.push_back(reco_event);
+	//Add event to list of events
+	event* reco_event = new event();
+	reco_events.push_back(reco_event);
 
-    event* true_event = new event();
-    true_events.push_back(true_event);
+	event* true_event = new event();
+	true_events.push_back(true_event);
 
-	if( fMCSimple.fStatus == MCSimple::kMissing ){printIncompleteMCWarning( iEvent );return;}
-	if( fMCSimple.fStatus == MCSimple::kEmpty ){printNoMCWarning();return;}
+	//if( fMCSimple.fStatus == MCSimple::kMissing ){printIncompleteMCWarning( iEvent );return;}
+	//if( fMCSimple.fStatus == MCSimple::kEmpty ){printNoMCWarning();return;}
 
- 	//Get the spectrometer event
 	TRecoSpectrometerEvent *SpectrometerEvent = ( TRecoSpectrometerEvent* )GetEvent( "Spectrometer" );
-	//Define ParticleThreeMomentum and ParticleTrueThreeMomentum vectors
-	TVector3    ParticleTrueThreeMomentum, TrueParticleStartingThreePosition, TrueParticleEndingThreePosition,
-                ClosestPointFromBeamAxis, BeamPointFiducialEntry, DistanceToBeamAxis, ClosestPointOfBeamApproached, KaonThreeMomentum, KaonThreePositionGTK1,
-                ClosestPointFromBeamAxisBeforeFiducial, ClosestPointFromBeamAxisAfterFiducial, ClosestPointOfBeamApproachedBeforeFiducial, ClosestPointOfBeamApproachedAfterFiducial, DistanceToBeamAxisBeforeFiducial, DistanceToBeamAxisAfterFiducial;
-    //Define TrueFourMomentum Vector
-    TLorentzVector  TrueMuonFourMomentum, TrueFourMomentum, TrueParticleStartingFourPosition, TrueParticleEndingFourPosition, KaonFourMomentum;
+	TVector3    	ParticleTrueThreeMomentum, TrueParticleStartingThreePosition, TrueParticleEndingThreePosition,
+               	 	ClosestPointFromBeamAxis, BeamPointFiducialEntry, DistanceToBeamAxis, ClosestPointOfBeamApproached, KaonThreeMomentum, KaonThreePositionGTK1,
+                    ClosestPointFromBeamAxisBeforeFiducial, ClosestPointFromBeamAxisAfterFiducial, ClosestPointOfBeamApproachedBeforeFiducial, ClosestPointOfBeamApproachedAfterFiducial,
+                    DistanceToBeamAxisBeforeFiducial, DistanceToBeamAxisAfterFiducial;
+    TLorentzVector  TrueMuonFourMomentum, TrueFourMomentum, TrueParticleStartingFourPosition, TrueParticleEndingFourPosition, KaonFourMomentum, TrueKaonMomentum;
+	double          MinimumDistanceToBeamAxis,MinimumDistanceToBeamAxisAfterFiducial,MinimumDistanceToBeamAxisBeforeFiducial, CheckIfEventCanBeMatchedToBeam = 0;
 
-	double 		MinimumDistanceToBeamAxis,MinimumDistanceToBeamAxisAfterFiducial,MinimumDistanceToBeamAxisBeforeFiducial, CheckIfEventCanBeMatchedToBeam = 0;
-
-    //Check to see if an event was detected
+	//Check to see if an event was detected
 	if( SpectrometerEvent -> GetNCandidates() >= 1 )
 	{
 		//Loop through each detected particle in the event
 		for ( int k = 0; k < SpectrometerEvent -> GetNCandidates(); k++ )
 		{
-		    //Get the candidate from the spectrometer event
+			//Get the candidate from the spectrometer event
 			TRecoSpectrometerCandidate *SpectroCandidate = ( TRecoSpectrometerCandidate* )SpectrometerEvent->GetCandidate( k );
 			SpectroCandidate->SetEvent( SpectrometerEvent );
-
-            //Create a new particle and add it to the event
-            particle* p = new particle();
-            reco_event->add_particle(p);
-
-            //Set the properties of the particle
-            p->momentum = SpectroCandidate->GetThreeMomentumBeforeMagnet();
-            p->position_start = SpectroCandidate->GetPositionBeforeMagnet();
-            p->time_start = SpectroCandidate -> GetTime();
-            p->charge = SpectroCandidate -> GetCharge();
-
-
-			//ParticleThreeMomentum = SpectroCandidate->GetThreeMomentumBeforeMagnet();
-			//ParticleThreePositionBeforeMagnet = SpectroCandidate -> GetPositionBeforeMagnet();
-
-			//BeamAxisDirection = { 0, 0, 1 };
-			//BeamAxisDirection.RotateY( - BeamAngleFromZAxis );	//Rotate beam so it points along the dirction it should
-			//BeamPointFiducialEntry = { 0, 0, 102000 };
+			//Create a new particle and add it to the event
+			particle* p = new particle();
+			reco_event->add_particle(p);
+			//Set the properties of the particle
+			p->momentum = SpectroCandidate->GetThreeMomentumBeforeMagnet();
+			p->position_start = SpectroCandidate->GetPositionBeforeMagnet();
+			p->time_start = SpectroCandidate -> GetTime() * pow( 10, 1 ) / pow( 10 , 9 );
+			p->charge = SpectroCandidate -> GetCharge();
 
             MinimumDistanceToBeamAxisBeforeFiducial = ( ( b.fiducial_entry - p->position_start ).Dot( b.beam_axis.Cross( p->momentum ) ) ) / ( b.beam_axis.Cross( p->momentum ) ).Mag() ;
             ClosestPointFromBeamAxisBeforeFiducial = ClosestPointOnVectorToOtherVector( p->position_start, p->momentum, b.fiducial_entry, b.beam_axis );
             ClosestPointOfBeamApproachedBeforeFiducial = ClosestPointOnVectorToOtherVector( b.fiducial_entry, b.beam_axis, p->position_start, p->momentum );
             DistanceToBeamAxisBeforeFiducial = -ClosestPointOfBeamApproachedBeforeFiducial + ClosestPointFromBeamAxisBeforeFiducial;
+			MinimumDistanceToBeamAxisAfterFiducial = ( ( b.fiducial_entry - p->position_start ).Dot( b.beam_axis_rotated.Cross( p->momentum ) ) ) / ( b.beam_axis_rotated.Cross( p->momentum ) ).Mag() ;
+			ClosestPointFromBeamAxisAfterFiducial = ClosestPointOnVectorToOtherVector( p->position_start, p->momentum, b.fiducial_entry, b.beam_axis_rotated );
+			ClosestPointOfBeamApproachedAfterFiducial = ClosestPointOnVectorToOtherVector( b.fiducial_entry, b.beam_axis_rotated, p->position_start, p->momentum );
+			DistanceToBeamAxisAfterFiducial = -ClosestPointFromBeamAxisAfterFiducial + ClosestPointOfBeamApproachedAfterFiducial;
 
-            MinimumDistanceToBeamAxisAfterFiducial = ( ( b.fiducial_entry - p->position_start ).Dot( b.beam_axis_rotated.Cross( p->momentum ) ) ) / ( b.beam_axis_rotated.Cross( p->momentum ) ).Mag() ;
-            ClosestPointFromBeamAxisAfterFiducial = ClosestPointOnVectorToOtherVector( p->position_start, p->momentum, b.fiducial_entry, b.beam_axis_rotated );
-            ClosestPointOfBeamApproachedAfterFiducial = ClosestPointOnVectorToOtherVector( b.fiducial_entry, b.beam_axis_rotated, p->position_start, p->momentum );
-            DistanceToBeamAxisAfterFiducial = -ClosestPointFromBeamAxisAfterFiducial + ClosestPointOfBeamApproachedAfterFiducial;
-
-            if ( ClosestPointFromBeamAxisBeforeFiducial( 2 ) <= 102000 && ( ClosestPointFromBeamAxisAfterFiducial( 2 ) < 102000 || abs( DistanceToBeamAxisBeforeFiducial.Mag() ) < abs ( DistanceToBeamAxisAfterFiducial.Mag() ) ) )
-                    {
-                ClosestPointFromBeamAxis = ClosestPointFromBeamAxisBeforeFiducial;
-                ClosestPointOfBeamApproached = ClosestPointOfBeamApproachedBeforeFiducial;
-                    DistanceToBeamAxis = DistanceToBeamAxisBeforeFiducial;
-                MinimumDistanceToBeamAxis = MinimumDistanceToBeamAxisBeforeFiducial;
-                CheckIfEventCanBeMatchedToBeam = 1;
+            if ( ClosestPointFromBeamAxisBeforeFiducial( 2 ) <= 104000 && ( ClosestPointFromBeamAxisAfterFiducial( 2 ) < 104000 || abs( DistanceToBeamAxisBeforeFiducial.Mag() ) < abs ( DistanceToBeamAxisAfterFiducial.Mag() ) ) )
+			{
+				p->origin = ClosestPointFromBeamAxisBeforeFiducial;
+				ClosestPointOfBeamApproached = ClosestPointOfBeamApproachedBeforeFiducial;
+				p->beam_distance = DistanceToBeamAxisBeforeFiducial;
+				p->minimum_beam_distance = MinimumDistanceToBeamAxisBeforeFiducial;
+				CheckIfEventCanBeMatchedToBeam = 0;
             }
 
-            else if ( ClosestPointFromBeamAxisAfterFiducial( 2 ) >= 102000 )
+            else if ( ClosestPointFromBeamAxisAfterFiducial( 2 ) >= 104000 && ClosestPointFromBeamAxisAfterFiducial( 2 ) <= 166000 )
             {
-                ClosestPointFromBeamAxis = ClosestPointFromBeamAxisAfterFiducial;
+                p->origin = ClosestPointFromBeamAxisAfterFiducial;
                 ClosestPointOfBeamApproached = ClosestPointOfBeamApproachedAfterFiducial;
-                DistanceToBeamAxis = DistanceToBeamAxisAfterFiducial;
-                MinimumDistanceToBeamAxis = MinimumDistanceToBeamAxisAfterFiducial;
+                p->beam_distance = DistanceToBeamAxisAfterFiducial;
+                p->minimum_beam_distance = MinimumDistanceToBeamAxisAfterFiducial;
                 CheckIfEventCanBeMatchedToBeam = 1;
             }
 
             /*Remove events that aren't a single positive particle being detected in the spectrometer (as this is not k->munu), Charge == 1 gets rid of 29 events, then && Candidates == 1 gets rid of another 12  */
 			if ( p->charge == 1 && SpectrometerEvent->GetNCandidates() == 1 )
 			{
-				p->momentum.RotateY(BeamAngleFromZAxis);
+				p->plot_momentum = true;
 
-				FillHisto( "MomentumHist",  p->momentum.Mag() / 1000. );
-				FillHisto( "xMomentumHist", p->momentum[0] / 1000. );
-				FillHisto( "yMomentumHist", p->momentum[1] / 1000. );
-				FillHisto( "zMomentumHist", p->momentum[2] / 1000. );
-				FillHisto( "TransverseMomentumHist",  p->momentum.Perp() );
-				FillHisto( "AzimuthalMomentumHist", p->momentum.Phi() );
-				FillHisto( "PolarMomentumHist", p->momentum.Theta() );
-				FillHisto( "EnergyVsAzimuthal", p->momentum.Phi(), p->momentum.Mag() / 1000. );
-				FillHisto( "EnergyVsPolar", p->momentum.Theta(), p->momentum.Mag() / 1000. );
-				FillHisto( "TranverseEnergyVsAzimuthal", p->momentum.Phi(), p->momentum.Perp() / 1000. );
+				double KaonMass = 493.667;
+				double KaonEnergy = sqrt((75e3*75e3) + (KaonMass*KaonMass));
+				TLorentzVector KaonMomentum;
+				KaonMomentum[2] = 75e3;
+				KaonMomentum[3] = KaonEnergy;
+				KaonMomentum.RotateY( -BeamAngleFromZAxis );
 
-                KaonMass = 493.667;
-                double KaonMomentum = 75e9 - KaonMass;
-                double MissingMass = KaonMomentum - p->momentum.Mag();
-                double MissingMass2 = MissingMass*MissingMass;
+				double MuonMass = 105.6583715;
+				double MuonEnergy = sqrt((p->momentum.Mag2()) + (MuonMass*MuonMass));
+				TLorentzVector MuonMomentum;
+				MuonMomentum.SetVect(p->momentum);
+				MuonMomentum[3] = MuonEnergy;
+
+				TLorentzVector MissingMass = KaonMomentum - MuonMomentum;
+				double MissingMass2 = MissingMass.Mag2();
+
 
 				if ( CheckIfEventCanBeMatchedToBeam == 1 )
 				{
-					FillHisto( "ClosestPointFromBeamAxis", ClosestPointFromBeamAxis.Mag() / 1000. );
-					FillHisto( "ClosestxPointFromBeamAxis", ClosestPointFromBeamAxis( 0 ) );
-					FillHisto( "ClosestyPointFromBeamAxis", ClosestPointFromBeamAxis( 1 ) );
-					FillHisto( "ClosestzPointFromBeamAxis", ClosestPointFromBeamAxis( 2 ) / 1000. );
-					FillHisto( "MinimumDistanceToBeamAxis", MinimumDistanceToBeamAxis );
-					FillHisto( "ClosestDistanceToBeamAxis", DistanceToBeamAxis.Mag() );
-					FillHisto( "ClosestxDistanceToBeamAxis", DistanceToBeamAxis( 0 ) );
-					FillHisto( "ClosestyDistanceToBeamAxis", DistanceToBeamAxis( 1 ) );
-					FillHisto( "ClosestzDistanceToBeamAxis", DistanceToBeamAxis( 2 ) );
-					FillHisto( "DecayPoisition", ClosestPointFromBeamAxis( 2 ) / 1000. , ClosestPointFromBeamAxis ( 0 ) );
+
+                    p->plot_beam_distance = true;
+					if ( abs( MissingMass2 ) / ( pow( 1000, 2 ) ) < 1000000) //This is very likey k->munu. One detected candidate in spec, correct charge, came from beam, kinematics consistent within resolution to this process.
+					{
+                        FillHisto( "MissingMass", MissingMass2 / ( pow( 1000, 2 ) ) );
+                        p->name = "Muon";
+                        p->PDGcode = -13;
+                        p->kmunu = true;
+                        cout << "Muon:" << p->time_start <<endl;
+					}
 				}
 			}
 		}
 	}
 
-    TRecoGigaTrackerEvent *GTKEvent = ( TRecoGigaTrackerEvent* )GetEvent( "GigaTracker" );
-    //cout << "GTKEVENTNUMBER:" << GTKEvent -> GetNCandidates() << " " << "SPECTROMETEREVENTNUMBER:" << SpectrometerEvent -> GetNCandidates() << " ";
+	/*
+	TRecoGigaTrackerEvent *GTKEvent = ( TRecoGigaTrackerEvent* )GetEvent( "GigaTracker" );
+	//cout << "GTKEVENTNUMBER:" << GTKEvent -> GetNCandidates() << " " << "SPECTROMETEREVENTNUMBER:" << SpectrometerEvent -> GetNCandidates() << " ";
 	//FOR SOME REASON  GTKEvent -> GetNCandidates() ALWAYS RETURNS 0 //
-	if( GTKEvent -> GetNCandidates() >= 1 ) //Loop through every distinguishable detected event
-    {
+
+
+	if( GTKEvent -> GetNCandidates() == 1 ) //Loop through every distinguishable detected event
+	{
+
 		for ( int k = 0; k < GTKEvent -> GetNHits(); k++)
 		{
-            // Create the Kaon and add it to the event
-            particle* kaon = new particle();
-            reco_event->add_particle(kaon);
-
+			// Create the Kaon and add it to the event
+			particle* kaon = new particle();
+			reco_event->add_particle(kaon);
 			TRecoGigaTrackerCandidate *KaonCandidate = ( TRecoGigaTrackerCandidate* )GTKEvent->GetCandidate( 0 );
 			KaonCandidate -> SetEvent( GTKEvent ); //THIS LINE CAUSES SEGMENTATION VIOLATION
-			cout << "IS IT HERE????";
-            //Set the properties of the particle
+			//Set the properties of the particle
 			KaonFourMomentum = KaonCandidate -> GetMomentum();
 			kaon->momentum = KaonFourMomentum.Vect();
 			kaon->position_start = KaonCandidate -> GetPosition( 0 );
-			kaon->time_start = KaonCandidate -> GetTime1();
+			kaon->time_start = KaonCandidate -> GetTime1() / pow( 10,18 ) ;
+			kaon->detected = true;
+			cout << "Kaon:" << kaon->time_start << endl;
+
 		}
 	}
+	*/
 
-
-/*
-	TVector3 MuonThreePosition, MuonMomentum, KaonThreePosition, KaonMomentum, ClosestPointOfMuon, ClosestPointOfKaon, ClosestDistanceFromMuonToKaon;
-	TLorentzVector ClosestSpaceTimePointOfMuon, ClosestSpaceTimePointOfKaon;
-	double MuonMass = 105.6583715, MuonDetectionTime, KaonMass = 493.667, KaonDetectionTime, SpaceTimeInterval, MinimumInterval, ClosestTimeOfMuon, ClosestTimeOfKaon, ClosestSpaceTimeInterval, ClosestTimeFromMuonToKaon;
-	int K[10], KaonPosition[10], KaonDecayed;
-	if ( iEvent == 100999 )
-	{
-		for( int i = 0; i < 10; i++ )
-		{
-			MinimumInterval = 99999999999999;
-			for ( int k = 0; k < 101000; k++ )
-			{
-				MuonThreePosition.SetXYZ(EventParticleThreePositionBeforeMagnet[i][0],EventParticleThreePositionBeforeMagnet[i][1],EventParticleThreePositionBeforeMagnet[i][2]);
-				MuonMomentum.SetXYZ(EventThreeMomentum[i][0], EventThreeMomentum[i][1], EventThreeMomentum[i][2] );
-				MuonDetectionTime = EventParticleTime[i];
-				KaonThreePosition.SetXYZ(EventKaonThreePositionGTK1[k][0],EventKaonThreePositionGTK1[k][1],EventKaonThreePositionGTK1[k][2]);
-				KaonMomentum.SetXYZ(EventKaonThreeMomentum[k][0], EventKaonThreeMomentum[k][1], EventKaonThreeMomentum[k][2] );
-				KaonDetectionTime = EventKaonTimeAtGTK1[k];
-				ClosestSpaceTimePointOfMuon = ClosestSpaceTimePointOnVectorToOtherVector(MuonThreePosition, MuonMomentum, MuonMass, MuonDetectionTime, KaonThreePosition, KaonMomentum, KaonMass, KaonDetectionTime );
-				SpaceTimeInterval = ClosestSpaceTimePointOfMuon.Mag();
-				if ( SpaceTimeInterval < MinimumInterval )	//For each muon, find the kaon that has the smallest spacetime interval between them
-				{
-					MinimumInterval = SpaceTimeInterval;
-					KaonPosition[i] = k; //Note which kaon corresponds to which muon.
-				}
-			}
-		}
-		for( int j = 0; j < 10; j++ )
-		{
-			KaonDecayed = KaonPosition[j];
-			MuonThreePosition.SetXYZ(EventParticleThreePositionBeforeMagnet[j][0],EventParticleThreePositionBeforeMagnet[j][1],EventParticleThreePositionBeforeMagnet[j][2]);
-			MuonMomentum.SetXYZ(EventThreeMomentum[j][0], EventThreeMomentum[j][1], EventThreeMomentum[j][2] );
-			MuonDetectionTime = EventParticleTime[j];
-			KaonThreePosition.SetXYZ(EventKaonThreePositionGTK1[KaonDecayed][0],EventKaonThreePositionGTK1[KaonDecayed][1],EventKaonThreePositionGTK1[KaonDecayed][2]);
-			KaonMomentum.SetXYZ(EventKaonThreeMomentum[KaonDecayed][0], EventKaonThreeMomentum[KaonDecayed][1], EventKaonThreeMomentum[KaonDecayed][2] );
-			KaonDetectionTime = EventKaonTimeAtGTK1[KaonDecayed];
-			ClosestSpaceTimePointOfMuon = ClosestSpaceTimePointOnVectorToOtherVector(MuonThreePosition, MuonMomentum, MuonMass, MuonDetectionTime, KaonThreePosition, KaonMomentum, KaonMass, KaonDetectionTime );
-			ClosestPointOfMuon = ClosestSpaceTimePointOfMuon.Vect();
-			ClosestTimeOfMuon = ClosestSpaceTimePointOfMuon( 3 );
-			ClosestSpaceTimePointOfKaon = ClosestSpaceTimePointOnVectorToOtherVector(KaonThreePosition, KaonMomentum, KaonMass, KaonDetectionTime, MuonThreePosition, MuonMomentum, MuonMass, MuonDetectionTime );
-			ClosestPointOfKaon = ClosestSpaceTimePointOfKaon.Vect();
-			ClosestTimeOfKaon = ClosestSpaceTimePointOfKaon( 3 );
-			ClosestDistanceFromMuonToKaon = ClosestPointOfKaon - ClosestPointOfMuon;
-			ClosestTimeFromMuonToKaon = ClosestTimeOfKaon - ClosestTimeOfMuon;
-			ClosestSpaceTimeInterval =  ClosestDistanceFromMuonToKaon.Mag2() - pow( SpeedOfLight, 2 ) * pow( ClosestTimeFromMuonToKaon, 2 );
-			FillHisto( "ClosestPointOfMuon",  ClosestPointOfMuon.Mag() );
-			FillHisto( "ClosestxPointOfMuon",  ClosestPointOfMuon( 0 ) );
-			FillHisto( "ClosestyPointOfMuon",  ClosestPointOfMuon( 1 ) );
-			FillHisto( "ClosestzPointOfMuon",  ClosestPointOfMuon( 2 ) / 1000. );
-			FillHisto( "ClosestTimeOfMuon",  ClosestTimeOfMuon );
-			FillHisto( "ClosestTimeOfKaon",  ClosestTimeOfKaon );
-			FillHisto( "ClosestDistanceOfMuonToKaon",  ClosestDistanceFromMuonToKaon.Mag() );
-			FillHisto( "ClosestxDistanceOfMuonToKaon",  ClosestDistanceFromMuonToKaon( 0 ) );
-			FillHisto( "ClosestyDistanceOfMuonToKaon",  ClosestDistanceFromMuonToKaon( 1 ) );
-			FillHisto( "ClosestzDistanceOfMuonToKaon",  ClosestDistanceFromMuonToKaon( 2 ) );
-			FillHisto( "ClosestSpaceTimeInterval",  ClosestSpaceTimeInterval );
-		}
-	}
-*/
-	cout << "TESTING";
- 	Event *MCTruthEvent = GetMCEvent();
+	Event *MCTruthEvent = GetMCEvent();
 	if ( MCTruthEvent -> GetNKineParts() >= 3 )
 	{
 		for( int i = 0; i < MCTruthEvent -> GetNKineParts(); i++ )
 		{
-            particle* true_particle = new particle();
-            true_event->add_particle(true_particle);
-
+			particle* true_particle = new particle();
+			true_event->add_particle(true_particle);
 			KinePart *TrueCandidate = ( KinePart* )MCTruthEvent -> GetKineParts() -> At( i );
-			//TrueMuonFourMomentum = TrueCandidate -> GetMomSpectrometerEntry();
-			//TrueFourMomentum = TrueCandidate -> GetMomAtCheckPoint( 2 );
-			//ParticleTrueThreeMomentum = TrueFourMomentum.Vect();
-			//ParticleTrueThreeMomentum.RotateY( BeamAngleFromZAxis );
-			//TrueParticleStartingFourPosition = TrueCandidate -> GetProdPos();
-			//TrueParticleStartingThreePosition = TrueParticleStartingFourPosition.Vect();
-			//TrueParticleEndingFourPosition = TrueCandidate -> GetEndPos();
-			//TrueParticleEndingThreePosition = TrueParticleEndingFourPosition.Vect();
+
+			KinePart *KaonCandidate = ( KinePart* )MCTruthEvent -> GetKineParts() -> At( 0 );
+			TrueKaonMomentum = KaonCandidate->GetFinal4Momentum();
 
 			true_particle->momentum = TrueCandidate -> GetMomAtCheckPoint( 2 ).Vect();
-			true_particle->momentum.RotateY(BeamAngleFromZAxis);
 			true_particle->position_start = TrueCandidate -> GetProdPos().Vect();
 			true_particle->position_end = TrueCandidate -> GetEndPos().Vect();
-
 			if ( i == 0 )
 				FillHisto( "KaonEndingPosition",true_particle->position_end[2] / 1000., true_particle->position_end[0] );
-
-            FillHisto( "ParticleProductionPosition",true_particle->position_start[2] / 1000., true_particle->position_start[0] );
-			if ( true_particle->momentum.Mag() != 0 )
+			FillHisto( "ParticleProductionPosition",true_particle->position_start[2] / 1000., true_particle->position_start[0] );
+			if ( i == 1 && true_particle->momentum.Mag() != 0 && TrueCandidate -> GetPDGcode() == -13 && abs(true_particle->momentum.Theta()) > 0 )
 			{
+				TLorentzVector TrueMuonMomentum = TrueCandidate->GetInitial4Momentum();
+				//TLorentzVector TrueMuonMomentum = TrueCandidate->GetMomAtCheckPoint(2);
+				TLorentzVector TrueMissingMass = TrueKaonMomentum - TrueMuonMomentum;
+				double TrueMissingMass2 = TrueMissingMass.Mag2();
+
+				FillHisto("TrueMissingMass", TrueMissingMass2 / ( pow( 1000, 2 ) ) );
 
 				cout    << true_particle->position_start[0] << " "
                         << true_particle->position_start[1] << " "
-                        << true_particle->position_start[2] << " "
+						<< true_particle->position_start[2] << " "
                         << true_particle->momentum.Mag() << " "
                         << true_particle->position_end[0] << " "
                         << true_particle->position_end[1] << " "
@@ -693,42 +646,22 @@ void spectro::Process( int iEvent )
 				for ( int k = 0; k < MCTruthEvent -> GetNKineParts(); k++ )
 				{
 					KinePart *CandidateN = ( KinePart* )MCTruthEvent -> GetKineParts() -> At( k );
-					cout  << CandidateN -> GetParticleName() << CandidateN -> GetPDGcode() << " " << endl;
+					cout  << CandidateN -> GetParticleName() << CandidateN -> GetPDGcode() << " ";
 				}
-
-				if( i == 1 && true_particle->position_start[2] > 101000)
+				true_particle->momentum.RotateY(BeamAngleFromZAxis);
+				if( i == 1 && true_particle->position_start[2] > 101000 && abs(true_particle->momentum[0]) <= 235 && abs(true_particle->momentum[1]) <= 235 && true_particle->momentum.Theta() <= 0.020 )
 				{
+                    true_particle->momentum.RotateY(-BeamAngleFromZAxis);
+					cout << endl;
 					if ( TrueCandidate -> GetPDGcode() == -13) //If the kaon decays straight into a muon, do this shit.
 					{
-						FillHisto( "TrueMomentumHist",  true_particle->momentum.Mag() / 1000. );
-						FillHisto( "TruexMomentumHist", true_particle->momentum[0] / 1000. );
-						FillHisto( "TrueyMomentumHist", true_particle->momentum[1] / 1000. );
-						FillHisto( "TruezMomentumHist", true_particle->momentum[2] / 1000. );
-						FillHisto( "TrueTransverseMomentumHist",  true_particle->momentum.Perp() );
-						FillHisto( "TrueAzimuthalMomentumHist", true_particle->momentum.Phi() );
-						FillHisto( "TruePolarMomentumHist", true_particle->momentum.Theta() );
-						FillHisto( "TrueEnergyVsAzimuthal", true_particle->momentum.Phi(), true_particle->momentum.Mag() / 1000. );
-						FillHisto( "TrueEnergyVsPolar", true_particle->momentum.Theta(), true_particle->momentum.Mag() / 1000. );
-						FillHisto( "TrueTranverseEnergyVsAzimuthal", true_particle->momentum.Phi(), true_particle->momentum.Perp() / 1000. );
-						FillHisto( "CompareTrueMomentumHist",  true_particle->momentum.Mag() / 1000. );
-						FillHisto( "CompareTruexMomentumHist", true_particle->momentum[0] / 1000. );
-						FillHisto( "CompareTrueyMomentumHist", true_particle->momentum[1] / 1000. );
-						FillHisto( "CompareTruezMomentumHist", true_particle->momentum[2] / 1000. );
-						FillHisto( "CompareTrueTransverseMomentumHist",  true_particle->momentum.Perp() );
-						FillHisto( "CompareTrueAzimuthalMomentumHist", true_particle->momentum.Phi() );
-						FillHisto( "CompareTruePolarMomentumHist", true_particle->momentum.Theta() );
-						FillHisto( "CompareTrueEnergyVsAzimuthal", true_particle->momentum.Phi(), true_particle->momentum.Mag() / 1000. );
-						FillHisto( "CompareTrueEnergyVsPolar", true_particle->momentum.Theta(), true_particle->momentum.Mag() / 1000. );
-						FillHisto( "CompareTrueTranverseEnergyVsAzimuthal", true_particle->momentum.Phi(), true_particle->momentum.Perp() / 1000. );
-                        FillHisto( "TrueProuductionPositionx", true_particle->position_start[0]);
-						FillHisto( "TrueProuductionPositiony", true_particle->position_start[1]);
-						FillHisto( "TrueProuductionPositionz", true_particle->position_start[2]/ 1000. );
-						FillHisto( "TrueProuductionPosition", true_particle->position_start[2] / 1000., true_particle->position_start[0] );
+                        true_particle->plot_true_kmunu = true;
 					}
 				}
 			}
 		}
 	}
+
 }
 
 void spectro::PostProcess()
@@ -743,6 +676,195 @@ void spectro::EndOfBurstUser()
 
 void spectro::EndOfRunUser()
 {
+
+        double startime = 999999999999999,endtime = 0, timeofevent;
+        for ( int i = 0; i < reco_events.size(); i++ )
+        {
+            int NumberDetected = reco_events[i]->particles.size();
+            int TrueNumber = true_events[i]->particles.size();
+            for ( int j = 0; j < NumberDetected;j++ )
+            {
+                if  ( NumberDetected > 0 &&  reco_events[i]->particles[j]->plot_beam_distance == true && reco_events[i]->particles[j]->kmunu == true && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 20 )
+                {
+                    FillHisto( "ClosestPointFromBeamAxis", reco_events[i]->particles[j]->origin.Mag() / 1000. );
+                    FillHisto( "ClosestxPointFromBeamAxis", reco_events[i]->particles[j]->origin[0] );
+                    FillHisto( "ClosestyPointFromBeamAxis", reco_events[i]->particles[j]->origin[1] );
+                    FillHisto( "ClosestzPointFromBeamAxis", reco_events[i]->particles[j]->origin[2] / 1000. );
+                    FillHisto( "MinimumDistanceToBeamAxis", reco_events[i]->particles[j]->minimum_beam_distance );
+                    FillHisto( "ClosestDistanceToBeamAxis", reco_events[i]->particles[j]->beam_distance.Mag() );
+                    FillHisto( "ClosestxDistanceToBeamAxis", reco_events[i]->particles[j]->beam_distance[0] );
+                    FillHisto( "ClosestyDistanceToBeamAxis", reco_events[i]->particles[j]->beam_distance[1] );
+                    FillHisto( "ClosestzDistanceToBeamAxis", reco_events[i]->particles[j]->beam_distance[2] );
+                    FillHisto( "DecayPoisition", reco_events[i]->particles[j]->origin[2] / 1000. , reco_events[i]->particles[j]->origin[0] );
+
+                    timeofevent = reco_events[i]->particles[j]->time_start;
+                    if ( timeofevent > endtime)
+                    {
+                        endtime = timeofevent;
+                    }
+                    else if ( timeofevent < startime )
+                    {
+                        startime = timeofevent;
+                    }
+                }
+                if ( NumberDetected > 0 &&  reco_events[i]->particles[j]->plot_momentum == true && reco_events[i]->particles[j]->kmunu == true && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 20 )
+                {
+                    reco_events[i]->particles[0]->momentum.RotateY(BeamAngleFromZAxis); //Switch to  reference system where beam is along z axis.
+                    FillHisto( "MomentumHist",  reco_events[i]->particles[j]->momentum.Mag() / 1000. );
+                    FillHisto( "xMomentumHist", reco_events[i]->particles[j]->momentum[0] / 1000. );
+                    FillHisto( "yMomentumHist", reco_events[i]->particles[j]->momentum[1] / 1000. );
+                    FillHisto( "zMomentumHist", reco_events[i]->particles[j]->momentum[2] / 1000. );
+                    FillHisto( "TransverseMomentumHist",  reco_events[i]->particles[j]->momentum.Perp() );
+                    FillHisto( "AzimuthalMomentumHist", reco_events[i]->particles[j]->momentum.Phi() );
+                    FillHisto( "PolarMomentumHist", reco_events[i]->particles[j]->momentum.Theta() );
+                    FillHisto( "EnergyVsAzimuthal", reco_events[i]->particles[j]->momentum.Phi(), reco_events[i]->particles[j]->momentum.Mag() / 1000. );
+                    FillHisto( "EnergyVsPolar", reco_events[i]->particles[j]->momentum.Theta(), reco_events[i]->particles[j]->momentum.Mag() / 1000. );
+                    FillHisto( "TranverseEnergyVsAzimuthal", reco_events[i]->particles[j]->momentum.Phi(), reco_events[i]->particles[j]->momentum.Perp() / 1000. );
+                    reco_events[i]->particles[0]->momentum.RotateY( -BeamAngleFromZAxis ); //Switch back to standard reference frame.
+                }
+
+
+
+				if ( TrueNumber >= 3 && true_events[i]->particles[1]->plot_true_kmunu == true && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 20  )
+				{
+					true_events[i]->particles[1]->momentum.RotateY(BeamAngleFromZAxis);
+					FillHisto( "TrueMomentumHist",  true_events[i]->particles[1]->momentum.Mag() / 1000. );
+					FillHisto( "TruexMomentumHist", true_events[i]->particles[1]->momentum[0] / 1000. );
+					FillHisto( "TrueyMomentumHist", true_events[i]->particles[1]->momentum[1] / 1000. );
+					FillHisto( "TruezMomentumHist", true_events[i]->particles[1]->momentum[2] / 1000. );
+					FillHisto( "TrueTransverseMomentumHist",  true_events[i]->particles[1]->momentum.Perp() );
+					FillHisto( "TrueAzimuthalMomentumHist", true_events[i]->particles[1]->momentum.Phi() );
+					FillHisto( "TruePolarMomentumHist", true_events[i]->particles[1]->momentum.Theta() );
+					FillHisto( "TrueEnergyVsAzimuthal", true_events[i]->particles[1]->momentum.Phi(), true_events[i]->particles[1]->momentum.Mag() / 1000. );
+					FillHisto( "TrueEnergyVsPolar", true_events[i]->particles[1]->momentum.Theta(), true_events[i]->particles[1]->momentum.Mag() / 1000. );
+					FillHisto( "TrueTranverseEnergyVsAzimuthal", true_events[i]->particles[1]->momentum.Phi(), true_events[i]->particles[1]->momentum.Perp() / 1000. );
+					FillHisto( "CompareTrueMomentumHist",  true_events[i]->particles[1]->momentum.Mag() / 1000. );
+					FillHisto( "CompareTruexMomentumHist", true_events[i]->particles[1]->momentum[0] / 1000. );
+					FillHisto( "CompareTrueyMomentumHist", true_events[i]->particles[1]->momentum[1] / 1000. );
+					FillHisto( "CompareTruezMomentumHist", true_events[i]->particles[1]->momentum[2] / 1000. );
+					FillHisto( "CompareTrueTransverseMomentumHist",  true_events[i]->particles[1]->momentum.Perp() );
+					FillHisto( "CompareTrueAzimuthalMomentumHist", true_events[i]->particles[1]->momentum.Phi() );
+					FillHisto( "CompareTruePolarMomentumHist", true_events[i]->particles[1]->momentum.Theta() );
+					FillHisto( "CompareTrueEnergyVsAzimuthal", true_events[i]->particles[1]->momentum.Phi(), true_events[i]->particles[1]->momentum.Mag() / 1000. );
+					FillHisto( "CompareTrueEnergyVsPolar", true_events[i]->particles[1]->momentum.Theta(), true_events[i]->particles[1]->momentum.Mag() / 1000. );
+					FillHisto( "CompareTrueTranverseEnergyVsAzimuthal", true_events[i]->particles[1]->momentum.Phi(), true_events[i]->particles[1]->momentum.Perp() / 1000. );
+					FillHisto( "TrueProuductionPositionx", true_events[i]->particles[1]->position_start[0]);
+					FillHisto( "TrueProuductionPositiony", true_events[i]->particles[1]->position_start[1]);
+					FillHisto( "TrueProuductionPositionz", true_events[i]->particles[1]->position_start[2]/ 1000. );
+					true_events[i]->particles[1]->momentum.RotateY(-BeamAngleFromZAxis);
+				}
+
+				if  ( NumberDetected == 1 && true_events[i]->particles[1]->plot_true_kmunu == true && reco_events[i]->particles[0]->plot_beam_distance == true && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 20  )
+				{
+					true_events[i]->particles[1]->momentum.RotateY(BeamAngleFromZAxis);
+					reco_events[i]->particles[0]->momentum.RotateY(BeamAngleFromZAxis);
+					TVector3 ResolutionTemp = true_events[i]->particles[1]->momentum - reco_events[i]->particles[0]->momentum;
+					FillHisto( "SpectrometerxMomentumResolution",  ResolutionTemp[0] ) ;
+					FillHisto( "SpectrometeryMomentumResolution", ResolutionTemp[1] );
+					FillHisto( "SpectrometerzMomentumResolution", ResolutionTemp[2] / 1000. );
+					FillHisto( "SpectrometerMomentumResolution", ResolutionTemp.Mag() / 1000. );
+					true_events[i]->particles[1]->momentum.RotateY(-BeamAngleFromZAxis);
+					reco_events[i]->particles[0]->momentum.RotateY(-BeamAngleFromZAxis);
+				}
+
+			}
+        }
+        /*
+        for ( int i = 0; i < reco_events.size(); i ++)
+        {
+            for ( int j = 0; j < reco_events.size(); j ++)
+            {
+                for ( int k1 = 0; k1 < reco_events[i]->particles.size(); k1++ )
+                {
+                    if ( reco_events[i]->particles[k1]-> kmunu == true )
+                    {
+                        for ( int k2 = 0; k2 < reco_events[j]->particles.size(); k2++ )
+                        {
+                            if ( reco_events[j]->particles[k2]-> detected == true )
+                            {
+                                reco_events[i]->particles[k1]->closest_spacetime_point = ClosestSpaceTimePointOnVectorToOtherVector( reco_events[i]->particles[k1]->position_start, reco_events[i]->particles[k1]->momentum, 105.6583715, reco_events[i]->particles[k1]->time_start, reco_events[j]->particles[k2]-> position_start, reco_events[j]->particles[k2]->momentum, 493.667, reco_events[j]->particles[k2]->time_start);
+                                reco_events[j]->particles[k2]->closest_spacetime_point = ClosestSpaceTimePointOnVectorToOtherVector( reco_events[j]->particles[k2]->position_start, reco_events[j]->particles[k2]->momentum, 493.667, reco_events[j]->particles[k2]->time_start, reco_events[i]->particles[k1]-> position_start, reco_events[i]->particles[k1]->momentum, 105.6583715, reco_events[i]->particles[k1]->time_start);
+                                reco_events[i]->particles[k1]->kaon_link = j;
+                                if( abs( reco_events[i]->particles[k1]->minimum_spacetime_interval.Mag() ) > abs( (reco_events[j]->particles[k2]->closest_spacetime_point - reco_events[i]->particles[k1]->closest_spacetime_point).Mag() ) )
+                                {
+                                    reco_events[i]->particles[k1]->minimum_spacetime_interval = reco_events[j]->particles[k2]->closest_spacetime_point - reco_events[i]->particles[k1]->closest_spacetime_point;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        for ( int i = 0; i < reco_events.size(); i ++)
+        {
+            for ( int k1 = 0; k1 < reco_events[i]->particles.size(); k1++ )
+            {
+                if ( reco_events[i]->particles[k1]-> kmunu == true )
+                {
+                    FillHisto( "ClosestPointOfMuon",  reco_events[i]->particles[k1]->closest_spacetime_point.Mag() );
+                    FillHisto( "ClosestxPointOfMuon",  reco_events[i]->particles[k1]->closest_spacetime_point[0] );
+                    FillHisto( "ClosestyPointOfMuon",  reco_events[i]->particles[k1]->closest_spacetime_point[1] );
+                    FillHisto( "ClosestzPointOfMuon",  reco_events[i]->particles[k1]->closest_spacetime_point[2] / 1000. );
+                    FillHisto( "ClosestTimeOfMuon",  reco_events[i]->particles[k1]->closest_spacetime_point[3] );
+                    //FillHisto( "ClosestDistanceOfMuonToKaon",  reco_events[i]->particles[k1]->minimum_spacetime_interval.Vect.Mag() );
+                    FillHisto( "ClosestxDistanceOfMuonToKaon",  reco_events[i]->particles[k1]->minimum_spacetime_interval[0] );
+                    FillHisto( "ClosestyDistanceOfMuonToKaon",  reco_events[i]->particles[k1]->minimum_spacetime_interval[1] );
+                    FillHisto( "ClosestzDistanceOfMuonToKaon",  reco_events[i]->particles[k1]->minimum_spacetime_interval[2] );
+                    FillHisto( "ClosestSpaceTimeInterval",  reco_events[i]->particles[k1]->minimum_spacetime_interval.Mag() );
+                }
+                else if ( reco_events[i]->particles[k1]->detected == true )
+                {
+                    FillHisto( "ClosestTimeOfKaon",  reco_events[i]->particles[k1]->closest_spacetime_point[3] );
+                }
+            }
+        }
+		*/
+
+        cout<<"start" << startime << "end:" << endtime << endl << "TotalTime:" << endtime - startime;
+
+    TH1D* h58 = new TH1D("DetectorEfficiencyMomentum", "Detector Efficiency Momentum", NumberOfBins, 0, 0 );
+    BookHisto(h58);
+    fHisto.GetHisto("MomentumHist")->Copy(*h58);
+    h58->Divide(fHisto.GetHisto("CompareTrueMomentumHist"));
+
+    TH1D* h59 = new TH1D("DetectorxEfficiencyMomentum", "Detector Efficiency xMomentum", NumberOfBins, 0, 0 );
+    BookHisto(h59);
+    fHisto.GetHisto("xMomentumHist")->Copy(*h59);
+    h59->Divide(fHisto.GetHisto("CompareTruexMomentumHist"));
+
+    TH1D* h60 = new TH1D("DetectoryEfficiencyMomentum", "Detector Efficiency yMomentum", NumberOfBins, 0, 0 );
+    BookHisto(h60);
+    fHisto.GetHisto("yMomentumHist")->Copy(*h60);
+    h60->Divide(fHisto.GetHisto("CompareTrueyMomentumHist"));
+
+    TH1D* h61 = new TH1D("DetectorzEfficiencyMomentum", "Detector Efficiency zMomentum", NumberOfBins, 0, 0 );
+    BookHisto(h61);
+    fHisto.GetHisto("zMomentumHist")->Copy(*h61);
+    h61->Divide(fHisto.GetHisto("CompareTruezMomentumHist"));
+
+
+
+    TH1D* h62 = new TH1D("Reconstructed Momentum", "Reconstructed Momentum", NumberOfBins, 0, 0 );
+    BookHisto(h62);
+    fHisto.GetHisto("MomentumHist")->Copy(*h62);
+    h62->Divide(fHisto.GetHisto("DetectorEfficiencyMomentum"));
+
+    TH1D* h63 = new TH1D("Reconstructed x Momentum", "Reconstructed x Momentum", NumberOfBins, 0, 0 );
+    BookHisto(h63);
+    fHisto.GetHisto("xMomentumHist")->Copy(*h63);
+    h63->Divide(fHisto.GetHisto("DetectorxEfficiencyMomentum"));
+
+    TH1D* h64 = new TH1D("Reconstructed y Momentum", "Reconstructed y Momentum", NumberOfBins, 0, 0 );
+    BookHisto(h64);
+    fHisto.GetHisto("yMomentumHist")->Copy(*h64);
+    h64->Divide(fHisto.GetHisto("DetectoryEfficiencyMomentum"));
+
+    TH1D* h65 = new TH1D("Reconstructed z Momentum", "Reconstructed z Momentum", NumberOfBins, 0, 0 );
+    BookHisto(h65);
+    fHisto.GetHisto("zMomentumHist")->Copy(*h65);
+    h65->Divide(fHisto.GetHisto("DetectorzEfficiencyMomentum"));
+
     SaveAllPlots();
 }
 
@@ -751,3 +873,4 @@ void spectro::DrawPlot()
     DrawAllPlots();
     SaveAllPlotsPDF();
 }
+
