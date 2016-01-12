@@ -479,19 +479,23 @@ void spectro::Process( int iEvent )
 	//Add event to list of events
 	event* reco_event = new event();
 	reco_events.push_back(reco_event);
-
+    //Add true event to list of events
 	event* true_event = new event();
 	true_events.push_back(true_event);
 
 	//if( fMCSimple.fStatus == MCSimple::kMissing ){printIncompleteMCWarning( iEvent );return;}
 	//if( fMCSimple.fStatus == MCSimple::kEmpty ){printNoMCWarning();return;}
 
+    // Get the spectrometer event
 	TRecoSpectrometerEvent *SpectrometerEvent = ( TRecoSpectrometerEvent* )GetEvent( "Spectrometer" );
+    /// Hopefully can replace these with class member variables in particle class?
 	TVector3    	ParticleTrueThreeMomentum, TrueParticleStartingThreePosition, TrueParticleEndingThreePosition,
                	 	ClosestPointFromBeamAxis, BeamPointFiducialEntry, DistanceToBeamAxis, ClosestPointOfBeamApproached, KaonThreeMomentum, KaonThreePositionGTK1,
                     ClosestPointFromBeamAxisBeforeFiducial, ClosestPointFromBeamAxisAfterFiducial, ClosestPointOfBeamApproachedBeforeFiducial, ClosestPointOfBeamApproachedAfterFiducial,
                     DistanceToBeamAxisBeforeFiducial, DistanceToBeamAxisAfterFiducial;
+
     TLorentzVector  TrueMuonFourMomentum, TrueFourMomentum, TrueParticleStartingFourPosition, TrueParticleEndingFourPosition, KaonFourMomentum, TrueKaonMomentum;
+
 	double          MinimumDistanceToBeamAxis,MinimumDistanceToBeamAxisAfterFiducial,MinimumDistanceToBeamAxisBeforeFiducial, CheckIfEventCanBeMatchedToBeam = 0;
 
 	//Check to see if an event was detected
@@ -511,7 +515,7 @@ void spectro::Process( int iEvent )
 			p->position_start = SpectroCandidate->GetPositionBeforeMagnet();
 			p->time_start = SpectroCandidate -> GetTime() * pow( 10, 1 ) / pow( 10 , 9 );
 			p->charge = SpectroCandidate -> GetCharge();
-
+            //Calculate stuff
             MinimumDistanceToBeamAxisBeforeFiducial = ( ( b.fiducial_entry - p->position_start ).Dot( b.beam_axis.Cross( p->momentum ) ) ) / ( b.beam_axis.Cross( p->momentum ) ).Mag() ;
             ClosestPointFromBeamAxisBeforeFiducial = ClosestPointOnVectorToOtherVector( p->position_start, p->momentum, b.fiducial_entry, b.beam_axis );
             ClosestPointOfBeamApproachedBeforeFiducial = ClosestPointOnVectorToOtherVector( b.fiducial_entry, b.beam_axis, p->position_start, p->momentum );
@@ -521,6 +525,7 @@ void spectro::Process( int iEvent )
 			ClosestPointOfBeamApproachedAfterFiducial = ClosestPointOnVectorToOtherVector( b.fiducial_entry, b.beam_axis_rotated, p->position_start, p->momentum );
 			DistanceToBeamAxisAfterFiducial = -ClosestPointFromBeamAxisAfterFiducial + ClosestPointOfBeamApproachedAfterFiducial;
 
+            //I can't remember what this is doing
             if ( ClosestPointFromBeamAxisBeforeFiducial( 2 ) <= 104000 && ( ClosestPointFromBeamAxisAfterFiducial( 2 ) < 104000 || abs( DistanceToBeamAxisBeforeFiducial.Mag() ) < abs ( DistanceToBeamAxisAfterFiducial.Mag() ) ) )
 			{
 				p->origin = ClosestPointFromBeamAxisBeforeFiducial;
@@ -529,7 +534,7 @@ void spectro::Process( int iEvent )
 				p->minimum_beam_distance = MinimumDistanceToBeamAxisBeforeFiducial;
 				CheckIfEventCanBeMatchedToBeam = 0;
             }
-
+            //Or this
             else if ( ClosestPointFromBeamAxisAfterFiducial( 2 ) >= 104000 && ClosestPointFromBeamAxisAfterFiducial( 2 ) <= 166000 )
             {
                 p->origin = ClosestPointFromBeamAxisAfterFiducial;
@@ -542,25 +547,28 @@ void spectro::Process( int iEvent )
             /*Remove events that aren't a single positive particle being detected in the spectrometer (as this is not k->munu), Charge == 1 gets rid of 29 events, then && Candidates == 1 gets rid of another 12  */
 			if ( p->charge == 1 && SpectrometerEvent->GetNCandidates() == 1 )
 			{
+			    //Did you add this Jack?
 				p->plot_momentum = true;
-
+                //Calculate energy of kaon
 				double KaonMass = 493.667;
 				double KaonEnergy = sqrt((75e3*75e3) + (KaonMass*KaonMass));
 				TLorentzVector KaonMomentum;
-				KaonMomentum[2] = 75e3;
-				KaonMomentum[3] = KaonEnergy;
-				KaonMomentum.RotateY( -BeamAngleFromZAxis );
+				KaonMomentum[2] = 75e3; //Set z component to beam energy
+				KaonMomentum[3] = KaonEnergy; //Set time component to kaon energy
+				KaonMomentum.RotateY( -BeamAngleFromZAxis ); //Transform to beam frame
 
+                //Calculate energy of muon
 				double MuonMass = 105.6583715;
 				double MuonEnergy = sqrt((p->momentum.Mag2()) + (MuonMass*MuonMass));
 				TLorentzVector MuonMomentum;
-				MuonMomentum.SetVect(p->momentum);
-				MuonMomentum[3] = MuonEnergy;
+				MuonMomentum.SetVect(p->momentum); //Set xyz components to muon 3-momentum
+				MuonMomentum[3] = MuonEnergy; //Set time component to muon energy
 
+                //Calculate missing mass squared
 				TLorentzVector MissingMass = KaonMomentum - MuonMomentum;
 				double MissingMass2 = MissingMass.Mag2();
 
-
+                //What is this doing?
 				if ( CheckIfEventCanBeMatchedToBeam == 1 )
 				{
 
@@ -577,6 +585,8 @@ void spectro::Process( int iEvent )
 			}
 		}
 	}
+
+	//I wonder if the GigaTracker works yet
 
 	/*
 	TRecoGigaTrackerEvent *GTKEvent = ( TRecoGigaTrackerEvent* )GetEvent( "GigaTracker" );
@@ -606,32 +616,44 @@ void spectro::Process( int iEvent )
 	}
 	*/
 
+    //Get truth event
 	Event *MCTruthEvent = GetMCEvent();
+	//Check if a event was detected
 	if ( MCTruthEvent -> GetNKineParts() >= 1 )
 	{
+	    //Loop through all candidates in the event
 		for( int i = 0; i < MCTruthEvent -> GetNKineParts(); i++ )
 		{
+		    //Create particle and add to the truth event
 			particle* true_particle = new particle();
 			true_event->add_particle(true_particle);
+			//Get the current particle
 			KinePart *TrueCandidate = ( KinePart* )MCTruthEvent -> GetKineParts() -> At( i );
-
+            //Get the kaon associated with the decay event
 			KinePart *KaonCandidate = ( KinePart* )MCTruthEvent -> GetKineParts() -> At( 0 );
+			///This should really be replaced with particle class variable
 			TrueKaonMomentum = KaonCandidate->GetFinal4Momentum();
-
+            ///Like these
+            //Which was checkpoint 2 again?
 			true_particle->momentum = TrueCandidate -> GetMomAtCheckPoint( 2 ).Vect();
 			true_particle->position_start = TrueCandidate -> GetProdPos().Vect();
 			true_particle->position_end = TrueCandidate -> GetEndPos().Vect();
 
-			if ( i == 0 )
+			if ( i == 0 ) //i.e. the kaon
 				FillHisto( "KaonEndingPosition",true_particle->position_end[2] / 1000., true_particle->position_end[0] );
+
 			FillHisto( "ParticleProductionPosition",true_particle->position_start[2] / 1000., true_particle->position_start[0] );
+
 			if ( i == 1 && true_particle->momentum.Mag() != 0 && TrueCandidate -> GetPDGcode() == -13 && abs(true_particle->momentum.Theta()) > 0 )
 			{
+			    //Loop through each particle again?
                 for ( int k = 0; k < MCTruthEvent -> GetNKineParts(); k++ )
 				{
 					KinePart *CandidateN = ( KinePart* )MCTruthEvent -> GetKineParts() -> At( k );
 					cout  << CandidateN -> GetParticleName() << CandidateN -> GetPDGcode() << " ";
 				}
+
+                ///More stuff that needs replacing with the way we did it for the real data
 				TLorentzVector TrueMuonMomentum = TrueCandidate->GetInitial4Momentum();
 				//TLorentzVector TrueMuonMomentum = TrueCandidate->GetMomAtCheckPoint(2);
 				TLorentzVector TrueMissingMass = TrueKaonMomentum - TrueMuonMomentum;
@@ -649,7 +671,7 @@ void spectro::Process( int iEvent )
                         << endl
                         << MCTruthEvent -> GetNKineParts();
 
-
+                //What is this doing?
 				true_particle->momentum.RotateY(BeamAngleFromZAxis);
 				if( i == 1 && true_particle->position_start[2] > 101000 && abs(true_particle->momentum[0]) <= 235 && abs(true_particle->momentum[1]) <= 235 && true_particle->momentum.Theta() <= 0.020 )
 				{

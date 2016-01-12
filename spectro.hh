@@ -35,6 +35,23 @@ class particle
         bool kmunu, plot_beam_distance,plot_momentum,plot_true_kmunu,detected;
 };
 
+//True particle class which inherits from particle class
+//So we can put 4-vector stuff that only applies to true events here
+//But still store the particle in the event particle list
+class true_particle : public particle
+{
+    public:
+        true_particle()
+        {
+
+        }
+
+    TLorentzVector
+
+
+
+};
+
 class event
 {
     public:
