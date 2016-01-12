@@ -2,6 +2,7 @@
 #include <iostream>
 #include <TChain.h>
 #include <math.h>
+#include <list>
 #include "spectro.hh"
 #include "MCSimple.hh"
 #include "functions.hh"
@@ -27,93 +28,81 @@ void spectro::InitOutput()
 
 }
 
+void spectro::CreateHist1D(TString name, TString title, int nbins, double low, double high)
+{
+    TH1D* h1 = new TH1D(name,title,nbins,low,high);
+    BookHisto(h1);
+}
+
+void spectro::SetHistAxisLabels(TString name, TString xlabel, TString ylabel)
+{
+    TH1* h = fHisto.GetHisto(name);
+    if(h != NULL)
+    {
+        h -> GetXaxis() -> SetTitle(xlabel);
+        h -> GetYaxis() -> SetTitle(ylabel);
+    }
+
+}
+
 void spectro::InitHist()
 {
     // Reconstructed momentum histogram
-    TH1D* h1 = new TH1D( "MomentumHist","Momentum", NumberOfBins, 0, 80 );
-    h1 -> GetXaxis() -> SetTitle( "Momentum GeV" );
-    h1 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h1 );
+    CreateHist1D("MomentumHist","Momentum",NumberOfBins,0,80);
+    SetHistAxisLabels("MomentumHist","Momentum GeV","Number of Entries");
 
     // True momentum histogram plotted with same bins as reconstructed momentum
-    TH1D* h101 = new TH1D( "CompareTrueMomentumHist", " True Momentum", NumberOfBins, 0, 80 );
-    h101 -> GetXaxis() -> SetTitle( "Momentum GeV" );
-    h101 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h101 );
+    CreateHist1D( "CompareTrueMomentumHist", " True Momentum", NumberOfBins, 0, 80 );
+    SetHistAxisLabels("CompareTrueMomentumHist","Momentum GeV","Number of Entries");
 
     // Reconstructed x momentum histogram
-    TH1D* h2 = new TH1D( "xMomentumHist", "Compare x Momentum", NumberOfBins, -0.3, 0.3 );
-    h2 -> GetXaxis() -> SetTitle( "Momentum GeV" );
-    h2 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h2 );
+    CreateHist1D( "xMomentumHist", "Compare x Momentum", NumberOfBins, -0.3, 0.3 );
+    SetHistAxisLabels("xMomentumHist","Momentum GeV","Number of Entries");
+
 
     // True x momentum histogram plotted with same bins as reconstructed x momentum
-    TH1D* h102 = new TH1D( "CompareTruexMomentumHist", "Compare True x Momentum", NumberOfBins, -0.3, 0.3 );
-    h102 -> GetXaxis() -> SetTitle( "Momentum GeV" );
-    h102 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h102 );
+    CreateHist1D( "CompareTruexMomentumHist", "Compare True x Momentum", NumberOfBins, -0.3, 0.3 );
+    SetHistAxisLabels("CompareTruexMomentumHist","Momentum GeV","Number of Entries");
 
     // Reconstructed y momentum histogram
-    TH1D* h3 = new TH1D( "yMomentumHist", "y Momentum", NumberOfBins, -0.3, 0.3 );
-    h3 -> GetXaxis() -> SetTitle( "Momentum GeV" );
-    h3 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h3 );
+    CreateHist1D( "yMomentumHist", "y Momentum", NumberOfBins, -0.3, 0.3 );
+    SetHistAxisLabels("yMomentumHist","Momentum GeV","Number of Entries");
 
     // True y momentum histogram plotted with same bins as reconstructed y momentum
-    TH1D* h103 = new TH1D( "CompareTrueyMomentumHist", "Compare True y Momentum", NumberOfBins, -0.3, 0.3 );
-    h103 -> GetXaxis() -> SetTitle( "Momentum GeV" );
-    h103 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h103 );
+    CreateHist1D( "CompareTrueyMomentumHist", "Compare True y Momentum", NumberOfBins, -0.3, 0.3 );
+    SetHistAxisLabels("CompareTrueyMomentumHist","Momentum GeV","Number of Entries");
 
     // Reconstructed z momentum histogram
-    TH1D* h4 = new TH1D( "zMomentumHist", "z Momentum", NumberOfBins, 0, 80 );
-    h4 -> GetXaxis() -> SetTitle( "Momentum GeV" );
-    h4 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h4 );
-
+    CreateHist1D( "zMomentumHist", "z Momentum", NumberOfBins, 0, 80 );
+    SetHistAxisLabels("zMomentumHist","Momentum GeV","Number of Entries");
 
     // True z momentum histogram plotted with same bins as reconstructed z momentum
-    TH1D* h104 = new TH1D( "CompareTruezMomentumHist", "Compare True z Momentum", NumberOfBins, 0, 80 );
-    h104 -> GetXaxis() -> SetTitle( "Momentum GeV" );
-    h104 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h104 );
+    CreateHist1D( "CompareTruezMomentumHist", "Compare True z Momentum", NumberOfBins, 0, 80 );
+    SetHistAxisLabels("CompareTruezMomentumHist","Momentum GeV","Number of Entries");
 
     // Reconstructed transverse momentum histogram
-    TH1D* h13 = new TH1D( "TransverseMomentumHist", "Transverse Momentum", NumberOfBins, 0, 300 );
-    h13 -> GetXaxis() -> SetTitle( "Momentum MeV" );
-    h13 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h13 );
+    CreateHist1D( "TransverseMomentumHist", "Transverse Momentum", NumberOfBins, 0, 300 );
+    SetHistAxisLabels("TransverseMomentumHist","Momentum MeV","Number of Entries");
 
     // True transverse momentum histogram plotted with same bins as reconstructed transverse momentum
-    TH1D* h113 = new TH1D( "CompareTrueTransverseMomentumHist", " Compare True Transverse Momentum", NumberOfBins, 0, 300 );
-    h113 -> GetXaxis() -> SetTitle( "Momentum MeV" );
-    h113 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h113 );
+    CreateHist1D( "CompareTrueTransverseMomentumHist", " Compare True Transverse Momentum", NumberOfBins, 0, 300 );
+    SetHistAxisLabels("CompareTrueTransverseMomentumHist","Momentum MeV","Number of Entries");
 
     // Reconstructed azimuthal angle histogram
-    TH1D* h5 = new TH1D( "AzimuthalMomentumHist", "Azimuthal Angle", NumberOfBins, -pi, pi );
-    h5 -> GetXaxis() -> SetTitle( "Azimuthal Angle Radians" );
-    h5 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h5 );
+    CreateHist1D( "AzimuthalMomentumHist", "Azimuthal Angle", NumberOfBins, -pi, pi );
+    SetHistAxisLabels("AzimuthalMomentumHist","Azimuthal Angle Radians","Number of Entries");
 
     // True azimuthal angle histogram with same bins as reconstructed azimuthal angle histogram
-    TH1D* h105 = new TH1D( "CompareTrueAzimuthalMomentumHist", "Compare True Azimuthal Angle", NumberOfBins, -pi, pi );
-    h105 -> GetXaxis() -> SetTitle( "Azimuthal Angle Radians" );
-    h105 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h105 );
+    CreateHist1D( "CompareTrueAzimuthalMomentumHist", "Compare True Azimuthal Angle", NumberOfBins, -pi, pi );
+    SetHistAxisLabels("CompareTrueAzimuthalMomentumHist","Azimuthal Angle Radians","Number of Entries");
 
     // Reconstructed polar angle histogram
-    TH1D* h6 = new TH1D( "PolarMomentumHist", "Polar Angle", NumberOfBins, 0, 0.017 );
-    h6 -> GetXaxis() -> SetTitle( "Polar Angle Radians" );
-    h6 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h6 );
+    CreateHist1D( "PolarMomentumHist", "Polar Angle", NumberOfBins, 0, 0.017 );
+    SetHistAxisLabels("PolarMomentumHist","Polar Angle Radians","Number of Entries");
 
     // True polar angle histogram with same bins as reconstructed polar angle histogram
-    TH1D* h106 = new TH1D( "CompareTruePolarMomentumHist", "Compare True Polar Angle", NumberOfBins, 0, 0.017 );
-    h106 -> GetXaxis() -> SetTitle( "Polar Angle Radians" );
-    h106 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h106 );
-
+    CreateHist1D( "CompareTruePolarMomentumHist", "Compare True Polar Angle", NumberOfBins, 0, 0.017 );
+    SetHistAxisLabels("CompareTruePolarMomentumHist","Polar Angle Radians","Number of Entries");
 
     TH2D* h7 = new TH2D( "EnergyVsAzimuthal", "Total Momentum and Azimuthal Angle", NumberOfBins, -pi, pi, NumberOfBins, 0, 80 );
     h7 -> GetXaxis() -> SetTitle( "Azimuthal Angle Radians" );
@@ -125,8 +114,6 @@ void spectro::InitHist()
     h107 -> GetYaxis() -> SetTitle( "Momentum GeV" );
     BookHisto( h107 );
 
-
-
     TH2D* h8 = new TH2D( "EnergyVsPolar", "Total Momentum and polar Angle", NumberOfBins, 0, 0.017, NumberOfBins, 0, 80 );
     h8 -> GetXaxis() -> SetTitle( "Polar Angle Radians" );
     h8 -> GetYaxis() -> SetTitle( "Momentum GeV" );
@@ -136,8 +123,6 @@ void spectro::InitHist()
     h108 -> GetXaxis() -> SetTitle( "Azimuthal Angle Radians" );
     h108 -> GetYaxis() -> SetTitle( "Momentum GeV" );
     BookHisto( h108 );
-
-
 
     TH2D* h9 = new TH2D( "TranverseEnergyVsAzimuthal", "Tranverse Momentum and Azimuthal Angle", NumberOfBins, -pi, pi, NumberOfBins, 0, 0.3 );
     h9 -> GetXaxis() -> SetTitle( "Azimuthal Angle Radians" );
@@ -149,51 +134,26 @@ void spectro::InitHist()
     h109 -> GetYaxis() -> SetTitle( "Momentum GeV" );
     BookHisto( h109 );
 
+    CreateHist1D( "TrueMomentumHist", " True Momentum", NumberOfBins, 0, 0 );
+    SetHistAxisLabels("TrueMomentumHist","Momentum GeV","Number of Entries");
 
+    CreateHist1D( "TruexMomentumHist", "True x Momentum", NumberOfBins, 0, 0 );
+    SetHistAxisLabels("TruexMomentumHist","Momentum GeV","Number of Entries");
 
+    CreateHist1D( "TrueyMomentumHist", "True y Momentum", NumberOfBins, 0, 0 );
+    SetHistAxisLabels("TrueyMomentumHist","Momentum GeV","Number of Entries");
 
+    CreateHist1D( "TruezMomentumHist", "True z Momentum", NumberOfBins, 0, 0 );
+    SetHistAxisLabels("TruezMomentumHist","Momentum GeV","Number of Entries");
 
+    CreateHist1D( "TrueTransverseMomentumHist", " True Transverse Momentum", NumberOfBins, 0, 0 );
+    SetHistAxisLabels("TrueTransverseMomentumHist","Momentum MeV","Number of Entries");
 
+    CreateHist1D( "TrueAzimuthalMomentumHist", " True Azimuthal Angle", NumberOfBins, 0, 0 );
+    SetHistAxisLabels("TrueAzimuthalMomentumHist","Azimuthal Angle Radians","Number of Entries");
 
-
-
-
-
-    TH1D* h18 = new TH1D( "TrueMomentumHist", " True Momentum", NumberOfBins, 0, 0 );
-    h18 -> GetXaxis() -> SetTitle( "Momentum GeV" );
-    h18 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h18 );
-
-    TH1D* h10 = new TH1D( "TruexMomentumHist", "True x Momentum", NumberOfBins, 0, 0 );
-    h10 -> GetXaxis() -> SetTitle( "Momentum GeV" );
-    h10 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h10 );
-
-
-    TH1D* h11 = new TH1D( "TrueyMomentumHist", "True y Momentum", NumberOfBins, 0, 0 );
-    h11 -> GetXaxis() -> SetTitle( "Momentum GeV" );
-    h11 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h11 );
-
-    TH1D* h12 = new TH1D( "TruezMomentumHist", "True z Momentum", NumberOfBins, 0, 0 );
-    h12 -> GetXaxis() -> SetTitle( "Momentum GeV" );
-    h12 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h12 );
-
-    TH1D* h19 = new TH1D( "TrueTransverseMomentumHist", " True Transverse Momentum", NumberOfBins, 0, 0 );
-    h19 -> GetXaxis() -> SetTitle( "Momentum MeV" );
-    h19 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h19 );
-
-    TH1D* h20 = new TH1D( "TrueAzimuthalMomentumHist", " True Azimuthal Angle", NumberOfBins, 0, 0 );
-    h20 -> GetXaxis() -> SetTitle( "Azimuthal Angle Radians" );
-    h20 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h20 );
-
-    TH1D* h21 = new TH1D( "TruePolarMomentumHist", " True Polar Angle", NumberOfBins, 0, 0 );
-    h21 -> GetXaxis() -> SetTitle( "Polar Angle Radians" );
-    h21 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h21 );
+    CreateHist1D( "TruePolarMomentumHist", " True Polar Angle", NumberOfBins, 0, 0 );
+    SetHistAxisLabels("TruePolarMomentumHist","Polar Angle Radians","Number of Entries");
 
     TH2D* h22 = new TH2D( "TrueEnergyVsAzimuthal", "True Total Momentum and Azimuthal Angle", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
     h22 -> GetXaxis() -> SetTitle( "Azimuthal Angle Radians" );
@@ -210,111 +170,70 @@ void spectro::InitHist()
     h24 -> GetYaxis() -> SetTitle( "Momentum GeV" );
     BookHisto( h24 );
 
-    TH1D* h25 = new TH1D( "ClosestPointFromBeamAxis", "Closest Point From Beam Axis", NumberOfBins, 0, 300 );
-    h25 -> GetXaxis() -> SetTitle( "m" );
-    h25 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h25 );
+    CreateHist1D( "ClosestPointFromBeamAxis", "Closest Point From Beam Axis", NumberOfBins, 0, 300 );
+    SetHistAxisLabels("ClosestPointFromBeamAxis","m","Number of Entries");
 
-    TH1D* h26 = new TH1D( "ClosestxPointFromBeamAxis", " Closest x Point From Beam Axis", NumberOfBins, -200, 200 );
-    h26 -> GetXaxis() -> SetTitle( "mm" );
-    h26 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h26 );
+    CreateHist1D( "ClosestxPointFromBeamAxis", " Closest x Point From Beam Axis", NumberOfBins, -200, 200 );
+    SetHistAxisLabels("ClosestxPointFromBeamAxis","mm","Number of Entries");
 
-    TH1D* h27 = new TH1D( "ClosestyPointFromBeamAxis", " Closest y Point From Beam Axis", NumberOfBins, -100, 100 );
-    h27 -> GetXaxis() -> SetTitle( "mm" );
-    h27 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h27 );
+    CreateHist1D( "ClosestyPointFromBeamAxis", " Closest y Point From Beam Axis", NumberOfBins, -100, 100 );
+    SetHistAxisLabels("ClosestyPointFromBeamAxis","mm","Number of Entries");
 
-    TH1D* h28 = new TH1D( "ClosestzPointFromBeamAxis", " Closest z Point From Beam Axis", NumberOfBins, 0, 300 );
-    h28 -> GetXaxis() -> SetTitle( "m" );
-    h28 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h28 );
+    CreateHist1D( "ClosestzPointFromBeamAxis", " Closest z Point From Beam Axis", NumberOfBins, 0, 300 );
+    SetHistAxisLabels("ClosestzPointFromBeamAxis","m","Number of Entries");
 
-    TH1D* h29 = new TH1D( "MinimumDistanceToBeamAxis", " Minimum Distance From Beam Axis", NumberOfBins, -100, 100 );
-    h29 -> GetXaxis() -> SetTitle( "mm" );
-    h29 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h29 );
+    CreateHist1D( "MinimumDistanceToBeamAxis", " Minimum Distance From Beam Axis", NumberOfBins, -100, 100 );
+    SetHistAxisLabels("MinimumDistanceToBeamAxis","mm","Number of Entries");
 
-    TH1D* h30 = new TH1D( "ClosestDistanceToBeamAxis", " Minimum Distance(TWO) From Beam Axis", NumberOfBins, 0, 100 );
-    h30 -> GetXaxis() -> SetTitle( "mm" );
-    h30 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h30 );
+    CreateHist1D( "ClosestDistanceToBeamAxis", " Minimum Distance(TWO) From Beam Axis", NumberOfBins, 0, 100 );
+    SetHistAxisLabels("ClosestDistanceToBeamAxis","mm","Number of Entries");
 
-    TH1D* h31 = new TH1D( "ClosestxDistanceToBeamAxis", " Minimum xDistance From Beam Axis", NumberOfBins, -100, 100 );
-    h31 -> GetXaxis() -> SetTitle( "mm" );
-    h31 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h31 );
+    CreateHist1D( "ClosestxDistanceToBeamAxis", " Minimum xDistance From Beam Axis", NumberOfBins, -100, 100 );
+    SetHistAxisLabels("ClosestxDistanceToBeamAxis","mm","Number of Entries");
 
-    TH1D* h32 = new TH1D( "ClosestyDistanceToBeamAxis", " Minimum yDistance From Beam Axis", NumberOfBins, -100, 100 );
-    h32 -> GetXaxis() -> SetTitle( "mm" );
-    h32 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h32 );
+    CreateHist1D( "ClosestyDistanceToBeamAxis", " Minimum yDistance From Beam Axis", NumberOfBins, -100, 100 );
+    SetHistAxisLabels("ClosestyDistanceToBeamAxis","mm","Number of Entries");
 
-    TH1D* h33 = new TH1D( "ClosestzDistanceToBeamAxis", " Minimum zDistance From Beam Axis", NumberOfBins, -0.1, 0.1 );
-    h33 -> GetXaxis() -> SetTitle( "mm" );
-    h33 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h33 );
+    CreateHist1D( "ClosestzDistanceToBeamAxis", " Minimum zDistance From Beam Axis", NumberOfBins, -0.1, 0.1 );
+    SetHistAxisLabels("ClosestzDistanceToBeamAxis","mm","Number of Entries");
 
     TH2D* h34 = new TH2D( "DecayPoisition", " Decay Poisition ", NumberOfBins, 0, 270, NumberOfBins, -180 , 180 );
     h34 -> GetXaxis() -> SetTitle( "z metres" );
     h34 -> GetYaxis() -> SetTitle( "x mm" );
     BookHisto( h34 );
 
-    TH1D* h35 = new TH1D( "ClosestPointOfMuon", " ClosestPointOfMuon", NumberOfBins*10, 0, 0 );
-    h35 -> GetXaxis() -> SetTitle( "m" );
-    h35 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h35 );
+    CreateHist1D( "ClosestPointOfMuon", " ClosestPointOfMuon", NumberOfBins*10, 0, 0 );
+    SetHistAxisLabels("ClosestPointOfMuon","m","Number of Entries");
 
-    TH1D* h36 = new TH1D( "ClosestxPointOfMuon", " ClosestxPointOfMuon", NumberOfBins*10, 0, 0 );
-    h36 -> GetXaxis() -> SetTitle( "mm" );
-    h36 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h36 );
+    CreateHist1D( "ClosestxPointOfMuon", " ClosestxPointOfMuon", NumberOfBins*10, 0, 0 );
+    SetHistAxisLabels("ClosestxPointOfMuon","mm","Number of Entries");
 
-    TH1D* h37 = new TH1D( "ClosestyPointOfMuon", " ClosestyPointOfMuon", NumberOfBins*10, 0, 0 );
-    h37 -> GetXaxis() -> SetTitle( "mm" );
-    h37 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h37 );
+    CreateHist1D( "ClosestyPointOfMuon", " ClosestyPointOfMuon", NumberOfBins*10, 0, 0 );
+    SetHistAxisLabels("ClosestyPointOfMuon","mm","Number of Entries");
 
-    TH1D* h38 = new TH1D( "ClosestzPointOfMuon", " ClosestzPointOfMuon", NumberOfBins*10, 0, 0 );
-    h38 -> GetXaxis() -> SetTitle( "m" );
-    h38 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h38 );
+    CreateHist1D( "ClosestzPointOfMuon", " ClosestzPointOfMuon", NumberOfBins*10, 0, 0 );
+    SetHistAxisLabels("ClosestzPointOfMuon","m","Number of Entries");
 
-    TH1D* h39 = new TH1D( "ClosestTimeOfMuon", " ClosestTimeOfMuon", NumberOfBins*10, 0, 0 );
-    h39 -> GetXaxis() -> SetTitle( "s" );
-    h39 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h39 );
+    CreateHist1D( "ClosestTimeOfMuon", " ClosestTimeOfMuon", NumberOfBins*10, 0, 0 );
+    SetHistAxisLabels("ClosestTimeOfMuon","s","Number of Entries");
 
-    TH1D* h40 = new TH1D( "ClosestTimeOfKaon", " ClosestTimeOfKaon", NumberOfBins*10, 0, 0 );
-    h40 -> GetXaxis() -> SetTitle( "s" );
-    h40 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h40 );
+    CreateHist1D( "ClosestTimeOfKaon", " ClosestTimeOfKaon", NumberOfBins*10, 0, 0 );
+    SetHistAxisLabels("ClosestTimeOfKaon","s","Number of Entries");
 
-    TH1D* h41 = new TH1D( "ClosestDistanceOfMuonToKaon", " ClosestDistanceOfMuonToKaon", NumberOfBins*10, 0, 0 );
-    h41 -> GetXaxis() -> SetTitle( "mm" );
-    h41 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h41 );
+    CreateHist1D( "ClosestDistanceOfMuonToKaon", " ClosestDistanceOfMuonToKaon", NumberOfBins*10, 0, 0 );
+    SetHistAxisLabels("ClosestDistanceOfMuonToKaon","mm","Number of Entries");
 
-    TH1D* h42 = new TH1D( "ClosestxDistanceOfMuonToKaon", " ClosestxDistanceOfMuonToKaon", NumberOfBins*10, 0, 0 );
-    h42 -> GetXaxis() -> SetTitle( "mm" );
-    h42 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h42 );
+    CreateHist1D( "ClosestxDistanceOfMuonToKaon", " ClosestxDistanceOfMuonToKaon", NumberOfBins*10, 0, 0 );
+    SetHistAxisLabels("ClosestxDistanceOfMuonToKaon","mm","Number of Entries");
 
-    TH1D* h43 = new TH1D( "ClosestyDistanceOfMuonToKaon", " ClosestyDistanceOfMuonToKaon", NumberOfBins*10, 0, 0 );
-    h43 -> GetXaxis() -> SetTitle( "mm" );
-    h43 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h43 );
+    CreateHist1D( "ClosestyDistanceOfMuonToKaon", " ClosestyDistanceOfMuonToKaon", NumberOfBins*10, 0, 0 );
+    SetHistAxisLabels("ClosestyDistanceOfMuonToKaon","mm","Number of Entries");
 
-    TH1D* h44 = new TH1D( "ClosestzDistanceOfMuonToKaon", " ClosestzDistanceOfMuonToKaon", NumberOfBins*10, 0, 0 );
-    h44 -> GetXaxis() -> SetTitle( "mm" );
-    h44 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h44 );
+    CreateHist1D( "ClosestzDistanceOfMuonToKaon", " ClosestzDistanceOfMuonToKaon", NumberOfBins*10, 0, 0 );
+    SetHistAxisLabels("ClosestzDistanceOfMuonToKaon","mm","Number of Entries");
 
-    TH1D* h45 = new TH1D( "ClosestSpaceTimeInterval", " ClosestSpaceTimeInterval", NumberOfBins*10, 0, 0 );
-    h45 -> GetXaxis() -> SetTitle( "m^2" );
-    h45 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h45 );
-
+    CreateHist1D( "ClosestSpaceTimeInterval", " ClosestSpaceTimeInterval", NumberOfBins*10, 0, 0 );
+    SetHistAxisLabels("ClosestSpaceTimeInterval","m^2","Number of Entries");
 
     TH2D* h46 = new TH2D( "ParticleProductionPosition", "StartingPositionOfJetParticles", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
     h46 -> GetXaxis() -> SetTitle( "m" );
@@ -326,55 +245,37 @@ void spectro::InitHist()
     h47 -> GetYaxis() -> SetTitle( "mm" );
     BookHisto( h47 );
 
-    TH1D* h48 = new TH1D( "TrueProuductionPositionx", " MuonProductionPointx", NumberOfBins, 0, 0 );
-    h48 -> GetXaxis() -> SetTitle( "m" );
-    h48 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h48 );
+    CreateHist1D( "TrueProuductionPositionx", " MuonProductionPointx", NumberOfBins, 0, 0 );
+    SetHistAxisLabels("TrueProuductionPositionx","m","Number of Entries");
 
-    TH1D* h49 = new TH1D( "TrueProuductionPositiony", " MuonProductionPointy", NumberOfBins, 0, 0 );
-    h49 -> GetXaxis() -> SetTitle( "m" );
-    h49 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h49 );
+    CreateHist1D( "TrueProuductionPositiony", " MuonProductionPointy", NumberOfBins, 0, 0 );
+    SetHistAxisLabels("TrueProuductionPositiony","m","Number of Entries");
 
-    TH1D* h50 = new TH1D( "TrueProuductionPositionz", " MuonProductionPointz", NumberOfBins, 0, 0 );
-    h50 -> GetXaxis() -> SetTitle( "m" );
-    h50 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h50 );
+    CreateHist1D( "TrueProuductionPositionz", " MuonProductionPointz", NumberOfBins, 0, 0 );
+    SetHistAxisLabels("TrueProuductionPositionz","m","Number of Entries");
 
     TH2D* h51 = new TH2D( "TrueProuductionPosition", "MuonProductionPoint", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
     h51 -> GetXaxis() -> SetTitle( "m" );
     h51 -> GetYaxis() -> SetTitle( "mm" );
     BookHisto( h51 );
 
-    TH1D* h52 = new TH1D("MissingMass", "Missing Mass Squared", NumberOfBins, -0.2, 0.2);
-    h52 -> GetXaxis() -> SetTitle( "Missing Mass Squared, GeV /c " );
-    h52 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h52 );
+    CreateHist1D("MissingMass", "Missing Mass Squared", NumberOfBins, -0.2, 0.2);
+    SetHistAxisLabels("MissingMass","Missing Mass Squared, GeV /c","Number of Entries");
 
-	TH1D* h53 = new TH1D("TrueMissingMass", "True Missing Mass Squared", 1000, 0, 0);
-    h53 -> GetXaxis() -> SetTitle( "True Missing Mass Squared" );
-    h53 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h53 );
+	CreateHist1D("TrueMissingMass", "True Missing Mass Squared", 1000, 0, 0);
+    SetHistAxisLabels("TrueMissingMass","True Missing Mass Squared","Number of Entries");
 
-    TH1D* h54 = new TH1D("SpectrometerxMomentumResolution", "Spectrometer x Momentum Resolution", NumberOfBins, 0, 0);
-    h54 -> GetXaxis() -> SetTitle( "x Momentum MeV" );
-    h54 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h54 );
+    CreateHist1D("SpectrometerxMomentumResolution", "Spectrometer x Momentum Resolution", NumberOfBins, 0, 0);
+    SetHistAxisLabels("SpectrometerxMomentumResolution","x Momentum MeV","Number of Entries");
 
-    TH1D* h55 = new TH1D("SpectrometeryMomentumResolution", "Spectrometer y Momentum Resolution", NumberOfBins, 0, 0);
-    h55 -> GetXaxis() -> SetTitle( "y Momentum MeV" );
-    h55 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h55 );
+    CreateHist1D("SpectrometeryMomentumResolution", "Spectrometer y Momentum Resolution", NumberOfBins, 0, 0);
+    SetHistAxisLabels("SpectrometeryMomentumResolution","y Momentum MeV","Number of Entries");
 
-    TH1D* h56 = new TH1D("SpectrometerzMomentumResolution", "Spectrometer z Momentum Resolution", NumberOfBins, 0, 0);
-    h56 -> GetXaxis() -> SetTitle( "z Momentum GeV" );
-    h56 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h56 );
+    CreateHist1D("SpectrometerzMomentumResolution", "Spectrometer z Momentum Resolution", NumberOfBins, 0, 0);
+    SetHistAxisLabels("SpectrometerzMomentumResolution","z Momentum GeV","Number of Entries");
 
-    TH1D* h57 = new TH1D("SpectrometerMomentumResolution", "Spectrometer Momentum Resolution", NumberOfBins, 0, 0);
-    h57 -> GetXaxis() -> SetTitle( "Momentum GeV" );
-    h57 -> GetYaxis() -> SetTitle( "Number of Entries" );
-    BookHisto( h57 );
+    CreateHist1D("SpectrometerMomentumResolution", "Spectrometer Momentum Resolution", NumberOfBins, 0, 0);
+    SetHistAxisLabels("SpectrometerMomentumResolution","Momentum GeV","Number of Entries");
 
     /*
     TH1D* h14 = new TH1D( "TrueMuonxMomentumHist", "True Muon x Momentum", NumberOfBins, 0, 0 );
@@ -425,6 +326,20 @@ void spectro::SaveAllPlotsPDF()
     {
         // Retrieve ROOT canvas and save as .pdf file
         ptr->second->GetCanvas()->SaveAs(TString(ptr->first + ".pdf"));
+    }
+}
+
+void spectro::SaveHistPDF()
+{
+    // Get iterator for CanvasOrganizer map
+    NA62Analysis::NA62Map<TString,CanvasOrganizer*>::type::iterator ptr;
+    // Get the CanvasOrganizer map
+    NA62Analysis::NA62Map<TString,CanvasOrganizer*>::type canvases = GetCanvases();
+    // Loop through all CanvasOrganizer map
+    for(ptr = canvases.begin(); ptr != canvases.end(); ptr++)
+    {
+        // Retrieve ROOT canvas and save as .pdf file
+        std::cout << ptr->second->GetName() << std::endl;
     }
 }
 
@@ -579,7 +494,7 @@ void spectro::Process( int iEvent )
                         p->name = "Muon";
                         p->PDGcode = -13;
                         p->kmunu = true;
-                        cout << "Muon:" << p->time_start <<endl;
+                        ///cout << "Muon:" << p->time_start <<endl;
 					}
 				}
 			}
@@ -650,7 +565,7 @@ void spectro::Process( int iEvent )
                 for ( int k = 0; k < MCTruthEvent -> GetNKineParts(); k++ )
 				{
 					KinePart *CandidateN = ( KinePart* )MCTruthEvent -> GetKineParts() -> At( k );
-					cout  << CandidateN -> GetParticleName() << CandidateN -> GetPDGcode() << " ";
+					///cout  << CandidateN -> GetParticleName() << CandidateN -> GetPDGcode() << " ";
 				}
 
                 ///More stuff that needs replacing with the way we did it for the real data
@@ -661,6 +576,7 @@ void spectro::Process( int iEvent )
 
 				FillHisto("TrueMissingMass", TrueMissingMass2 / ( pow( 1000, 2 ) ) );
 
+                /*
 				cout    << true_particle->position_start[0] << " "
                         << true_particle->position_start[1] << " "
 						<< true_particle->position_start[2] << " "
@@ -670,13 +586,14 @@ void spectro::Process( int iEvent )
                         << true_particle->position_end[2] << " "
                         << endl
                         << MCTruthEvent -> GetNKineParts();
+                */
 
                 //What is this doing?
 				true_particle->momentum.RotateY(BeamAngleFromZAxis);
 				if( i == 1 && true_particle->position_start[2] > 101000 && abs(true_particle->momentum[0]) <= 235 && abs(true_particle->momentum[1]) <= 235 && true_particle->momentum.Theta() <= 0.020 )
 				{
                     true_particle->momentum.RotateY(-BeamAngleFromZAxis);
-					cout << endl;
+					///cout << endl;
 					if ( TrueCandidate -> GetPDGcode() == -13) //If the kaon decays straight into a muon, do this shit.
 					{
                         true_particle->plot_true_kmunu = true;
@@ -700,15 +617,22 @@ void spectro::EndOfBurstUser()
 
 void spectro::EndOfRunUser()
 {
-
-        double startime = 999999999999999,endtime = 0, timeofevent;
+        ///What is the purpose of this?
+        double startime = 999999999999999, endtime = 0, timeofevent;
+        //Loop through all of the reconstructed events
         for ( int i = 0; i < reco_events.size(); i++ )
         {
-            int NumberDetected = reco_events[i]->particles.size();
-            int TrueNumber = true_events[i]->particles.size();
+            //Number of particles in this event
+            int NumberDetected = reco_events[i]->num_of_particles();
+            //Number of particles in this event
+            int TrueNumber = true_events[i]->num_of_particles();
+            //Loop through each particle in the reco_event
             for ( int j = 0; j < NumberDetected;j++ )
             {
-                if  ( NumberDetected > 0 &&  reco_events[i]->particles[j]->plot_beam_distance == true && reco_events[i]->particles[j]->kmunu == true && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 20 )
+                if  ( NumberDetected > 0
+                        && reco_events[i]->particles[j]->plot_beam_distance == true
+                        && reco_events[i]->particles[j]->kmunu == true
+                        && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 20 )
                 {
                     FillHisto( "ClosestPointFromBeamAxis", reco_events[i]->particles[j]->origin.Mag() / 1000. );
                     FillHisto( "ClosestxPointFromBeamAxis", reco_events[i]->particles[j]->origin[0] );
@@ -731,7 +655,11 @@ void spectro::EndOfRunUser()
                         startime = timeofevent;
                     }
                 }
-                if ( NumberDetected > 0 &&  reco_events[i]->particles[j]->plot_momentum == true && reco_events[i]->particles[j]->kmunu == true && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 20 )
+
+                if ( NumberDetected > 0
+                        && reco_events[i]->particles[j]->plot_momentum == true
+                        && reco_events[i]->particles[j]->kmunu == true
+                        && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 20 )
                 {
                     reco_events[i]->particles[0]->momentum.RotateY(BeamAngleFromZAxis); //Switch to  reference system where beam is along z axis.
                     FillHisto( "MomentumHist",  reco_events[i]->particles[j]->momentum.Mag() / 1000. );
@@ -747,9 +675,9 @@ void spectro::EndOfRunUser()
                     reco_events[i]->particles[0]->momentum.RotateY( -BeamAngleFromZAxis ); //Switch back to standard reference frame.
                 }
 
-
-
-				if ( TrueNumber >= 3 && true_events[i]->particles[1]->plot_true_kmunu == true && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 20  )
+				if ( TrueNumber >= 3
+                        && true_events[i]->particles[1]->plot_true_kmunu == true
+                        && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 20  )
 				{
 					true_events[i]->particles[1]->momentum.RotateY(BeamAngleFromZAxis);
 					FillHisto( "TrueMomentumHist",  true_events[i]->particles[1]->momentum.Mag() / 1000. );
@@ -778,7 +706,10 @@ void spectro::EndOfRunUser()
 					true_events[i]->particles[1]->momentum.RotateY(-BeamAngleFromZAxis);
 				}
 
-				if  ( NumberDetected == 1 && true_events[i]->particles[1]->plot_true_kmunu == true && reco_events[i]->particles[0]->plot_beam_distance == true && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 20  )
+				if  ( NumberDetected == 1
+                        && true_events[i]->particles[1]->plot_true_kmunu == true    ///Why is this here?
+                        && reco_events[i]->particles[0]->plot_beam_distance == true
+                        && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 20  )
 				{
 					true_events[i]->particles[1]->momentum.RotateY(BeamAngleFromZAxis);
 					reco_events[i]->particles[0]->momentum.RotateY(BeamAngleFromZAxis);
@@ -846,7 +777,7 @@ void spectro::EndOfRunUser()
         }
 		*/
 
-        cout<<"start" << startime << "end:" << endtime << endl << "TotalTime:" << endtime - startime;
+    ///cout<<"start" << startime << "end:" << endtime << endl << "TotalTime:" << endtime - startime;
 
     TH1D* h58 = new TH1D("DetectorEfficiencyMomentum", "Detector Efficiency Momentum", NumberOfBins, 0, 0 );
     BookHisto(h58);
@@ -890,12 +821,17 @@ void spectro::EndOfRunUser()
     fHisto.GetHisto("zMomentumHist")->Copy(*h65);
     h65->Divide(fHisto.GetHisto("DetectorzEfficiencyMomentum"));
 
+    TH1* h = fHisto.GetHisto("MissingMass");
+    h->Fit("gaus");
+    h->Draw();
+
     SaveAllPlots();
 }
 
 void spectro::DrawPlot()
 {
     DrawAllPlots();
-    SaveAllPlotsPDF();
+    //SaveAllPlotsPDF();
+    SaveHistPDF();
 }
 

@@ -9,6 +9,7 @@
 #include <TCanvas.h>
 #include <string>
 
+
 class TH1I;
 class TH2F;
 class TGraph;
@@ -45,11 +46,6 @@ class true_particle : public particle
         {
 
         }
-
-    TLorentzVector
-
-
-
 };
 
 class event
@@ -66,6 +62,11 @@ class event
         particle* operator[](int i)
         {
             return particles[i];
+        }
+        //Returns the number of particles in this event
+        int num_of_particles()
+        {
+            return particles.size();
         }
         std::vector<particle*> particles;
 };
@@ -99,6 +100,9 @@ class spectro : public NA62Analysis::Analyzer
 		void PostProcess();
 		void DrawPlot();
 		void SaveAllPlotsPDF();
+		void SaveHistPDF();
+		void CreateHist1D(TString name, TString title = "Hist Title", int nbins = NumberOfBins, double low = 0, double high = 0);
+		void SetHistAxisLabels(TString name, TString xlabel = "X Axis", TString ylabel = "Y Axis");
 	protected:
         beam b;
         //Array of events
