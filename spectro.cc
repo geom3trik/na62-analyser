@@ -427,7 +427,7 @@ void spectro::Process( int iEvent )
 			ClosestPointOfBeamApproachedAfterFiducial = ClosestPointOnVectorToOtherVector( b.fiducial_entry, b.beam_axis_rotated, p->position_start, p->momentum );
 			DistanceToBeamAxisAfterFiducial = -ClosestPointFromBeamAxisAfterFiducial + ClosestPointOfBeamApproachedAfterFiducial;
 
-            //I can't remember what this is doing
+            //I can't remember what this does // It finds whether the muon comes from before or after the first magnet
             if ( ClosestPointFromBeamAxisBeforeFiducial( 2 ) <= 104000 && ( ClosestPointFromBeamAxisAfterFiducial( 2 ) < 104000 || abs( DistanceToBeamAxisBeforeFiducial.Mag() ) < abs ( DistanceToBeamAxisAfterFiducial.Mag() ) ) )
 			{
 				p->origin = ClosestPointFromBeamAxisBeforeFiducial;
@@ -436,7 +436,7 @@ void spectro::Process( int iEvent )
 				p->minimum_beam_distance = MinimumDistanceToBeamAxisBeforeFiducial;
 				CheckIfEventCanBeMatchedToBeam = 0;
             }
-            //Or this
+            //Or this // The same as before
             else if ( ClosestPointFromBeamAxisAfterFiducial( 2 ) >= 104000 && ClosestPointFromBeamAxisAfterFiducial( 2 ) <= 166000 )
             {
                 p->origin = ClosestPointFromBeamAxisAfterFiducial;
@@ -449,7 +449,7 @@ void spectro::Process( int iEvent )
             /*Remove events that aren't a single positive particle being detected in the spectrometer (as this is not k->munu), Charge == 1 gets rid of 29 events, then && Candidates == 1 gets rid of another 12  */
 			if ( p->charge == 1 && SpectrometerEvent->GetNCandidates() == 1 )
 			{
-			    //Did you add this Jack?
+			    //Did you add this Jack? //Yes
 				p->plot_momentum = true;
                 //Calculate energy of kaon
 				double KaonMass = 493.667;
@@ -481,14 +481,14 @@ void spectro::Process( int iEvent )
                         p->name = "Muon";
                         p->PDGcode = -13;
                         p->kmunu = true;
-                        ///cout << "Muon:" << p->time_start <<endl;
+                        ///cout << "Muon:" << p->time_start <<endl; //What does 3 slashes mean?
 					}
 				}
 			}
 		}
 	}
 
-	//I wonder if the GigaTracker works yet
+	//I wonder if the GigaTracker works yet //It does not
 
 	/*
 	TRecoGigaTrackerEvent *GTKEvent = ( TRecoGigaTrackerEvent* )GetEvent( "GigaTracker" );
@@ -536,7 +536,7 @@ void spectro::Process( int iEvent )
 			///This should really be replaced with particle class variable
 			TrueKaonMomentum = KaonCandidate->GetFinal4Momentum();
             ///Like these
-            //Which was checkpoint 2 again?
+            //Which was checkpoint 2 again? // STRAW
 			true_particle->momentum = TrueCandidate -> GetMomAtCheckPoint( 2 ).Vect();
 			true_particle->position_start = TrueCandidate -> GetProdPos().Vect();
 			true_particle->position_end = TrueCandidate -> GetEndPos().Vect();
@@ -548,7 +548,7 @@ void spectro::Process( int iEvent )
 
 			if ( i == 1 && true_particle->momentum.Mag() != 0 && TrueCandidate -> GetPDGcode() == -13 && abs(true_particle->momentum.Theta()) > 0 )
 			{
-			    //Loop through each particle again?
+			    //Loop through each particle again? //This just loops through it to output the names of them.
                 for ( int k = 0; k < MCTruthEvent -> GetNKineParts(); k++ )
 				{
 					KinePart *CandidateN = ( KinePart* )MCTruthEvent -> GetKineParts() -> At( k );
@@ -575,7 +575,7 @@ void spectro::Process( int iEvent )
                         << MCTruthEvent -> GetNKineParts();
                 */
 
-                //What is this doing?
+                //What is this doing? //Nothing, we used to output graphs here which required rotating the angle then rotating it back after outputing the graphs.
 				true_particle->momentum.RotateY(BeamAngleFromZAxis);
 				//if( i == 1 && true_particle->position_start[2] > 101000 && abs(true_particle->momentum[0]) <= 235 && abs(true_particle->momentum[1]) <= 235 && true_particle->momentum.Theta() <= 0.020 )
 				//{
@@ -604,7 +604,7 @@ void spectro::EndOfBurstUser()
 
 void spectro::EndOfRunUser()
 {
-        ///What is the purpose of this?
+        ///What is the purpose of this? //Is for spacetime interval thing but doubt we will ever get to that to work anyway
         double startime = 999999999999999, endtime = 0, timeofevent;
         //Loop through all of the reconstructed events
         for ( int i = 0; i < reco_events.size(); i++ )
@@ -616,6 +616,7 @@ void spectro::EndOfRunUser()
             //Loop through each particle in the reco_event
             for ( int j = 0; j < NumberDetected;j++ )
             {
+                ///Think we should rewrite code so that all discrimination for whether we plot something or not is done here, so it's easier to tell what's being cut out.
                 if  ( NumberDetected > 0 &&  reco_events[i]->particles[j]->plot_beam_distance == true && reco_events[i]->particles[j]->kmunu == true && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 2000 )
                 {
                     FillHisto( "ClosestPointFromBeamAxis", reco_events[i]->particles[j]->origin.Mag() / 1000. );
