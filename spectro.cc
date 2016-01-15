@@ -20,7 +20,7 @@ spectro::spectro( Core::BaseAnalysis *ba ) : Analyzer( ba, "spectro" )
 {
 	RequestTree( "GigaTracker", new TRecoGigaTrackerEvent );
 	RequestTree( "Spectrometer", new TRecoSpectrometerEvent );
-
+    RequestTree( "LKr", new TRecoLKrEvent );
 }
 
 void spectro::InitOutput()
@@ -329,20 +329,6 @@ void spectro::SaveAllPlotsPDF()
     }
 }
 
-void spectro::SaveHistPDF()
-{
-    // Get iterator for CanvasOrganizer map
-    NA62Analysis::NA62Map<TString,CanvasOrganizer*>::type::iterator ptr;
-    // Get the CanvasOrganizer map
-    NA62Analysis::NA62Map<TString,CanvasOrganizer*>::type canvases = GetCanvases();
-    // Loop through all CanvasOrganizer map
-    for(ptr = canvases.begin(); ptr != canvases.end(); ptr++)
-    {
-        // Retrieve ROOT canvas and save as .pdf file
-        std::cout << ptr->second->GetName() << std::endl;
-    }
-}
-
 
 TVector3 ClosestPointOnVectorToOtherVector( TVector3 Vector1Position, TVector3 Vector1Direction, TVector3 Vector2Position, TVector3 Vector2Direction) //14th November
 {
@@ -403,7 +389,8 @@ void spectro::Process( int iEvent )
 
     // Get the spectrometer event
 	TRecoSpectrometerEvent *SpectrometerEvent = ( TRecoSpectrometerEvent* )GetEvent( "Spectrometer" );
-    /// Hopefully can replace these with class member variables in particle class?
+    TRecoLKrEvent *LKrEvent = ( TRecoLKrEvent* )GetEvent( "LKr" );
+
 	TVector3    	ParticleTrueThreeMomentum, TrueParticleStartingThreePosition, TrueParticleEndingThreePosition,
                	 	ClosestPointFromBeamAxis, BeamPointFiducialEntry, DistanceToBeamAxis, ClosestPointOfBeamApproached, KaonThreeMomentum, KaonThreePositionGTK1,
                     ClosestPointFromBeamAxisBeforeFiducial, ClosestPointFromBeamAxisAfterFiducial, ClosestPointOfBeamApproachedBeforeFiducial, ClosestPointOfBeamApproachedAfterFiducial,
@@ -483,8 +470,8 @@ void spectro::Process( int iEvent )
 				TLorentzVector MissingMass = KaonMomentum - MuonMomentum;
 				double MissingMass2 = MissingMass.Mag2();
 
-                //What is this doing?
-				if ( CheckIfEventCanBeMatchedToBeam == 1 )
+
+				if ( CheckIfEventCanBeMatchedToBeam == 1 && LKrEvent->GetNCandidates() >= 1 )
 				{
 
                     p->plot_beam_distance = true;
@@ -590,15 +577,15 @@ void spectro::Process( int iEvent )
 
                 //What is this doing?
 				true_particle->momentum.RotateY(BeamAngleFromZAxis);
-				if( i == 1 && true_particle->position_start[2] > 101000 && abs(true_particle->momentum[0]) <= 235 && abs(true_particle->momentum[1]) <= 235 && true_particle->momentum.Theta() <= 0.020 )
-				{
+				//if( i == 1 && true_particle->position_start[2] > 101000 && abs(true_particle->momentum[0]) <= 235 && abs(true_particle->momentum[1]) <= 235 && true_particle->momentum.Theta() <= 0.020 )
+				//{
                     true_particle->momentum.RotateY(-BeamAngleFromZAxis);
 					///cout << endl;
 					if ( TrueCandidate -> GetPDGcode() == -13) //If the kaon decays straight into a muon, do this shit.
 					{
                         true_particle->plot_true_kmunu = true;
 					}
-				}
+				//}
 			}
 		}
 	}
@@ -629,10 +616,7 @@ void spectro::EndOfRunUser()
             //Loop through each particle in the reco_event
             for ( int j = 0; j < NumberDetected;j++ )
             {
-                if  ( NumberDetected > 0
-                        && reco_events[i]->particles[j]->plot_beam_distance == true
-                        && reco_events[i]->particles[j]->kmunu == true
-                        && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 20 )
+                if  ( NumberDetected > 0 &&  reco_events[i]->particles[j]->plot_beam_distance == true && reco_events[i]->particles[j]->kmunu == true && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 2000 )
                 {
                     FillHisto( "ClosestPointFromBeamAxis", reco_events[i]->particles[j]->origin.Mag() / 1000. );
                     FillHisto( "ClosestxPointFromBeamAxis", reco_events[i]->particles[j]->origin[0] );
@@ -655,11 +639,7 @@ void spectro::EndOfRunUser()
                         startime = timeofevent;
                     }
                 }
-
-                if ( NumberDetected > 0
-                        && reco_events[i]->particles[j]->plot_momentum == true
-                        && reco_events[i]->particles[j]->kmunu == true
-                        && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 20 )
+                if ( NumberDetected > 0 &&  reco_events[i]->particles[j]->plot_momentum == true && reco_events[i]->particles[j]->kmunu == true && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 2000 )
                 {
                     reco_events[i]->particles[0]->momentum.RotateY(BeamAngleFromZAxis); //Switch to  reference system where beam is along z axis.
                     FillHisto( "MomentumHist",  reco_events[i]->particles[j]->momentum.Mag() / 1000. );
@@ -675,9 +655,8 @@ void spectro::EndOfRunUser()
                     reco_events[i]->particles[0]->momentum.RotateY( -BeamAngleFromZAxis ); //Switch back to standard reference frame.
                 }
 
-				if ( TrueNumber >= 3
-                        && true_events[i]->particles[1]->plot_true_kmunu == true
-                        && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 20  )
+
+				if ( TrueNumber >= 3 && true_events[i]->particles[1]->plot_true_kmunu == true && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 2000  )
 				{
 					true_events[i]->particles[1]->momentum.RotateY(BeamAngleFromZAxis);
 					FillHisto( "TrueMomentumHist",  true_events[i]->particles[1]->momentum.Mag() / 1000. );
@@ -706,10 +685,7 @@ void spectro::EndOfRunUser()
 					true_events[i]->particles[1]->momentum.RotateY(-BeamAngleFromZAxis);
 				}
 
-				if  ( NumberDetected == 1
-                        && true_events[i]->particles[1]->plot_true_kmunu == true    ///Why is this here?
-                        && reco_events[i]->particles[0]->plot_beam_distance == true
-                        && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 20  )
+				if  ( NumberDetected == 1 && true_events[i]->particles[1]->plot_true_kmunu == true && reco_events[i]->particles[0]->plot_beam_distance == true && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 2000  )
 				{
 					true_events[i]->particles[1]->momentum.RotateY(BeamAngleFromZAxis);
 					reco_events[i]->particles[0]->momentum.RotateY(BeamAngleFromZAxis);
