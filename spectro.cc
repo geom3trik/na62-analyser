@@ -21,6 +21,8 @@ spectro::spectro( Core::BaseAnalysis *ba ) : Analyzer( ba, "spectro" )
 	RequestTree( "GigaTracker", new TRecoGigaTrackerEvent );
 	RequestTree( "Spectrometer", new TRecoSpectrometerEvent );
     RequestTree( "LKr", new TRecoLKrEvent );
+    RequestTree( "MUV3", new TRecoMUV3Event );
+
 }
 
 void spectro::InitOutput()
@@ -390,6 +392,7 @@ void spectro::Process( int iEvent )
     // Get the spectrometer event
 	TRecoSpectrometerEvent *SpectrometerEvent = ( TRecoSpectrometerEvent* )GetEvent( "Spectrometer" );
     TRecoLKrEvent *LKrEvent = ( TRecoLKrEvent* )GetEvent( "LKr" );
+    TRecoMUV3Event *MUV3Event = ( TRecoMUV3Event* )GetEvent( "MUV3" );
 
 	TVector3    	ParticleTrueThreeMomentum, TrueParticleStartingThreePosition, TrueParticleEndingThreePosition,
                	 	ClosestPointFromBeamAxis, BeamPointFiducialEntry, DistanceToBeamAxis, ClosestPointOfBeamApproached, KaonThreeMomentum, KaonThreePositionGTK1,
@@ -412,6 +415,10 @@ void spectro::Process( int iEvent )
 			//Create a new particle and add it to the event
 			particle* p = new particle();
 			reco_event->add_particle(p);
+			//See if this particle is linked to an LKr or MUV3 event
+            if ( LKrEvent->GetNCandidates() >= 1 ) p->LKr_link = true;
+            if ( LKrEvent->GetNCandidates() >= 1 ) p->MUV3_link = true;
+
 			//Set the properties of the particle
 			p->momentum = SpectroCandidate->GetThreeMomentumBeforeMagnet();
 			p->position_start = SpectroCandidate->GetPositionBeforeMagnet();
@@ -434,7 +441,7 @@ void spectro::Process( int iEvent )
 				ClosestPointOfBeamApproached = ClosestPointOfBeamApproachedBeforeFiducial;
 				p->beam_distance = DistanceToBeamAxisBeforeFiducial;
 				p->minimum_beam_distance = MinimumDistanceToBeamAxisBeforeFiducial;
-				CheckIfEventCanBeMatchedToBeam = 0;
+				p->beam_link = false;
             }
             //Or this // The same as before
             else if ( ClosestPointFromBeamAxisAfterFiducial( 2 ) >= 104000 && ClosestPointFromBeamAxisAfterFiducial( 2 ) <= 166000 )
@@ -443,48 +450,29 @@ void spectro::Process( int iEvent )
                 ClosestPointOfBeamApproached = ClosestPointOfBeamApproachedAfterFiducial;
                 p->beam_distance = DistanceToBeamAxisAfterFiducial;
                 p->minimum_beam_distance = MinimumDistanceToBeamAxisAfterFiducial;
-                CheckIfEventCanBeMatchedToBeam = 1;
+                p->beam_link = true;
             }
 
             /*Remove events that aren't a single positive particle being detected in the spectrometer (as this is not k->munu), Charge == 1 gets rid of 29 events, then && Candidates == 1 gets rid of another 12  */
-			if ( p->charge == 1 && SpectrometerEvent->GetNCandidates() == 1 )
-			{
-			    //Did you add this Jack? //Yes
-				p->plot_momentum = true;
-                //Calculate energy of kaon
-				double KaonMass = 493.667;
-				double KaonEnergy = sqrt((75e3*75e3) + (KaonMass*KaonMass));
-				TLorentzVector KaonMomentum;
-				KaonMomentum[2] = 75e3; //Set z component to beam energy
-				KaonMomentum[3] = KaonEnergy; //Set time component to kaon energy
-				KaonMomentum.RotateY( -BeamAngleFromZAxis ); //Transform to beam frame
+            //Did you add this Jack? //Yes
+            p->plot_momentum = true;
+            //Calculate energy of kaon
+            double KaonMass = 493.667;
+            double KaonEnergy = sqrt((75e3*75e3) + (KaonMass*KaonMass));
+            TLorentzVector KaonMomentum;
+            KaonMomentum[2] = 75e3; //Set z component to beam energy
+            KaonMomentum[3] = KaonEnergy; //Set time component to kaon energy
+            KaonMomentum.RotateY( -BeamAngleFromZAxis ); //Transform to beam frame
 
-                //Calculate energy of muon
-				double MuonMass = 105.6583715;
-				double MuonEnergy = sqrt((p->momentum.Mag2()) + (MuonMass*MuonMass));
-				TLorentzVector MuonMomentum;
-				MuonMomentum.SetVect(p->momentum); //Set xyz components to muon 3-momentum
-				MuonMomentum[3] = MuonEnergy; //Set time component to muon energy
+            //Calculate energy of muon
+            double MuonMass = 105.6583715;
+            double MuonEnergy = sqrt((p->momentum.Mag2()) + (MuonMass*MuonMass));
+            TLorentzVector MuonMomentum;
+            MuonMomentum.SetVect(p->momentum); //Set xyz components to muon 3-momentum
+            MuonMomentum[3] = MuonEnergy; //Set time component to muon energy
 
-                //Calculate missing mass squared
-				TLorentzVector MissingMass = KaonMomentum - MuonMomentum;
-				double MissingMass2 = MissingMass.Mag2();
-
-
-				if ( CheckIfEventCanBeMatchedToBeam == 1 && LKrEvent->GetNCandidates() >= 1 )
-				{
-
-                    p->plot_beam_distance = true;
-					if ( abs( MissingMass2 ) / ( pow( 1000, 2 ) ) < 1000000) //This is very likey k->munu. One detected candidate in spec, correct charge, came from beam, kinematics consistent within resolution to this process.
-					{
-                        FillHisto( "MissingMass", MissingMass2 / ( pow( 1000, 2 ) ) );
-                        p->name = "Muon";
-                        p->PDGcode = -13;
-                        p->kmunu = true;
-                        ///cout << "Muon:" << p->time_start <<endl; //What does 3 slashes mean?
-					}
-				}
-			}
+            //Calculate missing mass squared
+            reco_event->MissingMass = KaonMomentum - MuonMomentum;
 		}
 	}
 
@@ -540,11 +528,6 @@ void spectro::Process( int iEvent )
 			true_particle->momentum = TrueCandidate -> GetMomAtCheckPoint( 2 ).Vect();
 			true_particle->position_start = TrueCandidate -> GetProdPos().Vect();
 			true_particle->position_end = TrueCandidate -> GetEndPos().Vect();
-
-			if ( i == 0 ) //i.e. the kaon
-				FillHisto( "KaonEndingPosition",true_particle->position_end[2] / 1000., true_particle->position_end[0] );
-
-			FillHisto( "ParticleProductionPosition",true_particle->position_start[2] / 1000., true_particle->position_start[0] );
 
 			if ( i == 1 && true_particle->momentum.Mag() != 0 && TrueCandidate -> GetPDGcode() == -13 && abs(true_particle->momentum.Theta()) > 0 )
 			{
@@ -616,8 +599,15 @@ void spectro::EndOfRunUser()
             //Loop through each particle in the reco_event
             for ( int j = 0; j < NumberDetected;j++ )
             {
+
                 ///Think we should rewrite code so that all discrimination for whether we plot something or not is done here, so it's easier to tell what's being cut out.
-                if  ( NumberDetected > 0 &&  reco_events[i]->particles[j]->plot_beam_distance == true && reco_events[i]->particles[j]->kmunu == true && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 2000 )
+                if  (   NumberDetected > 0 &&
+                        reco_events[i]->particles[j]-> LKr_link == true &&
+                        reco_events[i]->particles[j]-> MUV3_link == true && //
+                        reco_events[i]->particles[j]-> beam_link == true &&  //
+                        reco_events[i]->particles[j]-> charge == 1 &&  //Gets rid of 29 events
+                        reco_events[i]->num_of_particles() == 1 && //gets rid of another 12
+                        abs(reco_events[i]->particles[j]->minimum_beam_distance) < 2000 )
                 {
                     FillHisto( "ClosestPointFromBeamAxis", reco_events[i]->particles[j]->origin.Mag() / 1000. );
                     FillHisto( "ClosestxPointFromBeamAxis", reco_events[i]->particles[j]->origin[0] );
@@ -629,20 +619,9 @@ void spectro::EndOfRunUser()
                     FillHisto( "ClosestyDistanceToBeamAxis", reco_events[i]->particles[j]->beam_distance[1] );
                     FillHisto( "ClosestzDistanceToBeamAxis", reco_events[i]->particles[j]->beam_distance[2] );
                     FillHisto( "DecayPoisition", reco_events[i]->particles[j]->origin[2] / 1000. , reco_events[i]->particles[j]->origin[0] );
+                    FillHisto( "MissingMass", (reco_events[i]->MissingMass).Mag2() / ( pow( 1000, 2 ) ) );
 
-                    timeofevent = reco_events[i]->particles[j]->time_start;
-                    if ( timeofevent > endtime)
-                    {
-                        endtime = timeofevent;
-                    }
-                    else if ( timeofevent < startime )
-                    {
-                        startime = timeofevent;
-                    }
-                }
-                if ( NumberDetected > 0 &&  reco_events[i]->particles[j]->plot_momentum == true && reco_events[i]->particles[j]->kmunu == true && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 2000 )
-                {
-                    reco_events[i]->particles[0]->momentum.RotateY(BeamAngleFromZAxis); //Switch to  reference system where beam is along z axis.
+                    reco_events[i]->particles[j]->momentum.RotateY(BeamAngleFromZAxis); //Switch to  reference system where beam is along z axis.
                     FillHisto( "MomentumHist",  reco_events[i]->particles[j]->momentum.Mag() / 1000. );
                     FillHisto( "xMomentumHist", reco_events[i]->particles[j]->momentum[0] / 1000. );
                     FillHisto( "yMomentumHist", reco_events[i]->particles[j]->momentum[1] / 1000. );
@@ -653,13 +632,15 @@ void spectro::EndOfRunUser()
                     FillHisto( "EnergyVsAzimuthal", reco_events[i]->particles[j]->momentum.Phi(), reco_events[i]->particles[j]->momentum.Mag() / 1000. );
                     FillHisto( "EnergyVsPolar", reco_events[i]->particles[j]->momentum.Theta(), reco_events[i]->particles[j]->momentum.Mag() / 1000. );
                     FillHisto( "TranverseEnergyVsAzimuthal", reco_events[i]->particles[j]->momentum.Phi(), reco_events[i]->particles[j]->momentum.Perp() / 1000. );
-                    reco_events[i]->particles[0]->momentum.RotateY( -BeamAngleFromZAxis ); //Switch back to standard reference frame.
+                    reco_events[i]->particles[j]->momentum.RotateY( -BeamAngleFromZAxis ); //Switch back to standard reference frame.
                 }
+            }
 
-
-				if ( TrueNumber >= 3 && true_events[i]->particles[1]->plot_true_kmunu == true && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 2000  )
+				if (    TrueNumber >= 3 &&
+                        true_events[i]->particles[1]->plot_true_kmunu == true)
 				{
 					true_events[i]->particles[1]->momentum.RotateY(BeamAngleFromZAxis);
+                    FillHisto( "KaonEndingPosition",true_events[i]->particles[0]->position_end[2] / 1000., true_events[i]->particles[0]->position_end[0] );
 					FillHisto( "TrueMomentumHist",  true_events[i]->particles[1]->momentum.Mag() / 1000. );
 					FillHisto( "TruexMomentumHist", true_events[i]->particles[1]->momentum[0] / 1000. );
 					FillHisto( "TrueyMomentumHist", true_events[i]->particles[1]->momentum[1] / 1000. );
@@ -685,8 +666,14 @@ void spectro::EndOfRunUser()
 					FillHisto( "TrueProuductionPositionz", true_events[i]->particles[1]->position_start[2]/ 1000. );
 					true_events[i]->particles[1]->momentum.RotateY(-BeamAngleFromZAxis);
 				}
-
-				if  ( NumberDetected == 1 && true_events[i]->particles[1]->plot_true_kmunu == true && reco_events[i]->particles[0]->plot_beam_distance == true && abs(reco_events[i]->particles[j]->minimum_beam_distance) < 2000  )
+                for ( int j = 0; j < TrueNumber;j++ )
+                {
+                    FillHisto( "ParticleProductionPosition",true_events[i]->particles[j]->position_start[2] / 1000., true_events[i]->particles[j]->position_start[0] );
+                }
+				if  (   NumberDetected == 1 &&
+                        true_events[i]->particles[1]->plot_true_kmunu == true &&
+                        reco_events[i]->particles[0]->plot_beam_distance == true &&
+                        abs(reco_events[i]->particles[1]->minimum_beam_distance) < 2000 )
 				{
 					true_events[i]->particles[1]->momentum.RotateY(BeamAngleFromZAxis);
 					reco_events[i]->particles[0]->momentum.RotateY(BeamAngleFromZAxis);
@@ -700,7 +687,7 @@ void spectro::EndOfRunUser()
 				}
 
 
-			}
+
         }
         /*
         for ( int i = 0; i < reco_events.size(); i ++)
@@ -809,6 +796,5 @@ void spectro::DrawPlot()
 {
     DrawAllPlots();
     //SaveAllPlotsPDF();
-    SaveHistPDF();
 }
 
