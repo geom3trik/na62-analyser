@@ -279,6 +279,26 @@ void spectro2::InitHist()
     CreateHist1D("SpectrometerMomentumResolution", "Spectrometer Momentum Resolution", NumberOfBins, 0, 0);
     SetHistAxisLabels("SpectrometerMomentumResolution","Momentum GeV","Number of Entries");
 
+    TH2D* h52 = new TH2D( "SpectrometerxMomentumResolutionAgainstxMomentum", "x Momentum Resolution Against x Momentum", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
+    h52 -> GetXaxis() -> SetTitle( "MeV" );
+    h52 -> GetYaxis() -> SetTitle( "MeV" );
+    BookHisto( h52 );
+
+    TH2D* h53 = new TH2D( "SpectrometeryMomentumResolutionAgainstxMomentum", "y Momentum Resolution Against y Momentum", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
+    h53 -> GetXaxis() -> SetTitle( "MeV" );
+    h53 -> GetYaxis() -> SetTitle( "MeV" );
+    BookHisto( h53 );
+
+    TH2D* h54 = new TH2D( "SpectrometerzMomentumResolutionAgainstzMomentum", "z Momentum Resolution Against z Momentum", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
+    h54 -> GetXaxis() -> SetTitle( "GeV" );
+    h54 -> GetYaxis() -> SetTitle( "GeV" );
+    BookHisto( h54 );
+
+    TH2D* h55 = new TH2D( "SpectrometerMomentumResolutionAgainstMomentum", "Momentum Resolution Against Momentum", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
+    h55 -> GetXaxis() -> SetTitle( "GeV" );
+    h55 -> GetYaxis() -> SetTitle( "GeV" );
+    BookHisto( h55 );
+
     /*
     TH1D* h14 = new TH1D( "TrueMuonxMomentumHist", "True Muon x Momentum", NumberOfBins, 0, 0 );
     h14 -> GetXaxis() -> SetTitle( "Momentum MeV" );
@@ -387,6 +407,8 @@ void spectro2::Process( int iEvent )
     TRecoLKrEvent *LKrEvent = ( TRecoLKrEvent* )GetEvent( "LKr" );
     TRecoMUV3Event *MUV3Event = ( TRecoMUV3Event* )GetEvent( "MUV3" );
 
+    bool event_accepted = false; //Boolean to say whether or not the event passes tests.
+
 	//Check to see if an event was detected in the spectrometer
 	if( SpectrometerEvent->GetNCandidates() >= 1 &&
         LKrEvent->GetNCandidates() >= 1 &&
@@ -455,11 +477,11 @@ void spectro2::Process( int iEvent )
                 double MuonMass = 105.6583715;
                 double MuonEnergy = sqrt((momentum.Mag2()) + (MuonMass*MuonMass));
                 TLorentzVector MuonMomentum;
-                MuonMomentum.SetVect(momentum); //Set xyz components to muon 3-momentum
-                MuonMomentum[3] = MuonEnergy; //Set time component to muon energy
+                muon_four_momentum.SetVect(momentum); //Set xyz components to muon 3-momentum
+                muon_four_momentum[3] = MuonEnergy; //Set time component to muon energy
 
                 //Calculate missing mass squared
-                TLorentzVector MissingMass = KaonMomentum - MuonMomentum;
+                TLorentzVector MissingMass = KaonMomentum - muon_four_momentum;
 
 
 
@@ -473,6 +495,7 @@ void spectro2::Process( int iEvent )
                         MissingMass.Mag2() / pow( 1000, 2 ) < 2000 //Have Missing Mass Correct for Decay
                     )
                 {
+                    event_accepted = true;
                     FillHisto( "MissingMass", MissingMass.Mag2() / pow( 1000, 2) );
 
                     momentum.RotateY(BeamAngleFromZAxis);   //Rotate the reference frame to be along the beam
@@ -520,10 +543,10 @@ void spectro2::Process( int iEvent )
                 }
 		}
 	}
-	ProcessTrue();
+	ProcessTrue( momentum event_accepted);
 }
 
-void spectro2::ProcessTrue()
+void spectro2::ProcessTrue( TVector3 reco_momentum bool event_accepted )
 {
     //Get truth event
     Event *MCTruthEvent = GetMCEvent();
@@ -546,8 +569,33 @@ void spectro2::ProcessTrue()
 
             FillHisto( "ParticleProductionPosition",position_start[2] / 1000., position_start[0] );
 
+
 			if ( i == 1 && momentum.Mag() != 0 && TrueCandidate -> GetPDGcode() == -13 && abs(momentum.Theta()) > 0 )
 			{
+
+
+
+                    ////////////////////////////////////
+                    // Calculate Momentum Resolutions //
+                    ////////////////////////////////////
+                if ( event_accepted == true )
+                {
+                    momentum.RotateY(BeamAngleFromZAxis);
+                    reco_momentum.RotateY(BeamAngleFromZAxis);
+                    TVector3 ResolutionTemp = momentum - reco_momentum;
+                    FillHisto( "SpectrometerxMomentumResolution",  ResolutionTemp[0] ) ;
+                    FillHisto( "SpectrometeryMomentumResolution", ResolutionTemp[1] );
+                    FillHisto( "SpectrometerzMomentumResolution", ResolutionTemp[2] / 1000. );
+                    FillHisto( "SpectrometerMomentumResolution", ResolutionTemp.Mag() / 1000. );
+
+                    FillHisto( "SpectrometerxMomentumResolutionAgainstMomentum", momentum[0]  ,ResolutionTemp[0] ) ;
+                    FillHisto( "SpectrometeryMomentumResolutionAgainstMomentum", momentum[1] ,ResolutionTemp[1] );
+                    FillHisto( "SpectrometerzMomentumResolutionAgainstMomentum", momentum[2] / 1000 ,ResolutionTemp[2] / 1000. );
+                    FillHisto( "SpectrometerMomentumResolutionAgainstMomentum", momentum.Mag() / 1000 ,ResolutionTemp.Mag() / 1000. );
+
+                    momentum.RotateY(-BeamAngleFromZAxis);
+                    reco_momentum.RotateY(-BeamAngleFromZAxis);
+                }
 
                 momentum.RotateY(BeamAngleFromZAxis);
                 FillHisto( "KaonEndingPosition", position_end[2] / 1000., position_end[0] );
