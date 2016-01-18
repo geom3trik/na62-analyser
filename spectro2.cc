@@ -421,57 +421,23 @@ void spectro2::Process( int iEvent )
             ////////////////////
 
             //This if statement attempts to filter the candidate to determine if it is a single positive charge
-            if(SpectroCandidate->GetCharge() == 1 && SpectrometerEvent->GetNCandidates() == 1)
-            {
-                momentum.RotateY(BeamAngleFromZAxis);   //Rotate the reference frame to be along the beam
-
-                FillHisto( "MomentumHist",  momentum.Mag() / 1000. );
-                FillHisto( "xMomentumHist", momentum[0]    / 1000. );
-                FillHisto( "yMomentumHist", momentum[1]    / 1000. );
-                FillHisto( "zMomentumHist", momentum[2]    / 1000. );
-
-                FillHisto( "TransverseMomentumHist", momentum.Perp()  );
-                FillHisto( "AzimuthalMomentumHist",  momentum.Phi()   );
-                FillHisto( "PolarMomentumHist",      momentum.Theta() );
-
-                FillHisto( "EnergyVsAzimuthal",          momentum.Phi(),   momentum.Mag()  / 1000. );
-                FillHisto( "EnergyVsPolar",              momentum.Theta(), momentum.Mag()  / 1000. );
-                FillHisto( "TranverseEnergyVsAzimuthal", momentum.Phi(),   momentum.Perp() / 1000. );
-
-                momentum.RotateY(-BeamAngleFromZAxis);  //Rotate reference frame back to along the detector
 
                 /////////////////////
                 // Geometric Stuff //
                 /////////////////////
 
+                int decay_area = 0; //Initialise variable to determine where the particle decayed from. 0 is not in the beam, 1 is before the fiducial, 2 is in the fiducial.
                 //Finds whether the muon comes from before or after the first magnet
                 if(closest_point_from_baxis_before_fiducial[2] <= 104000 &&
                   (closest_point_from_baxis_after_fiducial[2] < 104000 || abs(dist_to_baxis_before_fiducial.Mag()) < abs(dist_to_baxis_after_fiducial.Mag())))
                 {
-                    FillHisto( "ClosestPointFromBeamAxis",   closest_point_from_baxis_before_fiducial.Mag() / 1000. );
-                    FillHisto( "ClosestxPointFromBeamAxis",  closest_point_from_baxis_before_fiducial[0] );
-                    FillHisto( "ClosestyPointFromBeamAxis",  closest_point_from_baxis_before_fiducial[1] );
-                    FillHisto( "ClosestzPointFromBeamAxis",  closest_point_from_baxis_before_fiducial[2] / 1000. );
-                    FillHisto( "MinimumDistanceToBeamAxis",  min_dist_to_baxis_before_fiducial );
-                    FillHisto( "ClosestDistanceToBeamAxis",  dist_to_baxis_before_fiducial.Mag() );
-                    FillHisto( "ClosestxDistanceToBeamAxis", dist_to_baxis_before_fiducial[0] );
-                    FillHisto( "ClosestyDistanceToBeamAxis", dist_to_baxis_before_fiducial[1] );
-                    FillHisto( "ClosestzDistanceToBeamAxis", dist_to_baxis_before_fiducial[2] );
-                    FillHisto( "DecayPoisition",             closest_point_from_baxis_before_fiducial[2] / 1000. , closest_point_from_baxis_before_fiducial[0] );
+                    decay_area = 1;
                 }
                 else if ( closest_point_from_baxis_after_fiducial[2] >= 104000 && closest_point_from_baxis_after_fiducial[2] <= 166000 )
                 {
-                    FillHisto( "ClosestPointFromBeamAxis",   closest_point_from_baxis_after_fiducial.Mag() / 1000. );
-                    FillHisto( "ClosestxPointFromBeamAxis",  closest_point_from_baxis_after_fiducial[0] );
-                    FillHisto( "ClosestyPointFromBeamAxis",  closest_point_from_baxis_after_fiducial[1] );
-                    FillHisto( "ClosestzPointFromBeamAxis",  closest_point_from_baxis_after_fiducial[2] / 1000. );
-                    FillHisto( "MinimumDistanceToBeamAxis",  min_dist_to_baxis_after_fiducial );
-                    FillHisto( "ClosestDistanceToBeamAxis",  dist_to_baxis_after_fiducial.Mag() );
-                    FillHisto( "ClosestxDistanceToBeamAxis", dist_to_baxis_after_fiducial[0] );
-                    FillHisto( "ClosestyDistanceToBeamAxis", dist_to_baxis_after_fiducial[1] );
-                    FillHisto( "ClosestzDistanceToBeamAxis", dist_to_baxis_after_fiducial[2] );
-                    FillHisto( "DecayPoisition",             closest_point_from_baxis_after_fiducial[2] / 1000. , closest_point_from_baxis_after_fiducial[0] );
+                    decay_area = 2;
                 }
+
 
                 ////////////////////////
                 // Missing mass stuff //
@@ -495,9 +461,63 @@ void spectro2::Process( int iEvent )
                 //Calculate missing mass squared
                 TLorentzVector MissingMass = KaonMomentum - MuonMomentum;
 
-                FillHisto( "MissingMass", MissingMass.Mag2() / pow( 1000, 2) );
 
-            }
+
+                ///////////////////////////////////
+                // Plot Histos with Restrictions //
+                ///////////////////////////////////
+
+                if  (   SpectroCandidate->GetCharge() == 1 &&   //Positive Charge
+                        SpectrometerEvent->GetNCandidates() == 1 && //Single Detection In Spectrometer
+                        decay_area == 2 && //Decay in Fiducial Region
+                        MissingMass.Mag2() / pow( 1000, 2 ) < 2000 //Have Missing Mass Correct for Decay
+                    )
+                {
+                    FillHisto( "MissingMass", MissingMass.Mag2() / pow( 1000, 2) );
+
+                    momentum.RotateY(BeamAngleFromZAxis);   //Rotate the reference frame to be along the beam
+
+                    FillHisto( "MomentumHist",  momentum.Mag() / 1000. );
+                    FillHisto( "xMomentumHist", momentum[0]    / 1000. );
+                    FillHisto( "yMomentumHist", momentum[1]    / 1000. );
+                    FillHisto( "zMomentumHist", momentum[2]    / 1000. );
+
+                    FillHisto( "TransverseMomentumHist", momentum.Perp()  );
+                    FillHisto( "AzimuthalMomentumHist",  momentum.Phi()   );
+                    FillHisto( "PolarMomentumHist",      momentum.Theta() );
+
+                    FillHisto( "EnergyVsAzimuthal",          momentum.Phi(),   momentum.Mag()  / 1000. );
+                    FillHisto( "EnergyVsPolar",              momentum.Theta(), momentum.Mag()  / 1000. );
+                    FillHisto( "TranverseEnergyVsAzimuthal", momentum.Phi(),   momentum.Perp() / 1000. );
+
+                    momentum.RotateY(-BeamAngleFromZAxis);  //Rotate reference frame back to along the detector
+                    if (decay_area == 1)
+                    {
+                        FillHisto( "ClosestPointFromBeamAxis",   closest_point_from_baxis_before_fiducial.Mag() / 1000. );
+                        FillHisto( "ClosestxPointFromBeamAxis",  closest_point_from_baxis_before_fiducial[0] );
+                        FillHisto( "ClosestyPointFromBeamAxis",  closest_point_from_baxis_before_fiducial[1] );
+                        FillHisto( "ClosestzPointFromBeamAxis",  closest_point_from_baxis_before_fiducial[2] / 1000. );
+                        FillHisto( "MinimumDistanceToBeamAxis",  min_dist_to_baxis_before_fiducial );
+                        FillHisto( "ClosestDistanceToBeamAxis",  dist_to_baxis_before_fiducial.Mag() );
+                        FillHisto( "ClosestxDistanceToBeamAxis", dist_to_baxis_before_fiducial[0] );
+                        FillHisto( "ClosestyDistanceToBeamAxis", dist_to_baxis_before_fiducial[1] );
+                        FillHisto( "ClosestzDistanceToBeamAxis", dist_to_baxis_before_fiducial[2] );
+                        FillHisto( "DecayPoisition",             closest_point_from_baxis_before_fiducial[2] / 1000. , closest_point_from_baxis_before_fiducial[0] );
+                    }
+                    if (decay_area == 2)
+                    {
+                        FillHisto( "ClosestPointFromBeamAxis",   closest_point_from_baxis_after_fiducial.Mag() / 1000. );
+                        FillHisto( "ClosestxPointFromBeamAxis",  closest_point_from_baxis_after_fiducial[0] );
+                        FillHisto( "ClosestyPointFromBeamAxis",  closest_point_from_baxis_after_fiducial[1] );
+                        FillHisto( "ClosestzPointFromBeamAxis",  closest_point_from_baxis_after_fiducial[2] / 1000. );
+                        FillHisto( "MinimumDistanceToBeamAxis",  min_dist_to_baxis_after_fiducial );
+                        FillHisto( "ClosestDistanceToBeamAxis",  dist_to_baxis_after_fiducial.Mag() );
+                        FillHisto( "ClosestxDistanceToBeamAxis", dist_to_baxis_after_fiducial[0] );
+                        FillHisto( "ClosestyDistanceToBeamAxis", dist_to_baxis_after_fiducial[1] );
+                        FillHisto( "ClosestzDistanceToBeamAxis", dist_to_baxis_after_fiducial[2] );
+                        FillHisto( "DecayPoisition",             closest_point_from_baxis_after_fiducial[2] / 1000. , closest_point_from_baxis_after_fiducial[0] );
+                    }
+                }
 		}
 	}
 	ProcessTrue();
