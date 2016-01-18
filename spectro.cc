@@ -21,7 +21,7 @@ spectro::spectro( Core::BaseAnalysis *ba ) : Analyzer( ba, "spectro" )
 	RequestTree( "GigaTracker", new TRecoGigaTrackerEvent );
 	RequestTree( "Spectrometer", new TRecoSpectrometerEvent );
     RequestTree( "LKr", new TRecoLKrEvent );
-    RequestTree( "MUV3", new TRecoMUV3Event );
+    RequestTree( "MUV2", new TRecoMUV2Event );
 
 }
 
@@ -392,7 +392,7 @@ void spectro::Process( int iEvent )
     // Get the spectrometer event
 	TRecoSpectrometerEvent *SpectrometerEvent = ( TRecoSpectrometerEvent* )GetEvent( "Spectrometer" );
     TRecoLKrEvent *LKrEvent = ( TRecoLKrEvent* )GetEvent( "LKr" );
-    TRecoMUV3Event *MUV3Event = ( TRecoMUV3Event* )GetEvent( "MUV3" );
+    TRecoMUV2Event *MUV2Event = ( TRecoMUV2Event* )GetEvent( "MUV2" );
 
 	TVector3    	ParticleTrueThreeMomentum, TrueParticleStartingThreePosition, TrueParticleEndingThreePosition,
                	 	ClosestPointFromBeamAxis, BeamPointFiducialEntry, DistanceToBeamAxis, ClosestPointOfBeamApproached, KaonThreeMomentum, KaonThreePositionGTK1,
@@ -415,9 +415,9 @@ void spectro::Process( int iEvent )
 			//Create a new particle and add it to the event
 			particle* p = new particle();
 			reco_event->add_particle(p);
-			//See if this particle is linked to an LKr or MUV3 event
+			//See if this particle is linked to an LKr or MUV2 event
             if ( LKrEvent->GetNCandidates() >= 1 ) p->LKr_link = true;
-            if ( LKrEvent->GetNCandidates() >= 1 ) p->MUV3_link = true;
+            if ( LKrEvent->GetNCandidates() >= 1 ) p->MUV2_link = true;
 
 			//Set the properties of the particle
 			p->momentum = SpectroCandidate->GetThreeMomentumBeforeMagnet();
@@ -505,7 +505,7 @@ void spectro::Process( int iEvent )
 		}
 	}
 	*/
-
+/*
     //Get truth event
 	Event *MCTruthEvent = GetMCEvent();
 	//Check if a event was detected
@@ -545,7 +545,7 @@ void spectro::Process( int iEvent )
 				double TrueMissingMass2 = TrueMissingMass.Mag2();
 
 				FillHisto("TrueMissingMass", TrueMissingMass2 / ( pow( 1000, 2 ) ) );
-
+*/
                 /*
 				cout    << true_particle->position_start[0] << " "
                         << true_particle->position_start[1] << " "
@@ -557,7 +557,7 @@ void spectro::Process( int iEvent )
                         << endl
                         << MCTruthEvent -> GetNKineParts();
                 */
-
+/*
                 //What is this doing? //Nothing, we used to output graphs here which required rotating the angle then rotating it back after outputing the graphs.
 				true_particle->momentum.RotateY(BeamAngleFromZAxis);
 				//if( i == 1 && true_particle->position_start[2] > 101000 && abs(true_particle->momentum[0]) <= 235 && abs(true_particle->momentum[1]) <= 235 && true_particle->momentum.Theta() <= 0.020 )
@@ -572,7 +572,7 @@ void spectro::Process( int iEvent )
 			}
 		}
 	}
-
+*/
 }
 
 void spectro::PostProcess()
@@ -595,7 +595,7 @@ void spectro::EndOfRunUser()
             //Number of particles in this event
             int NumberDetected = reco_events[i]->num_of_particles();
             //Number of particles in this event
-            int TrueNumber = true_events[i]->num_of_particles();
+            ///int TrueNumber = true_events[i]->num_of_particles();
             //Loop through each particle in the reco_event
             for ( int j = 0; j < NumberDetected;j++ )
             {
@@ -603,7 +603,7 @@ void spectro::EndOfRunUser()
                 ///Think we should rewrite code so that all discrimination for whether we plot something or not is done here, so it's easier to tell what's being cut out.
                 if  (   NumberDetected > 0 &&
                         reco_events[i]->particles[j]-> LKr_link == true &&
-                        reco_events[i]->particles[j]-> MUV3_link == true && //
+                        reco_events[i]->particles[j]-> MUV2_link == true && //
                         reco_events[i]->particles[j]-> beam_link == true &&  //
                         reco_events[i]->particles[j]-> charge == 1 &&  //Gets rid of 29 events
                         reco_events[i]->num_of_particles() == 1 && //gets rid of another 12
@@ -635,7 +635,7 @@ void spectro::EndOfRunUser()
                     reco_events[i]->particles[j]->momentum.RotateY( -BeamAngleFromZAxis ); //Switch back to standard reference frame.
                 }
             }
-
+/*
 				if (    TrueNumber >= 3 &&
                         true_events[i]->particles[1]->plot_true_kmunu == true)
 				{
@@ -685,9 +685,7 @@ void spectro::EndOfRunUser()
 					true_events[i]->particles[1]->momentum.RotateY(-BeamAngleFromZAxis);
 					reco_events[i]->particles[0]->momentum.RotateY(-BeamAngleFromZAxis);
 				}
-
-
-
+*/
         }
         /*
         for ( int i = 0; i < reco_events.size(); i ++)
