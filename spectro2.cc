@@ -491,7 +491,7 @@ void spectro2::Process( int iEvent )
 
                 if  (   SpectroCandidate->GetCharge() == 1 &&   //Positive Charge
                         SpectrometerEvent->GetNCandidates() == 1 && //Single Detection In Spectrometer
-                        decay_area == 2 && //Decay in Fiducial Region
+                        decay_area == 2 && //Decay in Fiducial Region //I think this should be decay_area > 0
                         MissingMass.Mag2() / pow( 1000, 2 ) < 2000 //Have Missing Mass Correct for Decay
                     )
                 {
@@ -514,7 +514,7 @@ void spectro2::Process( int iEvent )
                     FillHisto( "TranverseEnergyVsAzimuthal", momentum.Phi(),   momentum.Perp() / 1000. );
 
                     momentum.RotateY(-BeamAngleFromZAxis);  //Rotate reference frame back to along the detector
-                    if (decay_area == 1)
+                    if (decay_area == 1)    ///This is never true because the first if contains it to decay_area == 2.
                     {
                         FillHisto( "ClosestPointFromBeamAxis",   closest_point_from_baxis_before_fiducial.Mag() / 1000. );
                         FillHisto( "ClosestxPointFromBeamAxis",  closest_point_from_baxis_before_fiducial[0] );
