@@ -524,7 +524,8 @@ void spectro2::Process( int iEvent )
                     {
                         double param = 0;
 
-
+                        true_momentum.RotateY(BeamAngleFromZAxis);
+                        momentum.RotateY(BeamAngleFromZAxis);
                         for(int i=1;i<=15;i++)
                         {
                             if(true_momentum.Mag() / 1000. < 5*i && true_momentum.Mag() / 1000. >= 5*(i-1))
@@ -532,13 +533,30 @@ void spectro2::Process( int iEvent )
                                 string intstr = to_string(i);
                                 TString num = TString(intstr);
                                 FillHisto(TString("ResolutionTemp") + num, (true_momentum.Mag() - momentum.Mag()) / 1000.0);
+                            }
+                            if(true_momentum[0] / 1000. < 0.04*i-0.3 && true_momentum[0] / 1000. >= 0.04*(i-1) -0.3)
+                            {
+                                string intstr = to_string(i);
+                                TString num = TString(intstr);
                                 FillHisto(TString("ResolutionTempX") + num, (true_momentum[0] - momentum[0]) / 1000.0);
+                            }
+                            if(true_momentum[1] / 1000. < 0.04*i-0.3 && true_momentum[1] / 1000. >= 0.04*(i-1) -0.3)
+                            {
+                                string intstr = to_string(i);
+                                TString num = TString(intstr);
                                 FillHisto(TString("ResolutionTempY") + num, (true_momentum[1] - momentum[1]) / 1000.0);
+                            }
+                            if(true_momentum[2] / 1000. < 5*i && true_momentum[2] / 1000. >= 5*(i-1))
+                            {
+                                string intstr = to_string(i);
+                                TString num = TString(intstr);
                                 FillHisto(TString("ResolutionTempZ") + num, (true_momentum[2] - momentum[2]) / 1000.0);
-
                             }
                             //cout << "PARAMETER: " << param << endl;
                         }
+
+                        true_momentum.RotateY(-BeamAngleFromZAxis);
+                        momentum.RotateY(-BeamAngleFromZAxis);
 
 
 
