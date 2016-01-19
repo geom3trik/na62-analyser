@@ -734,8 +734,8 @@ void spectro2::EndOfRunUser()
     for(int i=1;i<=15;i++)
     {
         x[i-1] = 5*i;
-        xx[i-1] = 0.03214285714*(i-1)-0.225;
-        xy[i-1] = 0.03214285714*(i-1)-0.225;
+        xx[i] = 0.03214285714*(i-1)-0.225;
+        xy[i] = 0.03214285714*(i-1)-0.225;
         xz[i-1] = 5*i;
 
         string intstr = to_string(i);
