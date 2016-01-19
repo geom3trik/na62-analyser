@@ -534,13 +534,13 @@ void spectro2::Process( int iEvent )
                                 TString num = TString(intstr);
                                 FillHisto(TString("ResolutionTemp") + num, (true_momentum.Mag() - momentum.Mag()) / 1000.0);
                             }
-                            if(true_momentum[0] / 1000. < 0.04*i-0.3 && true_momentum[0] / 1000. >= 0.04*(i-1) -0.3)
+                            if(true_momentum[0] / 1000. < 0.033333*i-0.25 && true_momentum[0] / 1000. >= 0.033333*(i-1) -0.25)
                             {
                                 string intstr = to_string(i);
                                 TString num = TString(intstr);
                                 FillHisto(TString("ResolutionTempX") + num, (true_momentum[0] - momentum[0]) / 1000.0);
                             }
-                            if(true_momentum[1] / 1000. < 0.04*i-0.3 && true_momentum[1] / 1000. >= 0.04*(i-1) -0.3)
+                            if(true_momentum[1] / 1000. < 0.033333*i-0.25 && true_momentum[1] / 1000. >= 0.033333*(i-1) -0.25)
                             {
                                 string intstr = to_string(i);
                                 TString num = TString(intstr);
