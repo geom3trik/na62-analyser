@@ -22,6 +22,7 @@ spectro2::spectro2( Core::BaseAnalysis *ba ) : Analyzer( ba, "spectro" )
 	RequestTree( "Spectrometer", new TRecoSpectrometerEvent );
     RequestTree( "LKr", new TRecoLKrEvent );
     RequestTree( "MUV3", new TRecoMUV3Event );
+    RequestTree( "CEDAR", new TRecoCedarEvent );
 
 }
 
@@ -418,14 +419,13 @@ void spectro2::Process( int iEvent )
 	TRecoSpectrometerEvent *SpectrometerEvent = ( TRecoSpectrometerEvent* )GetEvent( "Spectrometer" );
     TRecoLKrEvent *LKrEvent = ( TRecoLKrEvent* )GetEvent( "LKr" );
     TRecoMUV3Event *MUV3Event = ( TRecoMUV3Event* )GetEvent( "MUV3" );
+    TRecoCedarEvent *CEDAREvent = ( TRecoCedarEvent* )GetEvent( "CEDAR" );
 
     //Get truth event
     Event *MCTruthEvent = GetMCEvent();
 
 	//Check to see if an event was detected in the spectrometer
-	if( SpectrometerEvent->GetNCandidates() >= 1 &&
-        LKrEvent->GetNCandidates() >= 1 &&
-        MUV3Event->GetNCandidates() >= 1 )
+	if( SpectrometerEvent->GetNCandidates() >= 1 )
 	{
 		//Loop through each detected particle in the spectrometer
 		for ( int k = 0; k < SpectrometerEvent->GetNCandidates(); k++ )
@@ -499,7 +499,12 @@ void spectro2::Process( int iEvent )
             if  (   SpectroCandidate->GetCharge() == 1 &&   //Positive Charge
                     SpectrometerEvent->GetNCandidates() == 1 && //Single Detection In Spectrometer
                     decay_area == 2 && //Decay in Fiducial Region //I think this should be decay_area > 0
-                    missing_mass.Mag2() / pow( 1000, 2 ) < 2000 //Have Missing Mass Correct for Decay
+                    missing_mass.Mag2() / pow( 1000, 2 ) < 2000 &&//Have Missing Mass Correct for Decay
+                    LKrEvent->GetNCandidates() >= 1 && // Be detected in LKr
+                    MUV3Event->GetNCandidates() >= 1 // Be detected in MUV3
+                    //CEDAREvent->GetNCandidates() >=1 &&// Be detected in CEDAR
+                    //CEDAREvent->GetNHits() >=10 //Have atleast 10 hits in the CEDAR
+
                 )
             {
 
@@ -534,13 +539,13 @@ void spectro2::Process( int iEvent )
                                 TString num = TString(intstr);
                                 FillHisto(TString("ResolutionTemp") + num, (true_momentum.Mag() - momentum.Mag()) / 1000.0);
                             }
-                            if(true_momentum[0] / 1000. < 0.03*i-0.225 && true_momentum[0] / 1000. >= 0.03*(i-1) -0.225)
+                            if(true_momentum[0] / 1000. < 0.026666666666666666*i-0.2 && true_momentum[0] / 1000. >= 0.026666666666666666*(i-1) -0.2)
                             {
                                 string intstr = to_string(i);
                                 TString num = TString(intstr);
                                 FillHisto(TString("ResolutionTempX") + num, (true_momentum[0] - momentum[0]) / 1000.0);
                             }
-                            if(true_momentum[1] / 1000. < 0.03*(i-1) -0.225 && true_momentum[1] / 1000. >= 0.03*(i-1) -0.225)
+                            if(true_momentum[1] / 1000. < 0.026666666666666666*i -0.2 && true_momentum[1] / 1000. >= 0.026666666666666666*(i-1) -0.2)
                             {
                                 string intstr = to_string(i);
                                 TString num = TString(intstr);
@@ -734,8 +739,8 @@ void spectro2::EndOfRunUser()
     for(int i=1;i<=15;i++)
     {
         x[i-1] = 5*i;
-        xx[i-1] = 0.03*(i-1) -0.225;
-        xy[i-1] = 0.03*(i-1) -0.225;
+        xx[i-1] = 0.026666666666666666*i-0.2;
+        xy[i-1] = 0.026666666666666666*i-0.2;
         xz[i-1] = 5*i;
 
         string intstr = to_string(i);
@@ -756,10 +761,10 @@ void spectro2::EndOfRunUser()
         TF1* fitx = resx->GetFunction("gaus");
         TF1* fity = resy->GetFunction("gaus");
         TF1* fitz = resz->GetFunction("gaus");
-        y[i] = fit->GetParameter(2);
-        yx[i] = fitx->GetParameter(2);
-        yy[i] = fity->GetParameter(2);
-        yz[i] = fitz->GetParameter(2);
+        y[i-1] = fit->GetParameter(2);
+        yx[i-1] = fitx->GetParameter(2);
+        yy[i-1] = fity->GetParameter(2);
+        yz[i-1] = fitz->GetParameter(2);
     }
 
     TGraph* graph = new TGraph(n,x,y);
