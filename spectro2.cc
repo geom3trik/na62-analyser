@@ -534,13 +534,13 @@ void spectro2::Process( int iEvent )
                                 TString num = TString(intstr);
                                 FillHisto(TString("ResolutionTemp") + num, (true_momentum.Mag() - momentum.Mag()) / 1000.0);
                             }
-                            if(true_momentum[0] / 1000. < 0.033333*i-0.25 && true_momentum[0] / 1000. >= 0.033333*(i-1) -0.25)
+                            if(true_momentum[0] / 1000. < 0.03571428571*i-0.25 && true_momentum[0] / 1000. >= 0.03571428571*(i-1) -0.25)
                             {
                                 string intstr = to_string(i);
                                 TString num = TString(intstr);
                                 FillHisto(TString("ResolutionTempX") + num, (true_momentum[0] - momentum[0]) / 1000.0);
                             }
-                            if(true_momentum[1] / 1000. < 0.033333*i-0.25 && true_momentum[1] / 1000. >= 0.033333*(i-1) -0.25)
+                            if(true_momentum[1] / 1000. < 0.03571428571*i-0.25 && true_momentum[1] / 1000. >= 0.03571428571*(i-1) -0.25)
                             {
                                 string intstr = to_string(i);
                                 TString num = TString(intstr);
@@ -732,12 +732,16 @@ void spectro2::EndOfRunUser()
     h->Draw();
 
     int n = 15;
-    double x[n], y[n], yx[n], yy[n], yz[n];
+    double x[n],xx[n],xy[n],xz[n], y[n], yx[n], yy[n], yz[n];
 
 
     for(int i=1;i<=15;i++)
     {
         x[i-1] = 5*i;
+        xx[i] = 0.03571428571*(i-1) -0.25;
+        xy[i] = 0.03571428571*(i-1) -0.25;
+        xz[i-1] = 5*i;
+
         string intstr = to_string(i);
         TString num = TString(intstr);
         TH1* res = fHisto.GetHisto(TString("ResolutionTemp") + num);
@@ -764,11 +768,11 @@ void spectro2::EndOfRunUser()
 
     TGraph* graph = new TGraph(n,x,y);
     BookHisto("MtmResolutionVsMtm", graph);
-    TGraph* graphx = new TGraph(n,x,yx);
+    TGraph* graphx = new TGraph(n,xx,yx);
     BookHisto("XMtmResolutionVsXMtm", graphx);
-    TGraph* graphy = new TGraph(n,x,yy);
+    TGraph* graphy = new TGraph(n,xy,yy);
     BookHisto("YMtmResolutionVsYMtm", graphy);
-    TGraph* graphz = new TGraph(n,x,yz);
+    TGraph* graphz = new TGraph(n,xz,yz);
     BookHisto("ZMtmResolutionVsZMtm", graphz);
 
 
