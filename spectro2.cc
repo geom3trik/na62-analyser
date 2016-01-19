@@ -247,16 +247,16 @@ void spectro2::InitHist()
     h47 -> GetYaxis() -> SetTitle( "mm" );
     BookHisto( h47 );
 
-    CreateHist1D( "TrueProuductionPositionx", " MuonProductionPointx", NumberOfBins, 0, 0 );
-    SetHistAxisLabels("TrueProuductionPositionx","m","Number of Entries");
+    CreateHist1D( "TrueProductionPositionX", " MuonProductionPointx", NumberOfBins, 0, 0 );
+    SetHistAxisLabels("TrueProductionPositionx","m","Number of Entries");
 
-    CreateHist1D( "TrueProuductionPositiony", " MuonProductionPointy", NumberOfBins, 0, 0 );
-    SetHistAxisLabels("TrueProuductionPositiony","m","Number of Entries");
+    CreateHist1D( "TrueProductionPositionY", " MuonProductionPointy", NumberOfBins, 0, 0 );
+    SetHistAxisLabels("TrueProductionPositiony","m","Number of Entries");
 
-    CreateHist1D( "TrueProuductionPositionz", " MuonProductionPointz", NumberOfBins, 0, 0 );
-    SetHistAxisLabels("TrueProuductionPositionz","m","Number of Entries");
+    CreateHist1D( "TrueProductionPositionZ", " MuonProductionPointz", NumberOfBins, 0, 0 );
+    SetHistAxisLabels("TrueProductionPositionZ","m","Number of Entries");
 
-    TH2D* h51 = new TH2D( "TrueProuductionPosition", "MuonProductionPoint", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
+    TH2D* h51 = new TH2D( "TrueProductionPosition", "MuonProductionPoint", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
     h51 -> GetXaxis() -> SetTitle( "m" );
     h51 -> GetYaxis() -> SetTitle( "mm" );
     BookHisto( h51 );
@@ -267,29 +267,29 @@ void spectro2::InitHist()
 	CreateHist1D("TrueMissingMass", "True Missing Mass Squared", 1000, 0, 0);
     SetHistAxisLabels("TrueMissingMass","True Missing Mass Squared","Number of Entries");
 
-    CreateHist1D("SpectrometerxMomentumResolution", "Spectrometer x Momentum Resolution", NumberOfBins, 0, 0);
-    SetHistAxisLabels("SpectrometerxMomentumResolution","x Momentum MeV","Number of Entries");
+    CreateHist1D("SpectrometerXMomentumResolution", "Spectrometer x Momentum Resolution", NumberOfBins, 0, 0);
+    SetHistAxisLabels("SpectrometerXMomentumResolution","x Momentum MeV","Number of Entries");
 
-    CreateHist1D("SpectrometeryMomentumResolution", "Spectrometer y Momentum Resolution", NumberOfBins, 0, 0);
-    SetHistAxisLabels("SpectrometeryMomentumResolution","y Momentum MeV","Number of Entries");
+    CreateHist1D("SpectrometerYMomentumResolution", "Spectrometer y Momentum Resolution", NumberOfBins, 0, 0);
+    SetHistAxisLabels("SpectrometerYMomentumResolution","y Momentum MeV","Number of Entries");
 
-    CreateHist1D("SpectrometerzMomentumResolution", "Spectrometer z Momentum Resolution", NumberOfBins, 0, 0);
-    SetHistAxisLabels("SpectrometerzMomentumResolution","z Momentum GeV","Number of Entries");
+    CreateHist1D("SpectrometerZMomentumResolution", "Spectrometer z Momentum Resolution", NumberOfBins, 0, 0);
+    SetHistAxisLabels("SpectrometerZMomentumResolution","z Momentum GeV","Number of Entries");
 
     CreateHist1D("SpectrometerMomentumResolution", "Spectrometer Momentum Resolution", NumberOfBins, 0, 0);
     SetHistAxisLabels("SpectrometerMomentumResolution","Momentum GeV","Number of Entries");
 
-    TH2D* h52 = new TH2D( "SpectrometerxMomentumResolutionAgainstxMomentum", "x Momentum Resolution Against x Momentum", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
+    TH2D* h52 = new TH2D( "SpectrometerXMomentumResolutionAgainstXMomentum", "x Momentum Resolution Against x Momentum", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
     h52 -> GetXaxis() -> SetTitle( "MeV" );
     h52 -> GetYaxis() -> SetTitle( "MeV" );
     BookHisto( h52 );
 
-    TH2D* h53 = new TH2D( "SpectrometeryMomentumResolutionAgainstxMomentum", "y Momentum Resolution Against y Momentum", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
+    TH2D* h53 = new TH2D( "SpectrometerYMomentumResolutionAgainstYMomentum", "y Momentum Resolution Against y Momentum", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
     h53 -> GetXaxis() -> SetTitle( "MeV" );
     h53 -> GetYaxis() -> SetTitle( "MeV" );
     BookHisto( h53 );
 
-    TH2D* h54 = new TH2D( "SpectrometerzMomentumResolutionAgainstzMomentum", "z Momentum Resolution Against z Momentum", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
+    TH2D* h54 = new TH2D( "SpectrometerZMomentumResolutionAgainstZMomentum", "z Momentum Resolution Against z Momentum", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
     h54 -> GetXaxis() -> SetTitle( "GeV" );
     h54 -> GetYaxis() -> SetTitle( "GeV" );
     BookHisto( h54 );
@@ -298,6 +298,18 @@ void spectro2::InitHist()
     h55 -> GetXaxis() -> SetTitle( "GeV" );
     h55 -> GetYaxis() -> SetTitle( "GeV" );
     BookHisto( h55 );
+
+
+    for(int i=1;i<=15;i++)
+    {
+
+        string intstr = to_string(i);
+        TString num = TString(intstr);
+        CreateHist1D(TString("ResolutionTemp") + num, "Title", NumberOfBins,0,0);
+        CreateHist1D(TString("ResolutionTempX") + num, "Title", NumberOfBins,0,0);
+        CreateHist1D(TString("ResolutionTempY") + num, "Title", NumberOfBins,0,0);
+        CreateHist1D(TString("ResolutionTempZ") + num, "Title", NumberOfBins,0,0);
+    }
 
     /*
     TH1D* h14 = new TH1D( "TrueMuonxMomentumHist", "True Muon x Momentum", NumberOfBins, 0, 0 );
@@ -400,14 +412,15 @@ TLorentzVector ClosestSpaceTimePointOnVectorToOtherVector( TVector3 Vector1Posit
 void spectro2::Process( int iEvent )
 {
 	//if( fMCSimple.fStatus == MCSimple::kMissing ){printIncompleteMCWarning( iEvent );return;}
-	//if( fMCSimple.fStatus == MCSimple::kEmpty ){printNoMCWarning();return;}
+    //if( fMCSimple.fStatus == MCSimple::kEmpty ){printNoMCWarning();return;}
 
     // Get the events from each detector
 	TRecoSpectrometerEvent *SpectrometerEvent = ( TRecoSpectrometerEvent* )GetEvent( "Spectrometer" );
     TRecoLKrEvent *LKrEvent = ( TRecoLKrEvent* )GetEvent( "LKr" );
     TRecoMUV3Event *MUV3Event = ( TRecoMUV3Event* )GetEvent( "MUV3" );
 
-    bool event_accepted = false; //Boolean to say whether or not the event passes tests.
+    //Get truth event
+    Event *MCTruthEvent = GetMCEvent();
 
 	//Check to see if an event was detected in the spectrometer
 	if( SpectrometerEvent->GetNCandidates() >= 1 &&
@@ -438,205 +451,204 @@ void spectro2::Process( int iEvent )
             TVector3 closest_point_of_beam_approach_after_fiducial = ClosestPointOnVectorToOtherVector(b.fiducial_entry, b.beam_axis_rotated, position_start, momentum);
             TVector3 dist_to_baxis_after_fiducial = -closest_point_of_beam_approach_after_fiducial + closest_point_from_baxis_after_fiducial;
 
-            ////////////////////
-            // Momentum Stuff //
-            ////////////////////
+            /////////////////////
+            // Geometric Stuff //
+            /////////////////////
 
-            //This if statement attempts to filter the candidate to determine if it is a single positive charge
+            int decay_area = 0; //Initialise variable to determine where the particle decayed from. 0 is not in the beam, 1 is before the fiducial, 2 is in the fiducial.
+            //Finds whether the muon comes from before or after the first magnet
+            if(closest_point_from_baxis_before_fiducial[2] <= 104000 &&
+              (closest_point_from_baxis_after_fiducial[2] < 104000 || abs(dist_to_baxis_before_fiducial.Mag()) < abs(dist_to_baxis_after_fiducial.Mag())))
+            {
+                decay_area = 1;
+            }
+            else if ( closest_point_from_baxis_after_fiducial[2] >= 104000 && closest_point_from_baxis_after_fiducial[2] <= 166000 )
+            {
+                decay_area = 2;
+            }
 
-                /////////////////////
-                // Geometric Stuff //
-                /////////////////////
 
-                int decay_area = 0; //Initialise variable to determine where the particle decayed from. 0 is not in the beam, 1 is before the fiducial, 2 is in the fiducial.
-                //Finds whether the muon comes from before or after the first magnet
-                if(closest_point_from_baxis_before_fiducial[2] <= 104000 &&
-                  (closest_point_from_baxis_after_fiducial[2] < 104000 || abs(dist_to_baxis_before_fiducial.Mag()) < abs(dist_to_baxis_after_fiducial.Mag())))
+            ////////////////////////
+            // Missing mass stuff //
+            ////////////////////////
+
+            //Calculate energy of kaon
+            double kaon_mass = 493.667;
+            double kaon_energy = sqrt((75e3*75e3) + (kaon_mass*kaon_mass));
+            TLorentzVector kaon_momentum;
+            kaon_momentum[2] = 75e3; //Set z component to beam energy
+            kaon_momentum[3] = kaon_energy; //Set time component to kaon energy
+            kaon_momentum.RotateY( -BeamAngleFromZAxis ); //Transform to beam frame
+
+            //Calculate energy of muon
+            double muon_mass = 105.6583715;
+            double muon_energy = sqrt((momentum.Mag2()) + (muon_mass*muon_mass));
+            TLorentzVector muon_momentum;
+            muon_momentum.SetVect(momentum); //Set xyz components to muon 3-momentum
+            muon_momentum[3] = muon_energy; //Set time component to muon energy
+
+            //Calculate missing mass squared
+            TLorentzVector missing_mass = kaon_momentum - muon_momentum;
+
+
+
+            ///////////////////////////////////
+            // Plot Histos with Restrictions //
+            ///////////////////////////////////
+            //Attempts to select only the muon
+            if  (   SpectroCandidate->GetCharge() == 1 &&   //Positive Charge
+                    SpectrometerEvent->GetNCandidates() == 1 && //Single Detection In Spectrometer
+                    decay_area == 2 && //Decay in Fiducial Region //I think this should be decay_area > 0
+                    missing_mass.Mag2() / pow( 1000, 2 ) < 2000 //Have Missing Mass Correct for Decay
+                )
+            {
+
+                //true stuff here
+
+                if ( MCTruthEvent -> GetNKineParts() >= 1 )
                 {
-                    decay_area = 1;
-                }
-                else if ( closest_point_from_baxis_after_fiducial[2] >= 104000 && closest_point_from_baxis_after_fiducial[2] <= 166000 )
-                {
-                    decay_area = 2;
-                }
 
+                    //Get the first decay product associated with the decay event (hopefully a muon)
+                    KinePart *TrueCandidate = ( KinePart* )MCTruthEvent -> GetKineParts() -> At( 1 );
+                    //Get the kaon associated with the decay event
+                    KinePart *KaonCandidate = ( KinePart* )MCTruthEvent -> GetKineParts() -> At( 0 );
 
-                ////////////////////////
-                // Missing mass stuff //
-                ////////////////////////
+                    TLorentzVector true_kaon_momentum = KaonCandidate->GetFinal4Momentum();
 
-                //Calculate energy of kaon
-                double KaonMass = 493.667;
-                double KaonEnergy = sqrt((75e3*75e3) + (KaonMass*KaonMass));
-                TLorentzVector KaonMomentum;
-                KaonMomentum[2] = 75e3; //Set z component to beam energy
-                KaonMomentum[3] = KaonEnergy; //Set time component to kaon energy
-                KaonMomentum.RotateY( -BeamAngleFromZAxis ); //Transform to beam frame
+                    TVector3 true_momentum = TrueCandidate->GetMomAtCheckPoint(2).Vect();
+                    TVector3 true_position_start = TrueCandidate->GetProdPos().Vect();
+                    TVector3 true_position_end = TrueCandidate->GetEndPos().Vect();
 
-                //Calculate energy of muon
-                double MuonMass = 105.6583715;
-                double MuonEnergy = sqrt((momentum.Mag2()) + (MuonMass*MuonMass));
-                TLorentzVector MuonMomentum;
-                muon_four_momentum.SetVect(momentum); //Set xyz components to muon 3-momentum
-                muon_four_momentum[3] = MuonEnergy; //Set time component to muon energy
-
-                //Calculate missing mass squared
-                TLorentzVector MissingMass = KaonMomentum - muon_four_momentum;
-
-
-
-                ///////////////////////////////////
-                // Plot Histos with Restrictions //
-                ///////////////////////////////////
-
-                if  (   SpectroCandidate->GetCharge() == 1 &&   //Positive Charge
-                        SpectrometerEvent->GetNCandidates() == 1 && //Single Detection In Spectrometer
-                        decay_area == 2 && //Decay in Fiducial Region //I think this should be decay_area > 0
-                        MissingMass.Mag2() / pow( 1000, 2 ) < 2000 //Have Missing Mass Correct for Decay
-                    )
-                {
-                    event_accepted = true;
-                    FillHisto( "MissingMass", MissingMass.Mag2() / pow( 1000, 2) );
-
-                    momentum.RotateY(BeamAngleFromZAxis);   //Rotate the reference frame to be along the beam
-
-                    FillHisto( "MomentumHist",  momentum.Mag() / 1000. );
-                    FillHisto( "xMomentumHist", momentum[0]    / 1000. );
-                    FillHisto( "yMomentumHist", momentum[1]    / 1000. );
-                    FillHisto( "zMomentumHist", momentum[2]    / 1000. );
-
-                    FillHisto( "TransverseMomentumHist", momentum.Perp()  );
-                    FillHisto( "AzimuthalMomentumHist",  momentum.Phi()   );
-                    FillHisto( "PolarMomentumHist",      momentum.Theta() );
-
-                    FillHisto( "EnergyVsAzimuthal",          momentum.Phi(),   momentum.Mag()  / 1000. );
-                    FillHisto( "EnergyVsPolar",              momentum.Theta(), momentum.Mag()  / 1000. );
-                    FillHisto( "TranverseEnergyVsAzimuthal", momentum.Phi(),   momentum.Perp() / 1000. );
-
-                    momentum.RotateY(-BeamAngleFromZAxis);  //Rotate reference frame back to along the detector
-                    if (decay_area == 1)    ///This is never true because the first if contains it to decay_area == 2.
+                    //Make sure the first true event decay product is a muon
+                    if (true_momentum.Mag() != 0 && TrueCandidate -> GetPDGcode() == -13 && abs(true_momentum.Theta()) > 0 )
                     {
-                        FillHisto( "ClosestPointFromBeamAxis",   closest_point_from_baxis_before_fiducial.Mag() / 1000. );
-                        FillHisto( "ClosestxPointFromBeamAxis",  closest_point_from_baxis_before_fiducial[0] );
-                        FillHisto( "ClosestyPointFromBeamAxis",  closest_point_from_baxis_before_fiducial[1] );
-                        FillHisto( "ClosestzPointFromBeamAxis",  closest_point_from_baxis_before_fiducial[2] / 1000. );
-                        FillHisto( "MinimumDistanceToBeamAxis",  min_dist_to_baxis_before_fiducial );
-                        FillHisto( "ClosestDistanceToBeamAxis",  dist_to_baxis_before_fiducial.Mag() );
-                        FillHisto( "ClosestxDistanceToBeamAxis", dist_to_baxis_before_fiducial[0] );
-                        FillHisto( "ClosestyDistanceToBeamAxis", dist_to_baxis_before_fiducial[1] );
-                        FillHisto( "ClosestzDistanceToBeamAxis", dist_to_baxis_before_fiducial[2] );
-                        FillHisto( "DecayPoisition",             closest_point_from_baxis_before_fiducial[2] / 1000. , closest_point_from_baxis_before_fiducial[0] );
-                    }
-                    if (decay_area == 2)
-                    {
-                        FillHisto( "ClosestPointFromBeamAxis",   closest_point_from_baxis_after_fiducial.Mag() / 1000. );
-                        FillHisto( "ClosestxPointFromBeamAxis",  closest_point_from_baxis_after_fiducial[0] );
-                        FillHisto( "ClosestyPointFromBeamAxis",  closest_point_from_baxis_after_fiducial[1] );
-                        FillHisto( "ClosestzPointFromBeamAxis",  closest_point_from_baxis_after_fiducial[2] / 1000. );
-                        FillHisto( "MinimumDistanceToBeamAxis",  min_dist_to_baxis_after_fiducial );
-                        FillHisto( "ClosestDistanceToBeamAxis",  dist_to_baxis_after_fiducial.Mag() );
-                        FillHisto( "ClosestxDistanceToBeamAxis", dist_to_baxis_after_fiducial[0] );
-                        FillHisto( "ClosestyDistanceToBeamAxis", dist_to_baxis_after_fiducial[1] );
-                        FillHisto( "ClosestzDistanceToBeamAxis", dist_to_baxis_after_fiducial[2] );
-                        FillHisto( "DecayPoisition",             closest_point_from_baxis_after_fiducial[2] / 1000. , closest_point_from_baxis_after_fiducial[0] );
+                        double param = 0;
+
+
+                        for(int i=1;i<=15;i++)
+                        {
+                            if(true_momentum.Mag() / 1000. < 5*i && true_momentum.Mag() / 1000. >= 5*(i-1))
+                            {
+                                string intstr = to_string(i);
+                                TString num = TString(intstr);
+                                FillHisto(TString("ResolutionTemp") + num, (true_momentum.Mag() - momentum.Mag()) / 1000.0);
+                                FillHisto(TString("ResolutionTempX") + num, (true_momentum[0] - momentum[0]) / 1000.0);
+                                FillHisto(TString("ResolutionTempY") + num, (true_momentum[1] - momentum[1]) / 1000.0);
+                                FillHisto(TString("ResolutionTempZ") + num, (true_momentum[2] - momentum[2]) / 1000.0);
+
+                            }
+                            //cout << "PARAMETER: " << param << endl;
+                        }
+
+
+
+                        ////////////////////////////////////
+                        // Calculate Momentum Resolutions //
+                        ////////////////////////////////////
+                        true_momentum.RotateY(BeamAngleFromZAxis);
+                        momentum.RotateY(BeamAngleFromZAxis);
+                        TVector3 ResolutionTemp = true_momentum - momentum;
+                        FillHisto( "SpectrometerXMomentumResolution",  ResolutionTemp[0] );
+                        FillHisto( "SpectrometerYMomentumResolution", ResolutionTemp[1] );
+                        FillHisto( "SpectrometerZMomentumResolution", ResolutionTemp[2] / 1000. );
+                        FillHisto( "SpectrometerMomentumResolution", ResolutionTemp.Mag() / 1000. );
+
+                        FillHisto( "SpectrometerXMomentumResolutionAgainstXMomentum", true_momentum[0], ResolutionTemp[0] );
+                        FillHisto( "SpectrometerYMomentumResolutionAgainstYMomentum", true_momentum[1], ResolutionTemp[1] );
+                        FillHisto( "SpectrometerZMomentumResolutionAgainstZMomentum", true_momentum[2] / 1000, ResolutionTemp[2] / 1000. );
+                        FillHisto( "SpectrometerMomentumResolutionAgainstMomentum",  true_momentum.Mag() / 1000, ResolutionTemp.Mag() / 1000. );
+
+                        true_momentum.RotateY(-BeamAngleFromZAxis);
+                        momentum.RotateY(-BeamAngleFromZAxis);
+
+                        true_momentum.RotateY(BeamAngleFromZAxis);
+                        FillHisto( "KaonEndingPosition", true_position_end[2] / 1000., true_position_end[0] );
+                        FillHisto( "TrueMomentumHist",   true_momentum.Mag() / 1000. );
+                        FillHisto( "TruexMomentumHist",  true_momentum[0] / 1000. );
+                        FillHisto( "TrueyMomentumHist",  true_momentum[1] / 1000. );
+                        FillHisto( "TruezMomentumHist",  true_momentum[2] / 1000. );
+
+                        FillHisto( "TrueTransverseMomentumHist",     true_momentum.Perp() );
+                        FillHisto( "TrueAzimuthalMomentumHist",      true_momentum.Phi() );
+                        FillHisto( "TruePolarMomentumHist",          true_momentum.Theta() );
+                        FillHisto( "TrueEnergyVsAzimuthal",          true_momentum.Phi(),   true_momentum.Mag()  / 1000. );
+                        FillHisto( "TrueEnergyVsPolar",              true_momentum.Theta(), true_momentum.Mag()  / 1000. );
+                        FillHisto( "TrueTranverseEnergyVsAzimuthal", true_momentum.Phi(),   true_momentum.Perp() / 1000. );
+
+                        FillHisto( "CompareTrueMomentumHist",  true_momentum.Mag() / 1000. );
+                        FillHisto( "CompareTruexMomentumHist", true_momentum[0] / 1000. );
+                        FillHisto( "CompareTrueyMomentumHist", true_momentum[1] / 1000. );
+                        FillHisto( "CompareTruezMomentumHist", true_momentum[2] / 1000. );
+
+                        FillHisto( "CompareTrueTransverseMomentumHist", true_momentum.Perp() );
+                        FillHisto( "CompareTrueAzimuthalMomentumHist",  true_momentum.Phi() );
+                        FillHisto( "CompareTruePolarMomentumHist",      true_momentum.Theta() );
+
+                        FillHisto( "CompareTrueEnergyVsAzimuthal",          true_momentum.Phi(),   true_momentum.Mag()  / 1000. );
+                        FillHisto( "CompareTrueEnergyVsPolar",              true_momentum.Theta(), true_momentum.Mag()  / 1000. );
+                        FillHisto( "CompareTrueTranverseEnergyVsAzimuthal", true_momentum.Phi(),   true_momentum.Perp() / 1000. );
+
+                        FillHisto( "TrueProductionPosition", true_position_start[2] / 1000., true_position_start[0] );
+
+                        FillHisto( "TrueProductionPositionX", true_position_start[0]);
+                        FillHisto( "TrueProductionPositionY", true_position_start[1]);
+                        FillHisto( "TrueProductionPositionZ", true_position_start[2]/ 1000. );
+                        true_momentum.RotateY(-BeamAngleFromZAxis);
+
+                        TLorentzVector true_muon_momentum = TrueCandidate->GetInitial4Momentum();
+                        //TLorentzVector TrueMuonMomentum = TrueCandidate->GetMomAtCheckPoint(2);
+                        TLorentzVector true_missing_mass = true_kaon_momentum - true_muon_momentum;
+
+                        FillHisto("TrueMissingMass", true_missing_mass.Mag2() / ( pow( 1000, 2 ) ) );
                     }
                 }
-		}
-	}
-	ProcessTrue( momentum event_accepted);
-}
 
-void spectro2::ProcessTrue( TVector3 reco_momentum bool event_accepted )
-{
-    //Get truth event
-    Event *MCTruthEvent = GetMCEvent();
-	//Check if a event was detected
-	if ( MCTruthEvent -> GetNKineParts() >= 1 )
-	{
-	    //Loop through all candidates in the event
-		for( int i = 0; i < MCTruthEvent -> GetNKineParts(); i++ )
-		{
-			//Get the current particle
-			KinePart *TrueCandidate = ( KinePart* )MCTruthEvent -> GetKineParts() -> At( i );
-            //Get the kaon associated with the decay event
-			KinePart *KaonCandidate = ( KinePart* )MCTruthEvent -> GetKineParts() -> At( 0 );
+                //Reco stuff
+                FillHisto( "MissingMass", missing_mass.Mag2() / pow( 1000, 2) );
 
-			TLorentzVector TrueKaonMomentum = KaonCandidate->GetFinal4Momentum();
+                momentum.RotateY(BeamAngleFromZAxis);   //Rotate the reference frame to be along the beam
 
-			TVector3 momentum = TrueCandidate->GetMomAtCheckPoint(2).Vect();
-			TVector3 position_start = TrueCandidate->GetProdPos().Vect();
-			TVector3 position_end = TrueCandidate->GetEndPos().Vect();
+                FillHisto( "MomentumHist",  momentum.Mag() / 1000. );
+                FillHisto( "xMomentumHist", momentum[0]    / 1000. );
+                FillHisto( "yMomentumHist", momentum[1]    / 1000. );
+                FillHisto( "zMomentumHist", momentum[2]    / 1000. );
 
-            FillHisto( "ParticleProductionPosition",position_start[2] / 1000., position_start[0] );
+                FillHisto( "TransverseMomentumHist", momentum.Perp()  );
+                FillHisto( "AzimuthalMomentumHist",  momentum.Phi()   );
+                FillHisto( "PolarMomentumHist",      momentum.Theta() );
 
+                FillHisto( "EnergyVsAzimuthal",          momentum.Phi(),   momentum.Mag()  / 1000. );
+                FillHisto( "EnergyVsPolar",              momentum.Theta(), momentum.Mag()  / 1000. );
+                FillHisto( "TranverseEnergyVsAzimuthal", momentum.Phi(),   momentum.Perp() / 1000. );
 
-			if ( i == 1 && momentum.Mag() != 0 && TrueCandidate -> GetPDGcode() == -13 && abs(momentum.Theta()) > 0 )
-			{
-
-
-
-                    ////////////////////////////////////
-                    // Calculate Momentum Resolutions //
-                    ////////////////////////////////////
-                if ( event_accepted == true )
+                momentum.RotateY(-BeamAngleFromZAxis);  //Rotate reference frame back to along the detector
+                if (decay_area == 1)    ///This is never true because the first if contains it to decay_area == 2.
                 {
-                    momentum.RotateY(BeamAngleFromZAxis);
-                    reco_momentum.RotateY(BeamAngleFromZAxis);
-                    TVector3 ResolutionTemp = momentum - reco_momentum;
-                    FillHisto( "SpectrometerxMomentumResolution",  ResolutionTemp[0] ) ;
-                    FillHisto( "SpectrometeryMomentumResolution", ResolutionTemp[1] );
-                    FillHisto( "SpectrometerzMomentumResolution", ResolutionTemp[2] / 1000. );
-                    FillHisto( "SpectrometerMomentumResolution", ResolutionTemp.Mag() / 1000. );
-
-                    FillHisto( "SpectrometerxMomentumResolutionAgainstMomentum", momentum[0]  ,ResolutionTemp[0] ) ;
-                    FillHisto( "SpectrometeryMomentumResolutionAgainstMomentum", momentum[1] ,ResolutionTemp[1] );
-                    FillHisto( "SpectrometerzMomentumResolutionAgainstMomentum", momentum[2] / 1000 ,ResolutionTemp[2] / 1000. );
-                    FillHisto( "SpectrometerMomentumResolutionAgainstMomentum", momentum.Mag() / 1000 ,ResolutionTemp.Mag() / 1000. );
-
-                    momentum.RotateY(-BeamAngleFromZAxis);
-                    reco_momentum.RotateY(-BeamAngleFromZAxis);
+                    FillHisto( "ClosestPointFromBeamAxis",   closest_point_from_baxis_before_fiducial.Mag() / 1000. );
+                    FillHisto( "ClosestxPointFromBeamAxis",  closest_point_from_baxis_before_fiducial[0] );
+                    FillHisto( "ClosestyPointFromBeamAxis",  closest_point_from_baxis_before_fiducial[1] );
+                    FillHisto( "ClosestzPointFromBeamAxis",  closest_point_from_baxis_before_fiducial[2] / 1000. );
+                    FillHisto( "MinimumDistanceToBeamAxis",  min_dist_to_baxis_before_fiducial );
+                    FillHisto( "ClosestDistanceToBeamAxis",  dist_to_baxis_before_fiducial.Mag() );
+                    FillHisto( "ClosestxDistanceToBeamAxis", dist_to_baxis_before_fiducial[0] );
+                    FillHisto( "ClosestyDistanceToBeamAxis", dist_to_baxis_before_fiducial[1] );
+                    FillHisto( "ClosestzDistanceToBeamAxis", dist_to_baxis_before_fiducial[2] );
+                    FillHisto( "DecayPoisition",             closest_point_from_baxis_before_fiducial[2] / 1000. , closest_point_from_baxis_before_fiducial[0] );
                 }
-
-                momentum.RotateY(BeamAngleFromZAxis);
-                FillHisto( "KaonEndingPosition", position_end[2] / 1000., position_end[0] );
-                FillHisto( "TrueMomentumHist",   momentum.Mag() / 1000. );
-                FillHisto( "TruexMomentumHist",  momentum[0] / 1000. );
-                FillHisto( "TrueyMomentumHist",  momentum[1] / 1000. );
-                FillHisto( "TruezMomentumHist",  momentum[2] / 1000. );
-
-                FillHisto( "TrueTransverseMomentumHist",     momentum.Perp() );
-                FillHisto( "TrueAzimuthalMomentumHist",      momentum.Phi() );
-                FillHisto( "TruePolarMomentumHist",          momentum.Theta() );
-                FillHisto( "TrueEnergyVsAzimuthal",          momentum.Phi(),   momentum.Mag() / 1000. );
-                FillHisto( "TrueEnergyVsPolar",              momentum.Theta(), momentum.Mag() / 1000. );
-                FillHisto( "TrueTranverseEnergyVsAzimuthal", momentum.Phi(), momentum.Perp() / 1000. );
-
-                FillHisto( "CompareTrueMomentumHist",  momentum.Mag() / 1000. );
-                FillHisto( "CompareTruexMomentumHist", momentum[0] / 1000. );
-                FillHisto( "CompareTrueyMomentumHist", momentum[1] / 1000. );
-                FillHisto( "CompareTruezMomentumHist", momentum[2] / 1000. );
-
-                FillHisto( "CompareTrueTransverseMomentumHist", momentum.Perp() );
-                FillHisto( "CompareTrueAzimuthalMomentumHist",  momentum.Phi() );
-                FillHisto( "CompareTruePolarMomentumHist",      momentum.Theta() );
-
-                FillHisto( "CompareTrueEnergyVsAzimuthal",          momentum.Phi(),   momentum.Mag() / 1000. );
-                FillHisto( "CompareTrueEnergyVsPolar",              momentum.Theta(), momentum.Mag() / 1000. );
-                FillHisto( "CompareTrueTranverseEnergyVsAzimuthal", momentum.Phi(), momentum.Perp() / 1000. );
-
-                FillHisto( "TrueProuductionPositionx", position_start[0]);
-                FillHisto( "TrueProuductionPositiony", position_start[1]);
-                FillHisto( "TrueProuductionPositionz", position_start[2]/ 1000. );
-                momentum.RotateY(-BeamAngleFromZAxis);
-
-                ///More stuff that needs replacing with the way we did it for the real data
-				TLorentzVector TrueMuonMomentum = TrueCandidate->GetInitial4Momentum();
-				//TLorentzVector TrueMuonMomentum = TrueCandidate->GetMomAtCheckPoint(2);
-				TLorentzVector TrueMissingMass = TrueKaonMomentum - TrueMuonMomentum;
-
-				FillHisto("TrueMissingMass", TrueMissingMass.Mag2() / ( pow( 1000, 2 ) ) );
-
-			}
+                if (decay_area == 2)
+                {
+                    FillHisto( "ClosestPointFromBeamAxis",   closest_point_from_baxis_after_fiducial.Mag() / 1000. );
+                    FillHisto( "ClosestxPointFromBeamAxis",  closest_point_from_baxis_after_fiducial[0] );
+                    FillHisto( "ClosestyPointFromBeamAxis",  closest_point_from_baxis_after_fiducial[1] );
+                    FillHisto( "ClosestzPointFromBeamAxis",  closest_point_from_baxis_after_fiducial[2] / 1000. );
+                    FillHisto( "MinimumDistanceToBeamAxis",  min_dist_to_baxis_after_fiducial );
+                    FillHisto( "ClosestDistanceToBeamAxis",  dist_to_baxis_after_fiducial.Mag() );
+                    FillHisto( "ClosestxDistanceToBeamAxis", dist_to_baxis_after_fiducial[0] );
+                    FillHisto( "ClosestyDistanceToBeamAxis", dist_to_baxis_after_fiducial[1] );
+                    FillHisto( "ClosestzDistanceToBeamAxis", dist_to_baxis_after_fiducial[2] );
+                    FillHisto( "DecayPoisition",             closest_point_from_baxis_after_fiducial[2] / 1000. , closest_point_from_baxis_after_fiducial[0] );
+                }
+            }
 		}
 	}
 }
@@ -700,6 +712,52 @@ void spectro2::EndOfRunUser()
     TH1* h = fHisto.GetHisto("MissingMass");
     h->Fit("gaus");
     h->Draw();
+
+    int n = 15;
+    double x[n], y[n], yx[n], yy[n], yz[n];
+
+
+    for(int i=1;i<=15;i++)
+    {
+        x[i-1] = 5*i;
+        string intstr = to_string(i);
+        TString num = TString(intstr);
+        TH1* res = fHisto.GetHisto(TString("ResolutionTemp") + num);
+        TH1* resx = fHisto.GetHisto(TString("ResolutionTempX") + num);
+        TH1* resy = fHisto.GetHisto(TString("ResolutionTempY") + num);
+        TH1* resz = fHisto.GetHisto(TString("ResolutionTempZ") + num);
+        res->Fit("gaus");
+        resx->Fit("gaus");
+        resy->Fit("gaus");
+        resz->Fit("gaus");
+        res->Draw();
+        resx->Draw();
+        resy->Draw();
+        resz->Draw();
+        TF1* fit = res->GetFunction("gaus");
+        TF1* fitx = resx->GetFunction("gaus");
+        TF1* fity = resy->GetFunction("gaus");
+        TF1* fitz = resz->GetFunction("gaus");
+        y[i] = fit->GetParameter(2);
+        yx[i] = fitx->GetParameter(2);
+        yy[i] = fity->GetParameter(2);
+        yz[i] = fitz->GetParameter(2);
+    }
+
+    TGraph* graph = new TGraph(n,x,y);
+    BookHisto("MtmResolutionVsMtm", graph);
+    TGraph* graphx = new TGraph(n,x,yx);
+    BookHisto("XMtmResolutionVsXMtm", graphx);
+    TGraph* graphy = new TGraph(n,x,yy);
+    BookHisto("YMtmResolutionVsYMtm", graphy);
+    TGraph* graphz = new TGraph(n,x,yz);
+    BookHisto("ZMtmResolutionVsZMtm", graphz);
+
+
+
+
+
+
 
     SaveAllPlots();
 }

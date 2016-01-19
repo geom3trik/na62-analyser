@@ -7,13 +7,17 @@
 #include "MCSimple.hh"
 #include "DetectorAcceptance.hh"
 #include <TCanvas.h>
+#include <TGraph.h>
+#include <TF1.h>
 #include <string>
+#include <cstdlib>
 
 
 class TH1I;
 class TH2F;
 class TGraph;
 class TTree;
+class TF1;
 
 const int NumberOfBins = 100;
 const double BeamAngleFromZAxis = -1.2E-3, pi = 3.141592653589793, SpeedOfLight = 299792458;
@@ -42,7 +46,6 @@ class spectro2 : public NA62Analysis::Analyzer
 		void ProcessSpectrometer();
 		void ProcessLKr();
 		void ProcessMUV3();
-		void ProcessTrue();
 
 		void StartOfBurstUser();
 		void EndOfBurstUser();
