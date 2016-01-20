@@ -18,11 +18,11 @@ using namespace NA62Constants;
 int COUNTNUMBER = 0;
 spectro2::spectro2( Core::BaseAnalysis *ba ) : Analyzer( ba, "spectro" )
 {
-	RequestTree( "GigaTracker", new TRecoGigaTrackerEvent );
+	//RequestTree( "GigaTracker", new TRecoGigaTrackerEvent );
 	RequestTree( "Spectrometer", new TRecoSpectrometerEvent );
-    RequestTree( "LKr", new TRecoLKrEvent );
-    RequestTree( "MUV3", new TRecoMUV3Event );
-    RequestTree( "CEDAR", new TRecoCedarEvent );
+    //RequestTree( "LKr", new TRecoLKrEvent );
+    //RequestTree( "MUV3", new TRecoMUV3Event );
+    //RequestTree( "CEDAR", new TRecoCedarEvent );
 
 }
 
@@ -300,7 +300,7 @@ void spectro2::InitHist()
     h55 -> GetYaxis() -> SetTitle( "GeV" );
     BookHisto( h55 );
 
-
+    /*
     for(int i=1;i<=15;i++)
     {
 
@@ -311,6 +311,12 @@ void spectro2::InitHist()
         CreateHist1D(TString("ResolutionTempY") + num, "Title", NumberOfBins,0,0);
         CreateHist1D(TString("ResolutionTempZ") + num, "Title", NumberOfBins,0,0);
     }
+    */
+
+    TH2D* h56 = new TH2D( "MissingMassVsZPosition", "Missing Mass Vs Z position", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
+    h56 -> GetXaxis() -> SetTitle( "GeV Squared" );
+    h56 -> GetYaxis() -> SetTitle( "m" );
+    BookHisto( h56 );
 
     /*
     TH1D* h14 = new TH1D( "TrueMuonxMomentumHist", "True Muon x Momentum", NumberOfBins, 0, 0 );
@@ -496,20 +502,19 @@ void spectro2::Process( int iEvent )
             // Plot Histos with Restrictions //
             ///////////////////////////////////
             //Attempts to select only the muon
-            if  (   SpectroCandidate->GetCharge() == 1 &&   //Positive Charge
-                    SpectrometerEvent->GetNCandidates() == 1 && //Single Detection In Spectrometer
-                    decay_area == 2 && //Decay in Fiducial Region //I think this should be decay_area > 0
-                    missing_mass.Mag2() / pow( 1000, 2 ) < 2000 &&//Have Missing Mass Correct for Decay
-                    LKrEvent->GetNCandidates() >= 1 && // Be detected in LKr
-                    MUV3Event->GetNCandidates() >= 1 // Be detected in MUV3
-                    //CEDAREvent->GetNCandidates() >=1 &&// Be detected in CEDAR
-                    //CEDAREvent->GetNHits() >=10 //Have atleast 10 hits in the CEDAR
-
+            if  ( SpectroCandidate->GetCharge() == 1 &&   //Positive Charge
+                  SpectrometerEvent->GetNCandidates() == 1 && //Single Detection In Spectrometer
+                  decay_area == 2 && //Decay in Fiducial Region //I think this should be decay_area > 0
+                  //missing_mass.Mag2() / pow( 1000, 2 ) < 2000 //Have Missing Mass Correct for Decay
+                  //LKrEvent->GetNCandidates() >= 1 && // Be detected in LKr
+                  //MUV3Event->GetNCandidates() >= 1 // Be detected in MUV3
+                  //CEDAREvent->GetNCandidates() >=1 &&// Be detected in CEDAR
+                  //CEDAREvent->GetNHits() >=10 //Have atleast 10 hits in the CEDAR
                 )
             {
 
                 //true stuff here
-
+                /*
                 if ( MCTruthEvent -> GetNKineParts() >= 1 )
                 {
 
@@ -621,9 +626,12 @@ void spectro2::Process( int iEvent )
                         FillHisto("TrueMissingMass", true_missing_mass.Mag2() / ( pow( 1000, 2 ) ) );
                     }
                 }
+                */
 
                 //Reco stuff
                 FillHisto( "MissingMass", missing_mass.Mag2() / pow( 1000, 2) );
+
+                FillHisto("MissingMassVsZPosition", missing_mass.Mag2()/ pow(1000,2), closest_point_from_baxis_after_fiducial[2]/1000.);
 
                 momentum.RotateY(BeamAngleFromZAxis);   //Rotate the reference frame to be along the beam
 
@@ -732,6 +740,7 @@ void spectro2::EndOfRunUser()
     h->Fit("gaus");
     h->Draw();
 
+    /*
     int n = 15;
     double x[n],xx[n],xy[n],xz[n], y[n], yx[n], yy[n], yz[n];
 
@@ -775,7 +784,7 @@ void spectro2::EndOfRunUser()
     BookHisto("YMtmResolutionVsYMtm", graphy);
     TGraph* graphz = new TGraph(n,xz,yz);
     BookHisto("ZMtmResolutionVsZMtm", graphz);
-
+    */
 
 
 
