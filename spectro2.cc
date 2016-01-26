@@ -307,9 +307,9 @@ void spectro2::InitHist()
         string intstr = to_string(i);
         TString num = TString(intstr);
         CreateHist1D(TString("ResolutionTemp") + num, "Title", 500,0,0);
-        CreateHist1D(TString("ResolutionTempX") + num, "Title", 500,-0.01,0.01);
-        CreateHist1D(TString("ResolutionTempY") + num, "Title", 500,-0.01,0.01);
-        CreateHist1D(TString("ResolutionTempZ") + num, "Title", 500,-1,1);
+        CreateHist1D(TString("ResolutionTempX") + num, "Title", 500,0,0);
+        CreateHist1D(TString("ResolutionTempY") + num, "Title", 500,0,0);
+        CreateHist1D(TString("ResolutionTempZ") + num, "Title", 500,0,0);
     }
 
 
@@ -763,43 +763,82 @@ void spectro2::EndOfRunUser()
         TH1* resx = fHisto.GetHisto(TString("ResolutionTempX") + num);
         TH1* resy = fHisto.GetHisto(TString("ResolutionTempY") + num);
         TH1* resz = fHisto.GetHisto(TString("ResolutionTempZ") + num);
+
         double integral = res->Integral();
         double integral_temp = res->Integral(1,500);
-
-
-
         double xmin = res->GetXaxis()->GetXmin();
         double xmax = res->GetXaxis()->GetXmax();
-
         double xbin = abs(xmin) > abs(xmax) ? abs(xmax) : abs(xmin);
-
         int binx1 = res->GetXaxis()->FindBin(-xbin);
         int binx2 = res->GetXaxis()->FindBin(xbin);
-
         integral_temp = res->Integral(binx1,binx2);
-
-
         int res_limits = 0;
-
-        std::cout << "Xmin: " << xmin << "Xmax: " << xmax <<  "Xbin: " << xbin << "Integral: " << integral << " Integral_Temp: " << integral_temp << " Res_Limits: " << res_limits << std::endl;
         while(abs(integral_temp) > abs(integral) * 0.98)
         {
-            std::cout << "BinX1: " << binx1 << " BinX2: " << binx2 <<  std::endl;
-            std::cout << "Xmin: " << xmin << "Xmax: " << xmax <<  "Xbin: " << xbin << "Integral: " << integral << " Integral_Temp: " << integral_temp << " Res_Limits: " << res_limits << std::endl;
             integral_temp = res->Integral(binx1+res_limits,binx2-res_limits);
             res_limits++;
         }
-
-
-
-
         double fitmin = res->GetXaxis()->GetBinLowEdge(binx1+res_limits);
         double fitmax = res->GetXaxis()->GetBinUpEdge(binx2-res_limits);
 
+        double integralx = resx->Integral();
+        double integralx_temp = resx->Integral(1,500);
+        double xminx = resx->GetXaxis()->GetXmin();
+        double xmaxx = resx->GetXaxis()->GetXmax();
+        double xbinx = abs(xminx) > abs(xmaxx) ? abs(xmaxx) : abs(xminx);
+        int binx1x = resx->GetXaxis()->FindBin(-xbinx);
+        int binx2x = resx->GetXaxis()->FindBin(xbinx);
+        integralx_temp = resx->Integral(binx1x,binx2x);
+        int resx_limits = 0;
+        while(abs(integralx_temp) > abs(integralx) * 0.98)
+        {
+            integralx_temp = resx->Integral(binx1x+resx_limits,binx2x-resx_limits);
+            resx_limits++;
+        }
+        double fitminx = resx->GetXaxis()->GetBinLowEdge(binx1x+resx_limits);
+        double fitmaxx = resx->GetXaxis()->GetBinUpEdge(binx2x-resx_limits);
+
+
+        double integraly = resy->Integral();
+        double integraly_temp = resy->Integral(1,500);
+        double xminy = resy->GetXaxis()->GetXmin();
+        double xmaxy = resy->GetXaxis()->GetXmax();
+        double xbiny = abs(xminy) > abs(xmaxy) ? abs(xmaxy) : abs(xminy);
+        int binx1y = resy->GetXaxis()->FindBin(-xbiny);
+        int binx2y = resy->GetXaxis()->FindBin(xbiny);
+        integraly_temp = resy->Integral(binx1y,binx2y);
+        int resy_limits = 0;
+        while(abs(integraly_temp) > abs(integraly) * 0.98)
+        {
+            integraly_temp = resy->Integral(binx1y+resy_limits,binx2y-resy_limits);
+            resy_limits++;
+        }
+        double fitminy = resy->GetXaxis()->GetBinLowEdge(binx1y+resy_limits);
+        double fitmaxy = resy->GetXaxis()->GetBinUpEdge(binx2y-resy_limits);
+
+
+        double integralz = resz->Integral();
+        double integralz_temp = resz->Integral(1,500);
+        double xminz = resz->GetXaxis()->GetXmin();
+        double xmaxz = resz->GetXaxis()->GetXmax();
+        double xbinz = abs(xminz) > abs(xmaxz) ? abs(xmaxz) : abs(xminz);
+        int binx1z = resz->GetXaxis()->FindBin(-xbinz);
+        int binx2z = resz->GetXaxis()->FindBin(xbinz);
+        integralz_temp = resz->Integral(binx1z,binx2z);
+        int resz_limits = 0;
+        while(abs(integralz_temp) > abs(integralz) * 0.98)
+        {
+            integralz_temp = resz->Integral(binx1z+resz_limits,binx2z-resz_limits);
+            resz_limits++;
+        }
+        double fitminz = resz->GetXaxis()->GetBinLowEdge(binx1z+resz_limits);
+        double fitmaxz = resz->GetXaxis()->GetBinUpEdge(binx2z-res_limits);
+
+
         res->Fit("gaus","Q","",fitmin,fitmax);
-        resx->Fit("gaus","Q");
-        resy->Fit("gaus","Q");
-        resz->Fit("gaus","Q");
+        resx->Fit("gaus","Q","",fitminx,fitmaxx);
+        resy->Fit("gaus","Q","",fitminy,fitmaxy);
+        resz->Fit("gaus","Q","",fitminz,fitmaxz);
         res->Draw();
         resx->Draw();
         resy->Draw();
