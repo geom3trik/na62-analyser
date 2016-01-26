@@ -300,18 +300,18 @@ void spectro2::InitHist()
     h55 -> GetYaxis() -> SetTitle( "GeV" );
     BookHisto( h55 );
 
-    
+
     for(int i=1;i<=15;i++)
     {
 
         string intstr = to_string(i);
         TString num = TString(intstr);
-        CreateHist1D(TString("ResolutionTemp") + num, "Title", NumberOfBins,0,0);
-        CreateHist1D(TString("ResolutionTempX") + num, "Title", NumberOfBins,0,0);
-        CreateHist1D(TString("ResolutionTempY") + num, "Title", NumberOfBins,0,0);
-        CreateHist1D(TString("ResolutionTempZ") + num, "Title", NumberOfBins,0,0);
+        CreateHist1D(TString("ResolutionTemp") + num, "Title", 500,0,0);
+        CreateHist1D(TString("ResolutionTempX") + num, "Title", 500,-0.01,0.01);
+        CreateHist1D(TString("ResolutionTempY") + num, "Title", 500,-0.01,0.01);
+        CreateHist1D(TString("ResolutionTempZ") + num, "Title", 500,-1,1);
     }
-    
+
 
     TH2D* h56 = new TH2D( "MissingMassVsZPosition", "Missing Mass Vs Z position", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
     h56 -> GetXaxis() -> SetTitle( "GeV Squared" );
@@ -512,7 +512,7 @@ void spectro2::Process( int iEvent )
             {
 
                 //true stuff here
-                
+
                 if ( MCTruthEvent -> GetNKineParts() >= 1 )
                 {
 
@@ -614,7 +614,7 @@ void spectro2::Process( int iEvent )
                         FillHisto( "TrueProductionPositionX", true_position_start[0]);
                         FillHisto( "TrueProductionPositionY", true_position_start[1]);
                         FillHisto( "TrueProductionPositionZ", true_position_start[2]/ 1000. );
-			
+
 			true_momentum.RotateY(-BeamAngleFromZAxis);
                         momentum.RotateY(-BeamAngleFromZAxis);
 
@@ -626,8 +626,8 @@ void spectro2::Process( int iEvent )
                         FillHisto("TrueMissingMass", true_missing_mass.Mag2() / ( pow( 1000, 2 ) ) );
                     }
                 }
-                
-		
+
+
 
                 //Reco stuff
                 FillHisto( "MissingMass", missing_mass.Mag2() / pow( 1000, 2) );
@@ -696,6 +696,8 @@ void spectro2::EndOfBurstUser()
 
 void spectro2::EndOfRunUser()
 {
+
+
     ///cout<<"start" << startime << "end:" << endtime << endl << "TotalTime:" << endtime - startime;
 
     TH1D* h58 = new TH1D("DetectorEfficiencyMomentum", "Detector Efficiency Momentum", NumberOfBins, 0, 0 );
@@ -744,11 +746,10 @@ void spectro2::EndOfRunUser()
     h->Fit("gaus");
     h->Draw();
 
-    
     int n = 15;
     double x[n],xx[n],xy[n],xz[n], y[n], yx[n], yy[n], yz[n], ry[n], ryx[n], ryy[n], ryz[n],ey[n],eyx[n],eyy[n],eyz[n],ery[n],eryx[n],eryy[n],eryz[n];
 
-    
+
     for(int i=1;i<=15;i++)
     {
         x[i-1] = 5*i;
@@ -762,10 +763,43 @@ void spectro2::EndOfRunUser()
         TH1* resx = fHisto.GetHisto(TString("ResolutionTempX") + num);
         TH1* resy = fHisto.GetHisto(TString("ResolutionTempY") + num);
         TH1* resz = fHisto.GetHisto(TString("ResolutionTempZ") + num);
-        res->Fit("gaus");
-        resx->Fit("gaus");
-        resy->Fit("gaus");
-        resz->Fit("gaus");
+        double integral = res->Integral();
+        double integral_temp = res->Integral(1,500);
+
+
+
+        double xmin = res->GetXaxis()->GetXmin();
+        double xmax = res->GetXaxis()->GetXmax();
+
+        double xbin = abs(xmin) > abs(xmax) ? abs(xmax) : abs(xmin);
+
+        int binx1 = res->GetXaxis()->FindBin(-xbin);
+        int binx2 = res->GetXaxis()->FindBin(xbin);
+
+        integral_temp = res->Integral(binx1,binx2);
+
+
+        int res_limits = 0;
+
+        std::cout << "Xmin: " << xmin << "Xmax: " << xmax <<  "Xbin: " << xbin << "Integral: " << integral << " Integral_Temp: " << integral_temp << " Res_Limits: " << res_limits << std::endl;
+        while(abs(integral_temp) > abs(integral) * 0.98)
+        {
+            //std::cout << "BinX1: " << binx1 << " BinX2: " << binx2 <<  std::endl;
+            //std::cout << "Xmin: " << xmin << "Xmax: " << xmax <<  "Xbin: " << xbin << "Integral: " << integral << " Integral_Temp: " << integral_temp << " Res_Limits: " << res_limits << std::endl;
+            integral_temp = res->Integral(binx1+res_limits,binx2-res_limits);
+            res_limits++;
+        }
+
+
+
+
+        double fitmin = res->GetXaxis()->GetBinLowEdge(binx1+res_limits);
+        double fitmax = res->GetXaxis()->GetBinUpEdge(binx1-res_limits);
+
+        res->Fit("gaus","Q","",fitmin,fitmax);
+        resx->Fit("gaus","Q");
+        resy->Fit("gaus","Q");
+        resz->Fit("gaus","Q");
         res->Draw();
         resx->Draw();
         resy->Draw();
@@ -791,8 +825,9 @@ void spectro2::EndOfRunUser()
         ryz[i-1] = yz[i-1] / xz[i-1];
 	eryz[i-1] = abs(eyz[i-1] / xz[i-1]) ;
 
+
     }
-  
+
     TGraphErrors* graph = new TGraphErrors(n,x,y,0,ey);
     BookHisto("MtmResolutionVsMtm", graph);
     TGraphErrors* graphx = new TGraphErrors(n,xx,yx,0,eyx);
@@ -801,8 +836,8 @@ void spectro2::EndOfRunUser()
     BookHisto("YMtmResolutionVsYMtm", graphy);
     TGraphErrors* graphz = new TGraphErrors(n,xz,yz,0,eyz);
     BookHisto("ZMtmResolutionVsZMtm", graphz);
-    
-    
+
+
     TGraphErrors* rgraph = new TGraphErrors(n,x,ry,0,ery);
     BookHisto("RelativeMtmResolutionVsMtm", rgraph);
     //rgraph->Fit("[0]+[1]x");
@@ -815,8 +850,9 @@ void spectro2::EndOfRunUser()
     TGraphErrors* rgraphz = new TGraphErrors(n,xz,ryz,0,eryz);
     BookHisto("RelativeZMtmResolutionVsZMtm", rgraphz);
     //rgraphz->Fit("[0]+[1]x");
-    
+
     SaveAllPlots();
+
 }
 
 void spectro2::DrawPlot()
