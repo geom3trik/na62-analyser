@@ -17,12 +17,12 @@ using namespace NA62Constants;
 
 int COUNTNUMBER = 0;
 spectro2::spectro2( Core::BaseAnalysis *ba ) : Analyzer( ba, "spectro" )
-{
-	//RequestTree( "GigaTracker", new TRecoGigaTrackerEvent );
-	RequestTree( "Spectrometer", new TRecoSpectrometerEvent );
-    //RequestTree( "LKr", new TRecoLKrEvent );
-    //RequestTree( "MUV3", new TRecoMUV3Event );
-    //RequestTree( "CEDAR", new TRecoCedarEvent );
+{	//SOMETHING ELSE
+    RequestTree( "GigaTracker", new TRecoGigaTrackerEvent );
+    RequestTree( "Spectrometer", new TRecoSpectrometerEvent );
+    RequestTree( "LKr", new TRecoLKrEvent );
+    RequestTree( "MUV3", new TRecoMUV3Event );
+    RequestTree( "CEDAR", new TRecoCedarEvent );
 
 }
 
@@ -300,7 +300,7 @@ void spectro2::InitHist()
     h55 -> GetYaxis() -> SetTitle( "GeV" );
     BookHisto( h55 );
 
-    /*
+    
     for(int i=1;i<=15;i++)
     {
 
@@ -311,7 +311,7 @@ void spectro2::InitHist()
         CreateHist1D(TString("ResolutionTempY") + num, "Title", NumberOfBins,0,0);
         CreateHist1D(TString("ResolutionTempZ") + num, "Title", NumberOfBins,0,0);
     }
-    */
+    
 
     TH2D* h56 = new TH2D( "MissingMassVsZPosition", "Missing Mass Vs Z position", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
     h56 -> GetXaxis() -> SetTitle( "GeV Squared" );
@@ -426,7 +426,6 @@ void spectro2::Process( int iEvent )
     TRecoLKrEvent *LKrEvent = ( TRecoLKrEvent* )GetEvent( "LKr" );
     TRecoMUV3Event *MUV3Event = ( TRecoMUV3Event* )GetEvent( "MUV3" );
     TRecoCedarEvent *CEDAREvent = ( TRecoCedarEvent* )GetEvent( "CEDAR" );
-
     //Get truth event
     Event *MCTruthEvent = GetMCEvent();
 
@@ -468,7 +467,7 @@ void spectro2::Process( int iEvent )
             {
                 decay_area = 1;
             }
-            else if ( closest_point_from_baxis_after_fiducial[2] >= 104000 && closest_point_from_baxis_after_fiducial[2] <= 166000 )
+            else if ( closest_point_from_baxis_after_fiducial[2] >= 120000 /*104000*/ && closest_point_from_baxis_after_fiducial[2] <= 166000 )
             {
                 decay_area = 2;
             }
@@ -497,24 +496,23 @@ void spectro2::Process( int iEvent )
             TLorentzVector missing_mass = kaon_momentum - muon_momentum;
 
 
-
             ///////////////////////////////////
             // Plot Histos with Restrictions //
             ///////////////////////////////////
             //Attempts to select only the muon
             if  ( SpectroCandidate->GetCharge() == 1 &&   //Positive Charge
                   SpectrometerEvent->GetNCandidates() == 1 && //Single Detection In Spectrometer
-                  decay_area == 2 && //Decay in Fiducial Region //I think this should be decay_area > 0
-                  //missing_mass.Mag2() / pow( 1000, 2 ) < 2000 //Have Missing Mass Correct for Decay
-                  //LKrEvent->GetNCandidates() >= 1 && // Be detected in LKr
-                  //MUV3Event->GetNCandidates() >= 1 // Be detected in MUV3
-                  //CEDAREvent->GetNCandidates() >=1 &&// Be detected in CEDAR
+                  decay_area == 2  &&//Decay in Fiducial Region //I think this should be decay_area > 0
+                  missing_mass.Mag2() / pow( 1000, 2 ) < 2000 &&//Have Missing Mass Correct for Decay
+                  LKrEvent->GetNCandidates() >= 1 && // Be detected in LKr
+                  MUV3Event->GetNCandidates() >= 1// Be detected in MUV3
+                  //CEDAREvent->GetNCandidates() >=1 // Be detected in CEDAR
                   //CEDAREvent->GetNHits() >=10 //Have atleast 10 hits in the CEDAR
                 )
             {
 
                 //true stuff here
-                /*
+                
                 if ( MCTruthEvent -> GetNKineParts() >= 1 )
                 {
 
@@ -532,8 +530,6 @@ void spectro2::Process( int iEvent )
                     //Make sure the first true event decay product is a muon
                     if (true_momentum.Mag() != 0 && TrueCandidate -> GetPDGcode() == -13 && abs(true_momentum.Theta()) > 0 )
                     {
-                        double param = 0;
-
                         true_momentum.RotateY(BeamAngleFromZAxis);
                         momentum.RotateY(BeamAngleFromZAxis);
                         for(int i=1;i<=15;i++)
@@ -573,6 +569,8 @@ void spectro2::Process( int iEvent )
                         ////////////////////////////////////
                         // Calculate Momentum Resolutions //
                         ////////////////////////////////////
+			true_momentum.RotateY(BeamAngleFromZAxis);
+                        momentum.RotateY(BeamAngleFromZAxis);
                         TVector3 ResolutionTemp = true_momentum - momentum;
                         FillHisto( "SpectrometerXMomentumResolution",  ResolutionTemp[0] );
                         FillHisto( "SpectrometerYMomentumResolution", ResolutionTemp[1] );
@@ -585,7 +583,6 @@ void spectro2::Process( int iEvent )
                         FillHisto( "SpectrometerMomentumResolutionAgainstMomentum",  true_momentum.Mag() / 1000, ResolutionTemp.Mag() / 1000. );
 
 
-                        true_momentum.RotateY(BeamAngleFromZAxis);
                         FillHisto( "KaonEndingPosition", true_position_end[2] / 1000., true_position_end[0] );
                         FillHisto( "TrueMomentumHist",   true_momentum.Mag() / 1000. );
                         FillHisto( "TruexMomentumHist",  true_momentum[0] / 1000. );
@@ -617,7 +614,10 @@ void spectro2::Process( int iEvent )
                         FillHisto( "TrueProductionPositionX", true_position_start[0]);
                         FillHisto( "TrueProductionPositionY", true_position_start[1]);
                         FillHisto( "TrueProductionPositionZ", true_position_start[2]/ 1000. );
-                        true_momentum.RotateY(-BeamAngleFromZAxis);
+			
+			true_momentum.RotateY(-BeamAngleFromZAxis);
+                        momentum.RotateY(-BeamAngleFromZAxis);
+
 
                         TLorentzVector true_muon_momentum = TrueCandidate->GetInitial4Momentum();
                         //TLorentzVector TrueMuonMomentum = TrueCandidate->GetMomAtCheckPoint(2);
@@ -626,12 +626,12 @@ void spectro2::Process( int iEvent )
                         FillHisto("TrueMissingMass", true_missing_mass.Mag2() / ( pow( 1000, 2 ) ) );
                     }
                 }
-                */
+                
+		
 
                 //Reco stuff
                 FillHisto( "MissingMass", missing_mass.Mag2() / pow( 1000, 2) );
 
-                FillHisto("MissingMassVsZPosition", missing_mass.Mag2()/ pow(1000,2), closest_point_from_baxis_after_fiducial[2]/1000.);
 
                 momentum.RotateY(BeamAngleFromZAxis);   //Rotate the reference frame to be along the beam
 
@@ -661,6 +661,8 @@ void spectro2::Process( int iEvent )
                     FillHisto( "ClosestyDistanceToBeamAxis", dist_to_baxis_before_fiducial[1] );
                     FillHisto( "ClosestzDistanceToBeamAxis", dist_to_baxis_before_fiducial[2] );
                     FillHisto( "DecayPoisition",             closest_point_from_baxis_before_fiducial[2] / 1000. , closest_point_from_baxis_before_fiducial[0] );
+		    FillHisto("MissingMassVsZPosition",      closest_point_from_baxis_before_fiducial[2] / 1000. , missing_mass.Mag2()/ pow(1000,2));
+
                 }
                 if (decay_area == 2)
                 {
@@ -674,6 +676,8 @@ void spectro2::Process( int iEvent )
                     FillHisto( "ClosestyDistanceToBeamAxis", dist_to_baxis_after_fiducial[1] );
                     FillHisto( "ClosestzDistanceToBeamAxis", dist_to_baxis_after_fiducial[2] );
                     FillHisto( "DecayPoisition",             closest_point_from_baxis_after_fiducial[2] / 1000. , closest_point_from_baxis_after_fiducial[0] );
+		    FillHisto("MissingMassVsZPosition",	     closest_point_from_baxis_after_fiducial[2] / 1000. , missing_mass.Mag2()/ pow(1000,2));
+
                 }
             }
 		}
@@ -740,11 +744,11 @@ void spectro2::EndOfRunUser()
     h->Fit("gaus");
     h->Draw();
 
-    /*
+    
     int n = 15;
-    double x[n],xx[n],xy[n],xz[n], y[n], yx[n], yy[n], yz[n];
+    double x[n],xx[n],xy[n],xz[n], y[n], yx[n], yy[n], yz[n], ry[n], ryx[n], ryy[n], ryz[n],ey[n],eyx[n],eyy[n],eyz[n],ery[n],eryx[n],eryy[n],eryz[n];
 
-
+    
     for(int i=1;i<=15;i++)
     {
         x[i-1] = 5*i;
@@ -771,26 +775,47 @@ void spectro2::EndOfRunUser()
         TF1* fity = resy->GetFunction("gaus");
         TF1* fitz = resz->GetFunction("gaus");
         y[i-1] = fit->GetParameter(2);
+        ey[i-1] = fit->GetParError(2);
         yx[i-1] = fitx->GetParameter(2);
+        eyx[i-1] = fitx->GetParError(2);
         yy[i-1] = fity->GetParameter(2);
+        eyy[i-1] = fity->GetParError(2);
         yz[i-1] = fitz->GetParameter(2);
+        eyz[i-1] = fitz->GetParError(2);
+	ry[i-1] = y[i-1] / x[i-1] ;
+	ery[i-1] = abs(ey[i-1] / x[i-1]) ;
+        ryx[i-1] = yx[i-1] / xx[i-1];
+	eryx[i-1] = abs(eyx[i-1] / xx[i-1]) ;
+        ryy[i-1] = yy[i-1] / xy[i-1];
+	eryy[i-1] = abs(eyy[i-1] / xy[i-1]) ;
+        ryz[i-1] = yz[i-1] / xz[i-1];
+	eryz[i-1] = abs(eyz[i-1] / xz[i-1]) ;
+
     }
-
-    TGraph* graph = new TGraph(n,x,y);
+  
+    TGraphErrors* graph = new TGraphErrors(n,x,y,0,ey);
     BookHisto("MtmResolutionVsMtm", graph);
-    TGraph* graphx = new TGraph(n,xx,yx);
+    TGraphErrors* graphx = new TGraphErrors(n,xx,yx,0,eyx);
     BookHisto("XMtmResolutionVsXMtm", graphx);
-    TGraph* graphy = new TGraph(n,xy,yy);
+    TGraphErrors* graphy = new TGraphErrors(n,xy,yy,0,eyy);
     BookHisto("YMtmResolutionVsYMtm", graphy);
-    TGraph* graphz = new TGraph(n,xz,yz);
+    TGraphErrors* graphz = new TGraphErrors(n,xz,yz,0,eyz);
     BookHisto("ZMtmResolutionVsZMtm", graphz);
-    */
-
-
-
-
-
-
+    
+    
+    TGraphErrors* rgraph = new TGraphErrors(n,x,ry,0,ery);
+    BookHisto("RelativeMtmResolutionVsMtm", rgraph);
+    //rgraph->Fit("[0]+[1]x");
+    TGraphErrors* rgraphx = new TGraphErrors(n,xx,ryx,0,eryx);
+    BookHisto("RelativeXMtmResolutionVsXMtm", rgraphx);
+    //rgraphx->Fit("[0]+[1]x");
+    TGraphErrors* rgraphy = new TGraphErrors(n,xy,ryy,0,eryy);
+    BookHisto("RelativeYMtmResolutionVsYMtm", rgraphy);
+    //rgraphy->Fit("[0]+[1]x");
+    TGraphErrors* rgraphz = new TGraphErrors(n,xz,ryz,0,eryz);
+    BookHisto("RelativeZMtmResolutionVsZMtm", rgraphz);
+    //rgraphz->Fit("[0]+[1]x");
+    
     SaveAllPlots();
 }
 

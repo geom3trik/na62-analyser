@@ -8,6 +8,7 @@
 #include "DetectorAcceptance.hh"
 #include <TCanvas.h>
 #include <TGraph.h>
+#include <TGraphErrors.h>
 #include <TF1.h>
 #include <string>
 #include <cstdlib>
