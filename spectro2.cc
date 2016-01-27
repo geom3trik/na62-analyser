@@ -496,8 +496,8 @@ void spectro2::Process( int iEvent )
             {
                 decay_area = 2;
             }
-            reco_xz_angle = SpectroCandidate->GetSlopeXBeforeMagnet();
-            reco_yz_angle = SpectroCandidate->GetSlopeYBeforeMagnet();
+            double reco_xz_angle = SpectroCandidate->GetSlopeXBeforeMagnet();
+            double reco_yz_angle = SpectroCandidate->GetSlopeYBeforeMagnet();
 
             ////////////////////////
             // Missing mass stuff //
@@ -664,17 +664,17 @@ void spectro2::Process( int iEvent )
                 FillHisto("XZAngle", reco_xz_angle);
                 FillHisto("YZAngle", reco_yz_angle);
                 TVector3 Direction;
-                Direction[0] = 1 / tan( SpectroCandidate->GetSlopeXBeforeMagnet );
-                Direction[1] = 1 / tan( SpectroCandidate->GetSlopeYBeforeMagnet );
+                Direction[0] = 1 / tan( reco_xz_angle );
+                Direction[1] = 1 / tan( reco_yz_angle );
                 Direction[2] = 1;
-                Direction = Direction.unit(); //Normalize
-                ReconstructedMomentum = direction * momentum.Mag();
+                Direction = Direction.Unit(); //Normalize
+                TVector3 ReconstructedMomentum = Direction * momentum.Mag();
 
                 ReconstructedMomentum.RotateY( BeamAngleFromZAxis );
-                FillHisto( "ReconstructedMomentumHist", ReconstructedMomentum.Mag() / 1000. )
-                FillHisto( "ReconstructedxMomentumHist", ReconstructedMomentum[0] / 1000. )
-                FillHisto( "ReconstructedyMomentumHist", ReconstructedMomentum[1] / 1000. )
-                FillHisto( "ReconstructedzMomentumHist", ReconstructedMomentum[2] / 1000. )
+                FillHisto( "ReconstructedMomentumHist", ReconstructedMomentum.Mag() / 1000. );
+                FillHisto( "ReconstructedxMomentumHist", ReconstructedMomentum[0] / 1000. );
+                FillHisto( "ReconstructedyMomentumHist", ReconstructedMomentum[1] / 1000. );
+                FillHisto( "ReconstructedzMomentumHist", ReconstructedMomentum[2] / 1000. );
                 ReconstructedMomentum.RotateY( -BeamAngleFromZAxis );
 
                 FillHisto( "MissingMass", missing_mass.Mag2() / pow( 1000, 2) );
