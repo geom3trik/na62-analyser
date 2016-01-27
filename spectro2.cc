@@ -821,7 +821,7 @@ void spectro2::EndOfRunUser()
     h->Draw();
 
     int n = 15;
-    double x[n],xx[n],xy[n],xz[n], y[n], yx[n], yy[n], yz[n], ry[n], ryx[n], ryy[n], ryz[n],ey[n],eyx[n],eyy[n],eyz[n],ery[n],eryx[n],eryy[n],eryz[n],anglexz[n],angleyz[n];
+    double x[n],xx[n],xy[n],xz[n], y[n], yx[n], yy[n], yz[n], ry[n], ryx[n], ryy[n], ryz[n],ey[n],eyx[n],eyy[n],eyz[n],ery[n],eryx[n],eryy[n],eryz[n],anglexz[n],angleyz[n],angle_xzy[n],angle_yzy[n],rangle_xzy[n],rangle_yzy[n],eangle_xzy[n],eangle_yzy[n],erangle_xzy[n],erangle_yzy[n];
 
 
     for(int i=1;i<=15;i++)
@@ -830,7 +830,7 @@ void spectro2::EndOfRunUser()
         xx[i-1] = 0.026666666666666666*i-0.2;
         xy[i-1] = 0.026666666666666666*i-0.2;
         xz[i-1] = 5*i;
-        Anglexz[i-1] = pi/15*i - pi / 2
+        anglexz[i-1] = pi/15*i - pi / 2;
         angleyz[i-1] = pi/15*i - pi / 2;
 
         string intstr = to_string(i);
@@ -990,10 +990,10 @@ void spectro2::EndOfRunUser()
         eryy[i-1] = abs(eyy[i-1] / xy[i-1]) ;
         ryz[i-1] = yz[i-1] / xz[i-1];
         eryz[i-1] = abs(eyz[i-1] / xz[i-1]) ;
-        rangle_xzy = angle_xzy[i-1] / anglexz[i-1];
-        erangle_xzy = abs(eangle_xzy[i-1] / Anglexz[i-1]);
-        rangle_yzy = angle_yzy[i-1] / angleyz[i-1];
-        erangle_yzy = abs(eangle_yzy[i-1] / angleyz[i-1]);
+        rangle_xzy[i-1] = angle_xzy[i-1] / anglexz[i-1];
+        erangle_xzy[i-1] = abs(eangle_xzy[i-1] / anglexz[i-1]);
+        rangle_yzy[i-1] = angle_yzy[i-1] / angleyz[i-1];
+        erangle_yzy[i-1] = abs(eangle_yzy[i-1] / angleyz[i-1]);
     }
 
     TGraphErrors* graph = new TGraphErrors(n,x,y,0,ey);
