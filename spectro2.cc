@@ -280,6 +280,32 @@ void spectro2::InitHist()
     CreateHist1D("SpectrometerMomentumResolution", "Spectrometer Momentum Resolution", NumberOfBins, 0, 0);
     SetHistAxisLabels("SpectrometerMomentumResolution","Momentum GeV","Number of Entries");
 
+    CreateHist1D("XZAngle", "XZAngle", NumberOfBins, 0, 0);
+    SetHistAxisLabels("XZAngle","Radians","Number of Entries");
+
+    CreateHist1D("YZAngle", "YZAngle", NumberOfBins, 0, 0);
+    SetHistAxisLabels("YZAngle","Radians","Number of Entries");
+
+    CreateHist1D("ReconstructedMomentumHist","Momentum",NumberOfBins,0,80);
+    SetHistAxisLabels("ReconstructedMomentumHist","Momentum GeV","Number of Entries");
+
+    CreateHist1D("ReconstructedxMomentumHist","xMomentum",NumberOfBins,-0.3,0.3);
+    SetHistAxisLabels("ReconstructedxMomentumHist","Momentum GeV","Number of Entries");
+
+    CreateHist1D("ReconstructedyMomentumHist","yMomentum",NumberOfBins,-0.3,0.3);
+    SetHistAxisLabels("ReconstructedyMomentumHist","Momentum GeV","Number of Entries");
+
+
+    CreateHist1D("ReconstructedzMomentumHist","zMomentum",NumberOfBins,0,80);
+    SetHistAxisLabels("ReconstructedzMomentumHist","Momentum GeV","Number of Entries");
+
+    CreateHist1D("TrueXZAngle", "TrueXZAngle", NumberOfBins, 0, 0);
+    SetHistAxisLabels("TrueXZAngle","Radians","Number of Entries");
+
+    CreateHist1D("TrueYZAngle", "TrueYZAngle", NumberOfBins, 0, 0);
+    SetHistAxisLabels("TrueYZAngle","Radians","Number of Entries");
+
+
     TH2D* h52 = new TH2D( "SpectrometerXMomentumResolutionAgainstXMomentum", "x Momentum Resolution Against x Momentum", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
     h52 -> GetXaxis() -> SetTitle( "MeV" );
     h52 -> GetYaxis() -> SetTitle( "MeV" );
@@ -441,7 +467,6 @@ void spectro2::Process( int iEvent )
 
             //Get the three momentum of the candidate from the spectrometer before the magnet
             TVector3 momentum = SpectroCandidate->GetThreeMomentumBeforeMagnet();
-
             //Get the three position of the candidate from the spectrometer before the magnet
             TVector3 position_start = SpectroCandidate->GetPositionBeforeMagnet();
 
@@ -467,11 +492,12 @@ void spectro2::Process( int iEvent )
             {
                 decay_area = 1;
             }
-            else if ( closest_point_from_baxis_after_fiducial[2] >= 120000 /*104000*/ && closest_point_from_baxis_after_fiducial[2] <= 166000 )
+            else if ( closest_point_from_baxis_after_fiducial[2] >= 104000 /*104000*/ && closest_point_from_baxis_after_fiducial[2] <= 166000 )
             {
                 decay_area = 2;
             }
-
+            reco_xz_angle = SpectroCandidate->GetSlopeXBeforeMagnet();
+            reco_yz_angle = SpectroCandidate->GetSlopeYBeforeMagnet();
 
             ////////////////////////
             // Missing mass stuff //
@@ -569,7 +595,7 @@ void spectro2::Process( int iEvent )
                         ////////////////////////////////////
                         // Calculate Momentum Resolutions //
                         ////////////////////////////////////
-			true_momentum.RotateY(BeamAngleFromZAxis);
+                        true_momentum.RotateY(BeamAngleFromZAxis);
                         momentum.RotateY(BeamAngleFromZAxis);
                         TVector3 ResolutionTemp = true_momentum - momentum;
                         FillHisto( "SpectrometerXMomentumResolution",  ResolutionTemp[0] );
@@ -588,6 +614,7 @@ void spectro2::Process( int iEvent )
                         FillHisto( "TruexMomentumHist",  true_momentum[0] / 1000. );
                         FillHisto( "TrueyMomentumHist",  true_momentum[1] / 1000. );
                         FillHisto( "TruezMomentumHist",  true_momentum[2] / 1000. );
+
 
                         FillHisto( "TrueTransverseMomentumHist",     true_momentum.Perp() );
                         FillHisto( "TrueAzimuthalMomentumHist",      true_momentum.Phi() );
@@ -615,8 +642,11 @@ void spectro2::Process( int iEvent )
                         FillHisto( "TrueProductionPositionY", true_position_start[1]);
                         FillHisto( "TrueProductionPositionZ", true_position_start[2]/ 1000. );
 
-			true_momentum.RotateY(-BeamAngleFromZAxis);
+                        true_momentum.RotateY(-BeamAngleFromZAxis);
                         momentum.RotateY(-BeamAngleFromZAxis);
+
+                        FillHisto( "TrueXZAngle",   true_momentum[2] / true_momentum[0] );
+                        FillHisto( "TrueYZAngle",   true_momentum[2] / true_momentum[1] );
 
 
                         TLorentzVector true_muon_momentum = TrueCandidate->GetInitial4Momentum();
@@ -630,8 +660,24 @@ void spectro2::Process( int iEvent )
 
 
                 //Reco stuff
-                FillHisto( "MissingMass", missing_mass.Mag2() / pow( 1000, 2) );
 
+                FillHisto("XZAngle", reco_xz_angle);
+                FillHisto("YZAngle", reco_yz_angle);
+                TVector3 Direction;
+                Direction[0] = 1 / tan( SpectroCandidate->GetSlopeXBeforeMagnet );
+                Direction[1] = 1 / tan( SpectroCandidate->GetSlopeYBeforeMagnet );
+                Direction[2] = 1;
+                Direction = Direction.unit(); //Normalize
+                ReconstructedMomentum = direction * momentum.Mag();
+
+                ReconstructedMomentum.RotateY( BeamAngleFromZAxis );
+                FillHisto( "ReconstructedMomentumHist", ReconstructedMomentum.Mag() / 1000. )
+                FillHisto( "ReconstructedxMomentumHist", ReconstructedMomentum[0] / 1000. )
+                FillHisto( "ReconstructedyMomentumHist", ReconstructedMomentum[1] / 1000. )
+                FillHisto( "ReconstructedzMomentumHist", ReconstructedMomentum[2] / 1000. )
+                ReconstructedMomentum.RotateY( -BeamAngleFromZAxis );
+
+                FillHisto( "MissingMass", missing_mass.Mag2() / pow( 1000, 2) );
 
                 momentum.RotateY(BeamAngleFromZAxis);   //Rotate the reference frame to be along the beam
 
@@ -640,6 +686,8 @@ void spectro2::Process( int iEvent )
                 FillHisto( "yMomentumHist", momentum[1]    / 1000. );
                 FillHisto( "zMomentumHist", momentum[2]    / 1000. );
 
+
+
                 FillHisto( "TransverseMomentumHist", momentum.Perp()  );
                 FillHisto( "AzimuthalMomentumHist",  momentum.Phi()   );
                 FillHisto( "PolarMomentumHist",      momentum.Theta() );
@@ -647,6 +695,7 @@ void spectro2::Process( int iEvent )
                 FillHisto( "EnergyVsAzimuthal",          momentum.Phi(),   momentum.Mag()  / 1000. );
                 FillHisto( "EnergyVsPolar",              momentum.Theta(), momentum.Mag()  / 1000. );
                 FillHisto( "TranverseEnergyVsAzimuthal", momentum.Phi(),   momentum.Perp() / 1000. );
+
 
                 momentum.RotateY(-BeamAngleFromZAxis);  //Rotate reference frame back to along the detector
                 if (decay_area == 1)    ///This is never true because the first if contains it to decay_area == 2.
