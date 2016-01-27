@@ -603,13 +603,13 @@ void spectro2::Process( int iEvent )
 
                         for(int i=1;i<=15;i++)
                         {
-                            if(true_xz_angle < 5*i && true_xz_angle >= 5*(i-1))
+                            if(true_xz_angle < pi/15*i - pi / 2 && true_xz_angle >= pi/15*(i-1) - pi / 2 )
                             {
                                 string intstr = to_string(i);
                                 TString num = TString(intstr);
                                 FillHisto(TString("xzResolutionTemp") + num, ( true_xz_angle - reco_xz_angle ) );
                             }
-                            if(true_yz_angle < 0.026666666666666666*i-0.2 && true_yz_angle >= 0.026666666666666666*(i-1) -0.2)
+                            if(true_yz_angle < pi/15*i - pi / 2 && true_yz_angle >= pi/15*(i-1) - pi / 2 )
                             {
                                 string intstr = to_string(i);
                                 TString num = TString(intstr);
@@ -830,8 +830,8 @@ void spectro2::EndOfRunUser()
         xx[i-1] = 0.026666666666666666*i-0.2;
         xy[i-1] = 0.026666666666666666*i-0.2;
         xz[i-1] = 5*i;
-        Anglexz[i-1] = 0.026666666666666666*i-0.2;
-        angleyz[i-1] = 0.026666666666666666*i-0.2;
+        Anglexz[i-1] = pi/15*i - pi / 2
+        angleyz[i-1] = pi/15*i - pi / 2;
 
         string intstr = to_string(i);
         TString num = TString(intstr);
