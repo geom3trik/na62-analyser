@@ -337,6 +337,14 @@ void spectro2::InitHist()
         CreateHist1D(TString("ResolutionTempY") + num, "Title", 500,0,0);
         CreateHist1D(TString("ResolutionTempZ") + num, "Title", 500,0,0);
     }
+    for(int i=1;i<=15;i++)
+    {
+        string intstr = to_string(i);
+        TString num = TString(intstr);
+        CreateHist1D(TString("xzResolutionTemp") + num, "Title", 500,0,0);
+        CreateHist1D(TString("yzResolutionTemp") + num, "Title", 500,0,0);
+    }
+
 
 
     TH2D* h56 = new TH2D( "MissingMassVsZPosition", "Missing Mass Vs Z position", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
@@ -553,6 +561,9 @@ void spectro2::Process( int iEvent )
                     TVector3 true_position_start = TrueCandidate->GetProdPos().Vect();
                     TVector3 true_position_end = TrueCandidate->GetEndPos().Vect();
 
+                    double true_xz_angle = true_momentum[2] / true_momentum[0];
+                    double true_yz_angle = true_momentum[1] / true_momentum[0];
+
                     //Make sure the first true event decay product is a muon
                     if (true_momentum.Mag() != 0 && TrueCandidate -> GetPDGcode() == -13 && abs(true_momentum.Theta()) > 0 )
                     {
@@ -590,7 +601,21 @@ void spectro2::Process( int iEvent )
                         true_momentum.RotateY(-BeamAngleFromZAxis);
                         momentum.RotateY(-BeamAngleFromZAxis);
 
-
+                        for(int i=1;i<=15;i++)
+                        {
+                            if(true_xz_angle < 5*i && true_xz_angle >= 5*(i-1))
+                            {
+                                string intstr = to_string(i);
+                                TString num = TString(intstr);
+                                FillHisto(TString("xzResolutionTemp") + num, ( true_xz_angle - reco_xz_angle ) );
+                            }
+                            if(true_yz_angle < 0.026666666666666666*i-0.2 && true_yz_angle >= 0.026666666666666666*(i-1) -0.2)
+                            {
+                                string intstr = to_string(i);
+                                TString num = TString(intstr);
+                                FillHisto(TString("yzResolutionTemp") + num, ( true_yz_angle - reco_yz_angle ));
+                            }
+                        }
 
                         ////////////////////////////////////
                         // Calculate Momentum Resolutions //
@@ -645,8 +670,8 @@ void spectro2::Process( int iEvent )
                         true_momentum.RotateY(-BeamAngleFromZAxis);
                         momentum.RotateY(-BeamAngleFromZAxis);
 
-                        FillHisto( "TrueXZAngle",   true_momentum[2] / true_momentum[0] );
-                        FillHisto( "TrueYZAngle",   true_momentum[2] / true_momentum[1] );
+                        FillHisto( "TrueXZAngle",   true_xz_angle );
+                        FillHisto( "TrueYZAngle",   true_yz_angle );
 
 
                         TLorentzVector true_muon_momentum = TrueCandidate->GetInitial4Momentum();
@@ -796,7 +821,7 @@ void spectro2::EndOfRunUser()
     h->Draw();
 
     int n = 15;
-    double x[n],xx[n],xy[n],xz[n], y[n], yx[n], yy[n], yz[n], ry[n], ryx[n], ryy[n], ryz[n],ey[n],eyx[n],eyy[n],eyz[n],ery[n],eryx[n],eryy[n],eryz[n];
+    double x[n],xx[n],xy[n],xz[n], y[n], yx[n], yy[n], yz[n], ry[n], ryx[n], ryy[n], ryz[n],ey[n],eyx[n],eyy[n],eyz[n],ery[n],eryx[n],eryy[n],eryz[n],anglexz[n],angleyz[n];
 
 
     for(int i=1;i<=15;i++)
@@ -805,6 +830,8 @@ void spectro2::EndOfRunUser()
         xx[i-1] = 0.026666666666666666*i-0.2;
         xy[i-1] = 0.026666666666666666*i-0.2;
         xz[i-1] = 5*i;
+        Anglexz[i-1] = 0.026666666666666666*i-0.2;
+        angleyz[i-1] = 0.026666666666666666*i-0.2;
 
         string intstr = to_string(i);
         TString num = TString(intstr);
@@ -812,6 +839,8 @@ void spectro2::EndOfRunUser()
         TH1* resx = fHisto.GetHisto(TString("ResolutionTempX") + num);
         TH1* resy = fHisto.GetHisto(TString("ResolutionTempY") + num);
         TH1* resz = fHisto.GetHisto(TString("ResolutionTempZ") + num);
+        TH1* angle_xzres = fHisto.GetHisto(TString("xzResolutionTemp") + num);
+        TH1* angle_yzres = fHisto.GetHisto(TString("yzResolutionTemp") + num);
 
         double integral = res->Integral();
         double integral_temp = res->Integral(1,500);
@@ -883,19 +912,62 @@ void spectro2::EndOfRunUser()
         double fitminz = resz->GetXaxis()->GetBinLowEdge(binx1z+resz_limits);
         double fitmaxz = resz->GetXaxis()->GetBinUpEdge(binx2z-res_limits);
 
+        double angle_xzintegral = angle_xzres->Integral();
+        double angle_xzintegral_temp = angle_xzres->Integral(1,500);
+        double angle_xzxmin = angle_xzres->GetXaxis()->GetXmin();
+        double angle_xzxmax = angle_xzres->GetXaxis()->GetXmax();
+        double angle_xzxbin = abs(angle_xzxmin) > abs(angle_xzxmax) ? abs(angle_xzxmax) : abs(angle_xzxmin);
+        int angle_xzbinx1 = angle_xzres->GetXaxis()->FindBin(-angle_xzxbin);
+        int angle_xzbinx2 = angle_xzres->GetXaxis()->FindBin(angle_xzxbin);
+        angle_xzintegral_temp = angle_xzres->Integral(angle_xzbinx1,angle_xzbinx2);
+        int angle_xzres_limits = 0;
+        while(abs(angle_xzintegral_temp) > abs(angle_xzintegral) * 0.98)
+        {
+            angle_xzintegral_temp = angle_xzres->Integral(angle_xzbinx1+angle_xzres_limits,angle_xzbinx2-angle_xzres_limits);
+            angle_xzres_limits++;
+        }
+        double angle_xzfitmin = angle_xzres->GetXaxis()->GetBinLowEdge(angle_xzbinx1+angle_xzres_limits);
+        double angle_xzfitmax = angle_xzres->GetXaxis()->GetBinUpEdge(angle_xzbinx2-angle_xzres_limits);
+
+
+        double angle_yzintegral = angle_yzres->Integral();
+        double angle_yzintegral_temp = angle_yzres->Integral(1,500);
+        double angle_yzxmin = angle_yzres->GetXaxis()->GetXmin();
+        double angle_yzxmax = angle_yzres->GetXaxis()->GetXmax();
+        double angle_yzxbin = abs(angle_yzxmin) > abs(angle_yzxmax) ? abs(angle_yzxmax) : abs(angle_yzxmin);
+        int angle_yzbinx1 = angle_yzres->GetXaxis()->FindBin(-angle_yzxbin);
+        int angle_yzbinx2 = angle_yzres->GetXaxis()->FindBin(angle_yzxbin);
+        angle_yzintegral_temp = angle_yzres->Integral(angle_yzbinx1,angle_yzbinx2);
+        int angle_yzres_limits = 0;
+        while(abs(angle_yzintegral_temp) > abs(angle_yzintegral) * 0.98)
+        {
+            angle_yzintegral_temp = angle_yzres->Integral(angle_yzbinx1+angle_yzres_limits,angle_yzbinx2-angle_yzres_limits);
+            angle_yzres_limits++;
+        }
+        double angle_yzfitmin = angle_yzres->GetXaxis()->GetBinLowEdge(angle_yzbinx1+angle_yzres_limits);
+        double angle_yzfitmax = angle_yzres->GetXaxis()->GetBinUpEdge(angle_yzbinx2-angle_yzres_limits);
+
+
 
         res->Fit("gaus","Q","",fitmin,fitmax);
         resx->Fit("gaus","Q","",fitminx,fitmaxx);
         resy->Fit("gaus","Q","",fitminy,fitmaxy);
         resz->Fit("gaus","Q","",fitminz,fitmaxz);
+        angle_xzres->Fit("gaus","Q","",angle_xzfitmin,angle_xzfitmax);
+        angle_yzres->Fit("gaus","Q","",angle_yzfitmin,angle_yzfitmax);
         res->Draw();
         resx->Draw();
         resy->Draw();
         resz->Draw();
+        angle_xzres->Draw();
+        angle_yzres->Draw();
         TF1* fit = res->GetFunction("gaus");
         TF1* fitx = resx->GetFunction("gaus");
         TF1* fity = resy->GetFunction("gaus");
         TF1* fitz = resz->GetFunction("gaus");
+        TF1* angle_xzfit = angle_xzres->GetFunction("gaus");
+        TF1* angle_yzfitz = angle_yzres->GetFunction("gaus");
+
         y[i-1] = fit->GetParameter(2);
         ey[i-1] = fit->GetParError(2);
         yx[i-1] = fitx->GetParameter(2);
@@ -904,16 +976,24 @@ void spectro2::EndOfRunUser()
         eyy[i-1] = fity->GetParError(2);
         yz[i-1] = fitz->GetParameter(2);
         eyz[i-1] = fitz->GetParError(2);
-	ry[i-1] = y[i-1] / x[i-1] ;
-	ery[i-1] = abs(ey[i-1] / x[i-1]) ;
+        angle_xzy[i-1] = angle_xzfit->GetParameter(2);
+        eangle_xzy[i-1] = angle_xzfit->GetParError(2);
+        angle_yzy[i-1] = angle_yzfitz->GetParameter(2);
+        eangle_yzy[i-1] = angle_yzfitz->GetParError(2);
+
+
+        ry[i-1] = y[i-1] / x[i-1] ;
+        ery[i-1] = abs(ey[i-1] / x[i-1]) ;
         ryx[i-1] = yx[i-1] / xx[i-1];
-	eryx[i-1] = abs(eyx[i-1] / xx[i-1]) ;
+        eryx[i-1] = abs(eyx[i-1] / xx[i-1]) ;
         ryy[i-1] = yy[i-1] / xy[i-1];
-	eryy[i-1] = abs(eyy[i-1] / xy[i-1]) ;
+        eryy[i-1] = abs(eyy[i-1] / xy[i-1]) ;
         ryz[i-1] = yz[i-1] / xz[i-1];
-	eryz[i-1] = abs(eyz[i-1] / xz[i-1]) ;
-
-
+        eryz[i-1] = abs(eyz[i-1] / xz[i-1]) ;
+        rangle_xzy = angle_xzy[i-1] / anglexz[i-1];
+        erangle_xzy = abs(eangle_xzy[i-1] / Anglexz[i-1]);
+        rangle_yzy = angle_yzy[i-1] / angleyz[i-1];
+        erangle_yzy = abs(eangle_yzy[i-1] / angleyz[i-1]);
     }
 
     TGraphErrors* graph = new TGraphErrors(n,x,y,0,ey);
@@ -924,6 +1004,11 @@ void spectro2::EndOfRunUser()
     BookHisto("YMtmResolutionVsYMtm", graphy);
     TGraphErrors* graphz = new TGraphErrors(n,xz,yz,0,eyz);
     BookHisto("ZMtmResolutionVsZMtm", graphz);
+    TGraphErrors* angle_xzgraph = new TGraphErrors(n,anglexz,angle_xzy,0,eangle_xzy);
+    BookHisto("angle_xzResolutionVsangle_xz", angle_xzgraph);
+    TGraphErrors* angle_yzgraph = new TGraphErrors(n,angleyz,angle_yzy,0,eangle_yzy);
+    BookHisto("angle_yzResolutionVsangle_yz", angle_yzgraph);
+
 
 
     TGraphErrors* rgraph = new TGraphErrors(n,x,ry,0,ery);
@@ -938,6 +1023,12 @@ void spectro2::EndOfRunUser()
     TGraphErrors* rgraphz = new TGraphErrors(n,xz,ryz,0,eryz);
     BookHisto("RelativeZMtmResolutionVsZMtm", rgraphz);
     //rgraphz->Fit("[0]+[1]x");
+    TGraphErrors* rangle_xzgraph = new TGraphErrors(n,anglexz,rangle_xzy,0,erangle_xzy);
+    BookHisto("Relativeangle_xzResolutionVsangle_xz", rangle_xzgraph);
+
+    TGraphErrors* rangle_yzgraph = new TGraphErrors(n,anglexz,rangle_yzy,0,erangle_yzy);
+    BookHisto("Relativeangle_yzResolutionVsangle_yz", rangle_yzgraph);
+
 
     SaveAllPlots();
 
