@@ -561,8 +561,8 @@ void spectro2::Process( int iEvent )
                     TVector3 true_position_start = TrueCandidate->GetProdPos().Vect();
                     TVector3 true_position_end = TrueCandidate->GetEndPos().Vect();
 
-                    double true_xz_angle = true_momentum[2] / true_momentum[0];
-                    double true_yz_angle = true_momentum[1] / true_momentum[0];
+                    double true_xz_angle = atan(true_momentum[2] / true_momentum[0]);
+                    double true_yz_angle = atan(true_momentum[1] / true_momentum[0]);
 
                     //Make sure the first true event decay product is a muon
                     if (true_momentum.Mag() != 0 && TrueCandidate -> GetPDGcode() == -13 && abs(true_momentum.Theta()) > 0 )
