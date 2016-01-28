@@ -21,7 +21,7 @@ class TTree;
 class TF1;
 
 const int NumberOfBins = 100;
-const double BeamAngleFromZAxis = -1.2E-3, pi = 3.141592653589793, SpeedOfLight = 299792458;
+const double BeamAngleFromZAxis = -1.2E-3, pi = 3.141592653589793, SpeedOfLight = 299792458,refractive_index = 1.160183663671307728521380769209707,RICH_focal_length = 17;
 
 class beam
 {
