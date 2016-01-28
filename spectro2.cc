@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <iostream>
+#include <iomanip>
+
 #include <TChain.h>
 #include <math.h>
 #include <list>
@@ -17,12 +19,14 @@ using namespace NA62Constants;
 
 int COUNTNUMBER = 0;
 spectro2::spectro2( Core::BaseAnalysis *ba ) : Analyzer( ba, "spectro" )
-{	//SOMETHING ELSE
+{   //SOMETHING ELSE
     RequestTree( "GigaTracker", new TRecoGigaTrackerEvent );
     RequestTree( "Spectrometer", new TRecoSpectrometerEvent );
     RequestTree( "LKr", new TRecoLKrEvent );
     RequestTree( "MUV3", new TRecoMUV3Event );
     RequestTree( "CEDAR", new TRecoCedarEvent );
+    RequestTree( "LAV", new TRecoLAVEvent );
+    RequestTree( "RICH", new TRecoRICHEvent);
 
 }
 
@@ -265,7 +269,7 @@ void spectro2::InitHist()
     CreateHist1D("MissingMass", "Missing Mass Squared", NumberOfBins, -0.2, 0.2);
     SetHistAxisLabels("MissingMass","Missing Mass Squared, GeV /c","Number of Entries");
 
-	CreateHist1D("TrueMissingMass", "True Missing Mass Squared", 1000, 0, 0);
+    CreateHist1D("TrueMissingMass", "True Missing Mass Squared", 1000, 0, 0);
     SetHistAxisLabels("TrueMissingMass","True Missing Mass Squared","Number of Entries");
 
     CreateHist1D("SpectrometerXMomentumResolution", "Spectrometer x Momentum Resolution", NumberOfBins, 0, 0);
@@ -326,7 +330,7 @@ void spectro2::InitHist()
     h55 -> GetYaxis() -> SetTitle( "GeV" );
     BookHisto( h55 );
 
-
+    /*
     for(int i=1;i<=15;i++)
     {
 
@@ -337,6 +341,7 @@ void spectro2::InitHist()
         CreateHist1D(TString("ResolutionTempY") + num, "Title", 500,0,0);
         CreateHist1D(TString("ResolutionTempZ") + num, "Title", 500,0,0);
     }
+
     for(int i=1;i<=15;i++)
     {
         string intstr = to_string(i);
@@ -344,7 +349,7 @@ void spectro2::InitHist()
         CreateHist1D(TString("xzResolutionTemp") + num, "Title", 500,0,0);
         CreateHist1D(TString("yzResolutionTemp") + num, "Title", 500,0,0);
     }
-
+    */
 
 
     TH2D* h56 = new TH2D( "MissingMassVsZPosition", "Missing Mass Vs Z position", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
@@ -357,17 +362,14 @@ void spectro2::InitHist()
     h14 -> GetXaxis() -> SetTitle( "Momentum MeV" );
     h14 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h14 );
-
    TH1D* h15 = new TH1D( "TrueMuonyMomentumHist", "True Muon y Momentum", NumberOfBins, 0, 0 );
     h15 -> GetXaxis() -> SetTitle( "Momentum MeV" );
     h15 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h15 );
-
    TH1D* h16 = new TH1D( "TrueMuonzMomentumHist", "True Muon z Momentum", NumberOfBins, 0, 0 );
     h16 -> GetXaxis() -> SetTitle( "Momentum GeV" );
     h16 -> GetYaxis() -> SetTitle( "Number of Entries" );
     BookHisto( h16 );
-
     TH1D* h17 = new TH1D( "TrueMuonEnergyHist", "True Muon z Momentum", NumberOfBins, 0, 0 );
     h17 -> GetXaxis() -> SetTitle( "Energy GeV" );
     h17 -> GetYaxis() -> SetTitle( "Number of Entries" );
@@ -407,71 +409,99 @@ void spectro2::SaveAllPlotsPDF()
 
 TVector3 ClosestPointOnVectorToOtherVector( TVector3 Vector1Position, TVector3 Vector1Direction, TVector3 Vector2Position, TVector3 Vector2Direction) //14th November
 {
-	double a,b,c,d,e, VectorScale1, VectorScale2;
-	a = Vector1Direction.Dot( Vector1Direction );
-	b = Vector1Direction.Dot( Vector2Direction );
-	c = Vector2Direction.Dot( Vector2Direction );
-	d = Vector1Direction.Dot( ( Vector1Position - Vector2Position ) );
-	e = Vector2Direction.Dot( ( Vector1Position - Vector2Position ) );
-	//f = ( Vector1Position - Vector2Position ).Dot( ( Vector1Position - Vector2Position ) );
-	VectorScale1 = ( b * e - c * d ) / ( a * c - pow( b, 2 ) );
-	VectorScale2 = ( a * e - b * d ) / ( a * c - pow( b, 2 ) );
+    double a,b,c,d,e, VectorScale1, VectorScale2;
+    a = Vector1Direction.Dot( Vector1Direction );
+    b = Vector1Direction.Dot( Vector2Direction );
+    c = Vector2Direction.Dot( Vector2Direction );
+    d = Vector1Direction.Dot( ( Vector1Position - Vector2Position ) );
+    e = Vector2Direction.Dot( ( Vector1Position - Vector2Position ) );
+    //f = ( Vector1Position - Vector2Position ).Dot( ( Vector1Position - Vector2Position ) );
+    VectorScale1 = ( b * e - c * d ) / ( a * c - pow( b, 2 ) );
+    VectorScale2 = ( a * e - b * d ) / ( a * c - pow( b, 2 ) );
 
-	TVector3 ClosestPointOnVector1 = Vector1Position + VectorScale1 * Vector1Direction;
-	TVector3 ClosestPointOnVector2 = Vector2Position + VectorScale2 * Vector2Direction;
-	return ClosestPointOnVector1;
+    TVector3 ClosestPointOnVector1 = Vector1Position + VectorScale1 * Vector1Direction;
+    TVector3 ClosestPointOnVector2 = Vector2Position + VectorScale2 * Vector2Direction;
+    return ClosestPointOnVector1;
 }
 
 TLorentzVector ClosestSpaceTimePointOnVectorToOtherVector( TVector3 Vector1Position, TVector3 Vector1Momentum, double Mass1, double Time1, TVector3 Vector2Position, TVector3 Vector2Momentum, double Mass2, double Time2) //14th November
 {
-	double b,d, VectorScale1, VectorScale2, ClosestTime1, ClosestTime2;
-	TVector3  A, B, C, D;
-	//MAY NEED TO SCALE TIME1 AND TIME2 TO GET THEM IN SECONDS. DON'T KNOW WHAT THEY OUTPUT.
-	A = Vector1Position * pow( 1000., -1 );
-	B = Vector1Momentum.Unit();
-	C = Vector2Position * pow( 1000., -1 );
-	D = Vector2Momentum.Unit();
-	b = Vector1Momentum.Mag() * pow ( 10 , 6 ) * 5.3442883 * pow( 10, -28 );
-	d = Vector2Momentum.Mag() * pow ( 10 , 6 ) * 5.3442883 * pow( 10, -28 );
-	//Time1 = Time1;
+    double b,d, VectorScale1, VectorScale2, ClosestTime1, ClosestTime2;
+    TVector3  A, B, C, D;
+    //MAY NEED TO SCALE TIME1 AND TIME2 TO GET THEM IN SECONDS. DON'T KNOW WHAT THEY OUTPUT.
+    A = Vector1Position * pow( 1000., -1 );
+    B = Vector1Momentum.Unit();
+    C = Vector2Position * pow( 1000., -1 );
+    D = Vector2Momentum.Unit();
+    b = Vector1Momentum.Mag() * pow ( 10 , 6 ) * 5.3442883 * pow( 10, -28 );
+    d = Vector2Momentum.Mag() * pow ( 10 , 6 ) * 5.3442883 * pow( 10, -28 );
+    //Time1 = Time1;
     //Time2 = Time2;
-	VectorScale1 = ( ( pow( d, 2 ) - pow( SpeedOfLight, 2 ) ) * ( pow( SpeedOfLight, 2 ) * ( Time2 - Time1 ) - ( C - A ).Dot( b * B ) ) + ( ( d * D ).Dot( b * B ) - pow( SpeedOfLight, 2 ) ) * ( ( C - A ).Dot( d * D ) - pow( SpeedOfLight, 2 ) * ( Time2 - Time1 ) ) ) / ( pow( SpeedOfLight, 2 ) * pow ( ( d - b ), 2 ) );
-	VectorScale2 = ( ( pow( b, 2 ) - pow( SpeedOfLight, 2 ) ) * VectorScale1 - ( C - A ).Dot( b * B ) + pow( SpeedOfLight , 2 ) * ( Time2 - Time1 ) ) / ( (d * D ).Dot( b * B ) - pow( SpeedOfLight, 2 ) );
-	TVector3 ClosestPointOnVector1 = A + VectorScale1 * B * b * pow( sqrt( pow( Mass1, 2 ) + pow( b, 2 ) / pow ( SpeedOfLight , 2 ) ), -1 );
-	TVector3 ClosestPointOnVector2 = C + VectorScale2 * D * d * pow( sqrt( pow( Mass2, 2 ) + pow( d, 2 ) / pow ( SpeedOfLight , 2 ) ), -1 );
-	ClosestTime1 = Time1 + VectorScale1;
-	ClosestTime2 = Time2 + VectorScale2;
-	TLorentzVector ClosestSpaceTimePointOnVector1, ClosestSpaceTimePointOnVector2;
-	ClosestSpaceTimePointOnVector1.SetVect( ClosestPointOnVector1 );
-	ClosestSpaceTimePointOnVector1(3) = ClosestTime1;
-	ClosestSpaceTimePointOnVector2.SetVect( ClosestPointOnVector2 );
-	ClosestSpaceTimePointOnVector2(3) = ClosestTime2;
-	return ClosestSpaceTimePointOnVector1;
+    VectorScale1 = ( ( pow( d, 2 ) - pow( SpeedOfLight, 2 ) ) * ( pow( SpeedOfLight, 2 ) * ( Time2 - Time1 ) - ( C - A ).Dot( b * B ) ) + ( ( d * D ).Dot( b * B ) - pow( SpeedOfLight, 2 ) ) * ( ( C - A ).Dot( d * D ) - pow( SpeedOfLight, 2 ) * ( Time2 - Time1 ) ) ) / ( pow( SpeedOfLight, 2 ) * pow ( ( d - b ), 2 ) );
+    VectorScale2 = ( ( pow( b, 2 ) - pow( SpeedOfLight, 2 ) ) * VectorScale1 - ( C - A ).Dot( b * B ) + pow( SpeedOfLight , 2 ) * ( Time2 - Time1 ) ) / ( (d * D ).Dot( b * B ) - pow( SpeedOfLight, 2 ) );
+    TVector3 ClosestPointOnVector1 = A + VectorScale1 * B * b * pow( sqrt( pow( Mass1, 2 ) + pow( b, 2 ) / pow ( SpeedOfLight , 2 ) ), -1 );
+    TVector3 ClosestPointOnVector2 = C + VectorScale2 * D * d * pow( sqrt( pow( Mass2, 2 ) + pow( d, 2 ) / pow ( SpeedOfLight , 2 ) ), -1 );
+    ClosestTime1 = Time1 + VectorScale1;
+    ClosestTime2 = Time2 + VectorScale2;
+    TLorentzVector ClosestSpaceTimePointOnVector1, ClosestSpaceTimePointOnVector2;
+    ClosestSpaceTimePointOnVector1.SetVect( ClosestPointOnVector1 );
+    ClosestSpaceTimePointOnVector1(3) = ClosestTime1;
+    ClosestSpaceTimePointOnVector2.SetVect( ClosestPointOnVector2 );
+    ClosestSpaceTimePointOnVector2(3) = ClosestTime2;
+    return ClosestSpaceTimePointOnVector1;
 }
 
 
 void spectro2::Process( int iEvent )
 {
-	//if( fMCSimple.fStatus == MCSimple::kMissing ){printIncompleteMCWarning( iEvent );return;}
+    //if( fMCSimple.fStatus == MCSimple::kMissing ){printIncompleteMCWarning( iEvent );return;}
     //if( fMCSimple.fStatus == MCSimple::kEmpty ){printNoMCWarning();return;}
 
     // Get the events from each detector
-	TRecoSpectrometerEvent *SpectrometerEvent = ( TRecoSpectrometerEvent* )GetEvent( "Spectrometer" );
+    TRecoSpectrometerEvent *SpectrometerEvent = ( TRecoSpectrometerEvent* )GetEvent( "Spectrometer" );
     TRecoLKrEvent *LKrEvent = ( TRecoLKrEvent* )GetEvent( "LKr" );
     TRecoMUV3Event *MUV3Event = ( TRecoMUV3Event* )GetEvent( "MUV3" );
     TRecoCedarEvent *CEDAREvent = ( TRecoCedarEvent* )GetEvent( "CEDAR" );
+    TRecoLAVEvent *LAVEvent = ( TRecoLAVEvent* )GetEvent( "LAV" );
+    TRecoRICHEvent *RICHEvent = ( TRecoRICHEvent*)GetEvent( "RICH" );
+
     //Get truth event
     Event *MCTruthEvent = GetMCEvent();
+    bool cluster_energetic_enough = false;
+    bool ring_correct_size = false;
+    int LKrCandidates = LKrEvent-> GetNCandidates();
+    double cluster_energy[ 100 ] = { 0 };
+    double ring_radius = 0;
+    TVector3 true_muon_velocity_squared;
 
-	//Check to see if an event was detected in the spectrometer
-	if( SpectrometerEvent->GetNCandidates() >= 1 )
-	{
-		//Loop through each detected particle in the spectrometer
-		for ( int k = 0; k < SpectrometerEvent->GetNCandidates(); k++ )
-		{
-			//Get the candidate from the spectrometer event
-			TRecoSpectrometerCandidate *SpectroCandidate = (TRecoSpectrometerCandidate*)SpectrometerEvent->GetCandidate(k);
-			SpectroCandidate->SetEvent(SpectrometerEvent);
+    //Check to see if an event was detected in the spectrometer
+    if( SpectrometerEvent->GetNCandidates() >= 1 )
+    {
+      if ( LKrEvent->GetNCandidates() >= 1 )
+      {
+
+        for ( int k = 0; k < LKrEvent-> GetNCandidates(); k++ )
+        {
+          TRecoLKrCandidate *LKrCandidate = (TRecoLKrCandidate*)LKrEvent->GetCandidate(k);
+          LKrCandidate->SetEvent(LKrEvent);
+          cluster_energy[k] = LKrCandidate->GetClusterEnergy();
+        }
+      }
+
+      if ( RICHEvent->GetNRingCandidates() == 1 )
+      {
+          TRecoRICHCandidate *RICHCandidate = (TRecoRICHCandidate*)RICHEvent->GetCandidate(0);
+          RICHCandidate->SetEvent(RICHEvent);
+          ring_radius = RICHCandidate->GetRingRadius();
+      }
+
+
+        //Loop through each detected particle in the spectrometer
+        for ( int k = 0; k < SpectrometerEvent->GetNCandidates(); k++ )
+        {
+            //Get the candidate from the spectrometer event
+            TRecoSpectrometerCandidate *SpectroCandidate = (TRecoSpectrometerCandidate*)SpectrometerEvent->GetCandidate(k);
+            SpectroCandidate->SetEvent(SpectrometerEvent);
 
             //Get the three momentum of the candidate from the spectrometer before the magnet
             TVector3 momentum = SpectroCandidate->GetThreeMomentumBeforeMagnet();
@@ -500,7 +530,7 @@ void spectro2::Process( int iEvent )
             {
                 decay_area = 1;
             }
-            else if ( closest_point_from_baxis_after_fiducial[2] >= 104000 /*104000*/ && closest_point_from_baxis_after_fiducial[2] <= 166000 )
+            else if ( closest_point_from_baxis_after_fiducial[2] >= 130000 /*104000*/ && closest_point_from_baxis_after_fiducial[2] <= 166000 )
             {
                 decay_area = 2;
             }
@@ -525,10 +555,32 @@ void spectro2::Process( int iEvent )
             TLorentzVector muon_momentum;
             muon_momentum.SetVect(momentum); //Set xyz components to muon 3-momentum
             muon_momentum[3] = muon_energy; //Set time component to muon energy
+        TVector3 muon_velocity_squared;
+        muon_velocity_squared[0] = muon_momentum[0] * pow( SpeedOfLight,2  ) / muon_energy;
+        muon_velocity_squared[1] = muon_momentum[1] * pow( SpeedOfLight,2  ) / muon_energy;
+        muon_velocity_squared[2] = muon_momentum[2] * pow( SpeedOfLight,2  ) / muon_energy;
 
             //Calculate missing mass squared
             TLorentzVector missing_mass = kaon_momentum - muon_momentum;
 
+
+        for ( int k = 0; k < LKrEvent-> GetNCandidates(); k++ )
+        {
+          if ( cluster_energy[k] >= muon_energy * 20 / 100 )
+          {
+        cluster_energetic_enough = true;
+        break;
+          }
+        }
+        double velocity = sqrt((pow((ring_radius / RICH_focal_length),2)+1))/refractive_index;
+        if ( RICHEvent-> GetNRingCandidates() == 1 )
+        {
+
+          if ( ( sqrt( muon_velocity_squared.Mag() ) / SpeedOfLight ) / velocity <= 1.000002 && ( sqrt( muon_velocity_squared.Mag() ) / SpeedOfLight ) / velocity >= 0.999998 )
+          {
+        ring_correct_size = true;
+          }
+        }
 
             ///////////////////////////////////
             // Plot Histos with Restrictions //
@@ -539,14 +591,17 @@ void spectro2::Process( int iEvent )
                   decay_area == 2  &&//Decay in Fiducial Region //I think this should be decay_area > 0
                   missing_mass.Mag2() / pow( 1000, 2 ) < 2000 &&//Have Missing Mass Correct for Decay
                   LKrEvent->GetNCandidates() >= 1 && // Be detected in LKr
-                  MUV3Event->GetNCandidates() >= 1// Be detected in MUV3
+                  MUV3Event->GetNCandidates() >= 1 &&// Be detected in MUV3
                   //CEDAREvent->GetNCandidates() >=1 // Be detected in CEDAR
                   //CEDAREvent->GetNHits() >=10 //Have atleast 10 hits in the CEDAR
+                  //cluster_energetic_enough == true && //Cluster in LKr should have energy greater than 20% of muon energy
+          LAVEvent->GetNCandidates() == 0 &&//No muon should be detected in the LAV.
+          ring_correct_size == true //RICH should detect a muon.
                 )
             {
 
                 //true stuff here
-
+        /*
                 if ( MCTruthEvent -> GetNKineParts() >= 1 )
                 {
 
@@ -561,8 +616,8 @@ void spectro2::Process( int iEvent )
                     TVector3 true_position_start = TrueCandidate->GetProdPos().Vect();
                     TVector3 true_position_end = TrueCandidate->GetEndPos().Vect();
 
-                    double true_xz_angle = atan(true_momentum[2] / true_momentum[0]);
-                    double true_yz_angle = atan(true_momentum[1] / true_momentum[0]);
+                    double true_xz_angle = atan(true_momentum[0] / true_momentum[2]);
+                    double true_yz_angle = atan(true_momentum[1] / true_momentum[2]);
 
                     //Make sure the first true event decay product is a muon
                     if (true_momentum.Mag() != 0 && TrueCandidate -> GetPDGcode() == -13 && abs(true_momentum.Theta()) > 0 )
@@ -603,13 +658,13 @@ void spectro2::Process( int iEvent )
 
                         for(int i=1;i<=15;i++)
                         {
-                            if(true_xz_angle < pi/15*i - pi / 2 && true_xz_angle >= pi/15*(i-1) - pi / 2 )
+                            if(true_xz_angle < 0.0015333*i - 0.008 && true_xz_angle >= 0.0015333*(i-1) -0.008 )
                             {
                                 string intstr = to_string(i);
                                 TString num = TString(intstr);
                                 FillHisto(TString("xzResolutionTemp") + num, ( true_xz_angle - reco_xz_angle ) );
                             }
-                            if(true_yz_angle < pi/15*i - pi / 2 && true_yz_angle >= pi/15*(i-1) - pi / 2 )
+                            if(true_yz_angle < (0.012/7.5)*i -0.012 && true_yz_angle >= (0.012/7.5)*(i-1) -0.012 )
                             {
                                 string intstr = to_string(i);
                                 TString num = TString(intstr);
@@ -677,11 +732,14 @@ void spectro2::Process( int iEvent )
                         TLorentzVector true_muon_momentum = TrueCandidate->GetInitial4Momentum();
                         //TLorentzVector TrueMuonMomentum = TrueCandidate->GetMomAtCheckPoint(2);
                         TLorentzVector true_missing_mass = true_kaon_momentum - true_muon_momentum;
+            true_muon_velocity_squared[0] = true_muon_momentum[0] * pow( SpeedOfLight,2  ) / true_muon_momentum[3];
+            true_muon_velocity_squared[1] = true_muon_momentum[1] * pow( SpeedOfLight,2  ) / true_muon_momentum[3];
+            true_muon_velocity_squared[2] = true_muon_momentum[2] * pow( SpeedOfLight,2  ) / true_muon_momentum[3];
 
                         FillHisto("TrueMissingMass", true_missing_mass.Mag2() / ( pow( 1000, 2 ) ) );
                     }
                 }
-
+        */
 
 
                 //Reco stuff
@@ -689,8 +747,8 @@ void spectro2::Process( int iEvent )
                 FillHisto("XZAngle", reco_xz_angle);
                 FillHisto("YZAngle", reco_yz_angle);
                 TVector3 Direction;
-                Direction[0] = 1 / tan( reco_xz_angle );
-                Direction[1] = 1 / tan( reco_yz_angle );
+                Direction[0] = 1 * tan( reco_xz_angle );
+                Direction[1] = 1 * tan( reco_yz_angle );
                 Direction[2] = 1;
                 Direction = Direction.Unit(); //Normalize
                 TVector3 ReconstructedMomentum = Direction * momentum.Mag();
@@ -735,7 +793,7 @@ void spectro2::Process( int iEvent )
                     FillHisto( "ClosestyDistanceToBeamAxis", dist_to_baxis_before_fiducial[1] );
                     FillHisto( "ClosestzDistanceToBeamAxis", dist_to_baxis_before_fiducial[2] );
                     FillHisto( "DecayPoisition",             closest_point_from_baxis_before_fiducial[2] / 1000. , closest_point_from_baxis_before_fiducial[0] );
-		    FillHisto("MissingMassVsZPosition",      closest_point_from_baxis_before_fiducial[2] / 1000. , missing_mass.Mag2()/ pow(1000,2));
+            FillHisto("MissingMassVsZPosition",      closest_point_from_baxis_before_fiducial[2] / 1000. , missing_mass.Mag2()/ pow(1000,2));
 
                 }
                 if (decay_area == 2)
@@ -750,12 +808,13 @@ void spectro2::Process( int iEvent )
                     FillHisto( "ClosestyDistanceToBeamAxis", dist_to_baxis_after_fiducial[1] );
                     FillHisto( "ClosestzDistanceToBeamAxis", dist_to_baxis_after_fiducial[2] );
                     FillHisto( "DecayPoisition",             closest_point_from_baxis_after_fiducial[2] / 1000. , closest_point_from_baxis_after_fiducial[0] );
-		    FillHisto("MissingMassVsZPosition",	     closest_point_from_baxis_after_fiducial[2] / 1000. , missing_mass.Mag2()/ pow(1000,2));
+            FillHisto("MissingMassVsZPosition",      closest_point_from_baxis_after_fiducial[2] / 1000. , missing_mass.Mag2()/ pow(1000,2));
 
                 }
+
             }
-		}
-	}
+        }
+    }
 }
 
 void spectro2::PostProcess()
@@ -815,7 +874,7 @@ void spectro2::EndOfRunUser()
     BookHisto(h65);
     fHisto.GetHisto("zMomentumHist")->Copy(*h65);
     h65->Divide(fHisto.GetHisto("DetectorzEfficiencyMomentum"));
-
+    /*
     TH1* h = fHisto.GetHisto("MissingMass");
     h->Fit("gaus");
     h->Draw();
@@ -826,12 +885,14 @@ void spectro2::EndOfRunUser()
 
     for(int i=1;i<=15;i++)
     {
+
+
         x[i-1] = 5*i;
         xx[i-1] = 0.026666666666666666*i-0.2;
         xy[i-1] = 0.026666666666666666*i-0.2;
         xz[i-1] = 5*i;
-        anglexz[i-1] = pi/15*i - pi / 2;
-        angleyz[i-1] = pi/15*i - pi / 2;
+        anglexz[i-1] = 0.0015333*i - 0.008;
+    angleyz[i-1] = (0.012/7.5)*i - 0.012;
 
         string intstr = to_string(i);
         TString num = TString(intstr);
@@ -978,7 +1039,7 @@ void spectro2::EndOfRunUser()
         eyz[i-1] = fitz->GetParError(2);
         angle_xzy[i-1] = angle_xzfit->GetParameter(2);
         eangle_xzy[i-1] = angle_xzfit->GetParError(2);
-        angle_yzy[i-1] = angle_yzfitz->GetParameter(2);
+    angle_yzy[i-1] = angle_yzfitz->GetParameter(2);
         eangle_yzy[i-1] = angle_yzfitz->GetParError(2);
 
 
@@ -991,9 +1052,9 @@ void spectro2::EndOfRunUser()
         ryz[i-1] = yz[i-1] / xz[i-1];
         eryz[i-1] = abs(eyz[i-1] / xz[i-1]) ;
         rangle_xzy[i-1] = angle_xzy[i-1] / anglexz[i-1];
-        erangle_xzy[i-1] = abs(eangle_xzy[i-1] / anglexz[i-1]);
+    erangle_xzy[i-1] = abs(eangle_xzy[i-1] / anglexz[i-1]);
         rangle_yzy[i-1] = angle_yzy[i-1] / angleyz[i-1];
-        erangle_yzy[i-1] = abs(eangle_yzy[i-1] / angleyz[i-1]);
+    erangle_yzy[i-1] = abs(eangle_yzy[i-1] / angleyz[i-1]);
     }
 
     TGraphErrors* graph = new TGraphErrors(n,x,y,0,ey);
@@ -1029,7 +1090,7 @@ void spectro2::EndOfRunUser()
     TGraphErrors* rangle_yzgraph = new TGraphErrors(n,anglexz,rangle_yzy,0,erangle_yzy);
     BookHisto("Relativeangle_yzResolutionVsangle_yz", rangle_yzgraph);
 
-
+*/
     SaveAllPlots();
 
 }
