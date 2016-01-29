@@ -11,6 +11,7 @@
 #include "Event.hh"
 #include "Persistency.hh"
 
+
 #include "TRecoGigaTrackerEvent.hh"
 #include "TRecoSpectrometerEvent.hh"
 using namespace std;
@@ -26,7 +27,7 @@ spectro2::spectro2( Core::BaseAnalysis *ba ) : Analyzer( ba, "spectro" )
     RequestTree( "MUV3", new TRecoMUV3Event );
     RequestTree( "CEDAR", new TRecoCedarEvent );
     RequestTree( "LAV", new TRecoLAVEvent );
-    RequestTree( "RICH", new TRecoRICHEvent);
+    RequestTree( "RICH", new TRecoRICHEvent );
 
 }
 
@@ -309,6 +310,11 @@ void spectro2::InitHist()
     CreateHist1D("TrueYZAngle", "TrueYZAngle", NumberOfBins, 0, 0);
     SetHistAxisLabels("TrueYZAngle","Radians","Number of Entries");
 
+    CreateHist1D("cluster energy", "cluster energy", NumberOfBins, 0, 0);
+    SetHistAxisLabels("Cluster Energy GeV","Counts","Number of Entries");
+
+    CreateHist1D("Energyclusterenergy", "Energyclusterenergy", NumberOfBins, 0, 0);
+    SetHistAxisLabels("Energy / ClusterEnergy","Counts","Number of Entries");
 
     TH2D* h52 = new TH2D( "SpectrometerXMomentumResolutionAgainstXMomentum", "x Momentum Resolution Against x Momentum", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
     h52 -> GetXaxis() -> SetTitle( "MeV" );
@@ -465,10 +471,11 @@ void spectro2::Process( int iEvent )
     TRecoLAVEvent *LAVEvent = ( TRecoLAVEvent* )GetEvent( "LAV" );
     TRecoRICHEvent *RICHEvent = ( TRecoRICHEvent*)GetEvent( "RICH" );
 
+
     //Get truth event
     Event *MCTruthEvent = GetMCEvent();
-    bool cluster_energetic_enough = false;
-    bool ring_correct_size = false;
+    bool cluster_energetic_enough = true;
+    bool ring_correct_size = true;
     int LKrCandidates = LKrEvent-> GetNCandidates();
     double cluster_energy[ 100 ] = { 0 };
     double ring_radius = 0;
@@ -485,6 +492,7 @@ void spectro2::Process( int iEvent )
           TRecoLKrCandidate *LKrCandidate = (TRecoLKrCandidate*)LKrEvent->GetCandidate(k);
           LKrCandidate->SetEvent(LKrEvent);
           cluster_energy[k] = LKrCandidate->GetClusterEnergy();
+          cluster_energetic_enough = false;
         }
       }
 
@@ -493,6 +501,7 @@ void spectro2::Process( int iEvent )
           TRecoRICHCandidate *RICHCandidate = (TRecoRICHCandidate*)RICHEvent->GetCandidate(0);
           RICHCandidate->SetEvent(RICHEvent);
           ring_radius = RICHCandidate->GetRingRadius();
+          bool ring_correct_size = false;
       }
 
 
@@ -507,6 +516,7 @@ void spectro2::Process( int iEvent )
             TVector3 momentum = SpectroCandidate->GetThreeMomentumBeforeMagnet();
             //Get the three position of the candidate from the spectrometer before the magnet
             TVector3 position_start = SpectroCandidate->GetPositionBeforeMagnet();
+            TVector3 test;
 
             //Lots of calculations
             double min_dist_to_baxis_before_fiducial = ((b.fiducial_entry - position_start).Dot(b.beam_axis.Cross(momentum))) / b.beam_axis.Cross(momentum).Mag();
@@ -522,15 +532,15 @@ void spectro2::Process( int iEvent )
             /////////////////////
             // Geometric Stuff //
             /////////////////////
-
             int decay_area = 0; //Initialise variable to determine where the particle decayed from. 0 is not in the beam, 1 is before the fiducial, 2 is in the fiducial.
             //Finds whether the muon comes from before or after the first magnet
             if(closest_point_from_baxis_before_fiducial[2] <= 104000 &&
               (closest_point_from_baxis_after_fiducial[2] < 104000 || abs(dist_to_baxis_before_fiducial.Mag()) < abs(dist_to_baxis_after_fiducial.Mag())))
             {
                 decay_area = 1;
+
             }
-            else if ( closest_point_from_baxis_after_fiducial[2] >= 130000 /*104000*/ && closest_point_from_baxis_after_fiducial[2] <= 166000 )
+            else if ( closest_point_from_baxis_after_fiducial[2] >= 140000 /*104000*/ && closest_point_from_baxis_after_fiducial[2] <= 166000 )
             {
                 decay_area = 2;
             }
@@ -555,10 +565,10 @@ void spectro2::Process( int iEvent )
             TLorentzVector muon_momentum;
             muon_momentum.SetVect(momentum); //Set xyz components to muon 3-momentum
             muon_momentum[3] = muon_energy; //Set time component to muon energy
-        TVector3 muon_velocity_squared;
-        muon_velocity_squared[0] = muon_momentum[0] * pow( SpeedOfLight,2  ) / muon_energy;
-        muon_velocity_squared[1] = muon_momentum[1] * pow( SpeedOfLight,2  ) / muon_energy;
-        muon_velocity_squared[2] = muon_momentum[2] * pow( SpeedOfLight,2  ) / muon_energy;
+            TVector3 muon_velocity_squared;
+            muon_velocity_squared[0] = muon_momentum[0] * pow( SpeedOfLight,2  ) / muon_energy;
+            muon_velocity_squared[1] = muon_momentum[1] * pow( SpeedOfLight,2  ) / muon_energy;
+            muon_velocity_squared[2] = muon_momentum[2] * pow( SpeedOfLight,2  ) / muon_energy;
 
             //Calculate missing mass squared
             TLorentzVector missing_mass = kaon_momentum - muon_momentum;
@@ -566,42 +576,41 @@ void spectro2::Process( int iEvent )
 
         for ( int k = 0; k < LKrEvent-> GetNCandidates(); k++ )
         {
-          if ( cluster_energy[k] >= muon_energy * 20 / 100 )
-          {
-        cluster_energetic_enough = true;
-        break;
-          }
+          if ( cluster_energy[k] <= muon_momentum[3] / 1000 && cluster_energy[k] >= muon_momentum[3] / 140000 )
+            {
+                cluster_energetic_enough = true;
+                break;
+            }
         }
+
         double velocity = sqrt((pow((ring_radius / RICH_focal_length),2)+1))/refractive_index;
         if ( RICHEvent-> GetNRingCandidates() == 1 )
         {
-
           if ( ( sqrt( muon_velocity_squared.Mag() ) / SpeedOfLight ) / velocity <= 1.000002 && ( sqrt( muon_velocity_squared.Mag() ) / SpeedOfLight ) / velocity >= 0.999998 )
-          {
-        ring_correct_size = true;
-          }
+            {
+                ring_correct_size = true;
+            }
         }
-
             ///////////////////////////////////
             // Plot Histos with Restrictions //
             ///////////////////////////////////
             //Attempts to select only the muon
-            if  ( SpectroCandidate->GetCharge() == 1 &&   //Positive Charge
-                  SpectrometerEvent->GetNCandidates() == 1 && //Single Detection In Spectrometer
-                  decay_area == 2  &&//Decay in Fiducial Region //I think this should be decay_area > 0
-                  missing_mass.Mag2() / pow( 1000, 2 ) < 2000 &&//Have Missing Mass Correct for Decay
-                  LKrEvent->GetNCandidates() >= 1 && // Be detected in LKr
-                  MUV3Event->GetNCandidates() >= 1 &&// Be detected in MUV3
-                  //CEDAREvent->GetNCandidates() >=1 // Be detected in CEDAR
-                  //CEDAREvent->GetNHits() >=10 //Have atleast 10 hits in the CEDAR
-                  //cluster_energetic_enough == true && //Cluster in LKr should have energy greater than 20% of muon energy
-          LAVEvent->GetNCandidates() == 0 &&//No muon should be detected in the LAV.
-          ring_correct_size == true //RICH should detect a muon.
+            if  (   SpectroCandidate->GetCharge() == 1  //Positive Charge
+                    && SpectrometerEvent->GetNCandidates() == 1 //Single Detection In Spectrometer
+                    && decay_area == 2  //Decay in Fiducial Region //34728 particles when running on 100,000 munu.
+                    && LKrEvent->GetNCandidates() >= 1  // Be detected in LKr //27429
+                    && cluster_energetic_enough == true //IF a cluster is in the LKr, it should have energy greater than 1/1000 of muon energy and less than 1/140000 //27273
+                    && ring_correct_size == true //IF a ring is in the RICH, it should be consistent with a muon.
+                    //&& MUV3Event->GetNCandidates() >= 1 // Be detected in MUV3 IF DETECTED PARTICLE WOULD HIT IT //28629 without detector acceptance,
+                    //&& LAVEvent->GetNCandidates() == 0 //No muon should be detected in the LAV. //30218
+                    //&& CEDAREvent->GetNCandidates() >=1 // Be detected in CEDAR
+                    //&& CEDAREvent->GetNHits() >=10 //Have atleast 10 hits in the CEDAR
+                    //&& missing_mass.Mag2() / pow( 1000, 2 ) < 2000 //Have Missing Mass Correct for Decay
                 )
             {
 
                 //true stuff here
-        /*
+
                 if ( MCTruthEvent -> GetNKineParts() >= 1 )
                 {
 
@@ -729,6 +738,7 @@ void spectro2::Process( int iEvent )
                         FillHisto( "TrueYZAngle",   true_yz_angle );
 
 
+
                         TLorentzVector true_muon_momentum = TrueCandidate->GetInitial4Momentum();
                         //TLorentzVector TrueMuonMomentum = TrueCandidate->GetMomAtCheckPoint(2);
                         TLorentzVector true_missing_mass = true_kaon_momentum - true_muon_momentum;
@@ -737,9 +747,11 @@ void spectro2::Process( int iEvent )
             true_muon_velocity_squared[2] = true_muon_momentum[2] * pow( SpeedOfLight,2  ) / true_muon_momentum[3];
 
                         FillHisto("TrueMissingMass", true_missing_mass.Mag2() / ( pow( 1000, 2 ) ) );
+                        FillHisto( "Energyclusterenergy", true_muon_momentum[3] / cluster_energy[0] );
+
                     }
                 }
-        */
+
 
 
                 //Reco stuff
@@ -808,7 +820,7 @@ void spectro2::Process( int iEvent )
                     FillHisto( "ClosestyDistanceToBeamAxis", dist_to_baxis_after_fiducial[1] );
                     FillHisto( "ClosestzDistanceToBeamAxis", dist_to_baxis_after_fiducial[2] );
                     FillHisto( "DecayPoisition",             closest_point_from_baxis_after_fiducial[2] / 1000. , closest_point_from_baxis_after_fiducial[0] );
-            FillHisto("MissingMassVsZPosition",      closest_point_from_baxis_after_fiducial[2] / 1000. , missing_mass.Mag2()/ pow(1000,2));
+                    FillHisto("MissingMassVsZPosition",      closest_point_from_baxis_after_fiducial[2] / 1000. , missing_mass.Mag2()/ pow(1000,2));
 
                 }
 
