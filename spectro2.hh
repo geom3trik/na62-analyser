@@ -22,7 +22,11 @@ class TTree;
 class TF1;
 
 const int NumberOfBins = 2000;
-const double BeamAngleFromZAxis = -1.2E-3, pi = 3.141592653589793, SpeedOfLight = 299792458,refractive_index = 1.160183663671307728521380769209707,RICH_focal_length = 17;
+const double    BeamAngleFromZAxis = -1.2E-3, pi = 3.141592653589793, SpeedOfLight = 299792458,refractive_index = 1.160183663671307728521380769209707,RICH_focal_length = 17,
+                LKr1minx = 0, Lkr1maxx = 1000, Lkr1miny = -1260, LKr1maxy = 1260, LKr1minz = 240388, Lkr1maxz = 243222,
+                LKr2minx = -0, Lkr2maxx = -1225 , Lkr2miny = -1260, LKr2maxy = 1260, LKr2minz = 240388, Lkr2maxz = 243222,
+                LKrhole1minx = -118, Lkrhole1maxx = 118 , Lkrhole1miny = -118, LKrhole1maxy = 118, LKrhole1minz = 240388, Lkrhole1maxz = 240399,
+                LKrhole2minx = -118, Lkrhole2maxx = 118 , Lkrhole2miny = -118, LKrhole2maxy = 118, LKrhole2minz = 243221, Lkrhole2maxz = 243221;
 
 class beam
 {
