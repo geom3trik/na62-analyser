@@ -386,7 +386,7 @@ void spectro2::InitHist()
     BookHisto( h55 );
 
 
-    for(int i=1;i<=15;i++)
+    for(int i=0;i<13;i++)
     {
 
         string intstr = to_string(i);
@@ -395,17 +395,9 @@ void spectro2::InitHist()
         CreateHist1D(TString("ResolutionTempX") + num, "Title", 500,0,0);
         CreateHist1D(TString("ResolutionTempY") + num, "Title", 500,0,0);
         CreateHist1D(TString("ResolutionTempZ") + num, "Title", 500,0,0);
+        CreateHist1D(TString("ResolutionTempXZ") + num, "Title", 500,0,0);
+        CreateHist1D(TString("ResolutionTempYZ") + num, "Title", 500,0,0);
     }
-
-    for(int i=1;i<=15;i++)
-    {
-        string intstr = to_string(i);
-        TString num = TString(intstr);
-        CreateHist1D(TString("xzResolutionTemp") + num, "Title", 500,0,0);
-        CreateHist1D(TString("yzResolutionTemp") + num, "Title", 500,0,0);
-    }
-
-
 
     TH2D* h56 = new TH2D( "MissingMassVsZPosition", "Missing Mass Vs Z position", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
     h56 -> GetXaxis() -> SetTitle( "GeV Squared" );
@@ -811,7 +803,7 @@ void spectro2::Process( int iEvent )
 
 
                 //true stuff here
-                /*
+
                 if ( MCTruthEvent -> GetNKineParts() >= 1 )
                 {
 
@@ -834,51 +826,53 @@ void spectro2::Process( int iEvent )
                     {
                         true_momentum.RotateY(BeamAngleFromZAxis);
                         momentum.RotateY(BeamAngleFromZAxis);
-                        for(int i=1;i<=15;i++)
+                        for(int i=0;i<13;i++)
                         {
-                            if(true_momentum.Mag() / 1000. < 5*i && true_momentum.Mag() / 1000. >= 5*(i-1))
+                            if(true_momentum.Mag() / 1000. < 5*(i+3) && true_momentum.Mag() / 1000. >= 5*(i+2))
                             {
                                 string intstr = to_string(i);
                                 TString num = TString(intstr);
                                 FillHisto(TString("ResolutionTemp") + num, (true_momentum.Mag() - momentum.Mag()) / 1000.0);
                             }
-                            if(true_momentum[0] / 1000. < 0.026666666666666666*i-0.2 && true_momentum[0] / 1000. >= 0.026666666666666666*(i-1) -0.2)
+                            if(true_momentum[0] / 1000. < 0.026666666666666666*(i+1)-0.2 && true_momentum[0] / 1000. >= 0.026666666666666666*(i) -0.2)
                             {
                                 string intstr = to_string(i);
                                 TString num = TString(intstr);
                                 FillHisto(TString("ResolutionTempX") + num, (true_momentum[0] - momentum[0]) / 1000.0);
                             }
-                            if(true_momentum[1] / 1000. < 0.026666666666666666*i -0.2 && true_momentum[1] / 1000. >= 0.026666666666666666*(i-1) -0.2)
+                            if(true_momentum[1] / 1000. < 0.026666666666666666*(i+1) -0.2 && true_momentum[1] / 1000. >= 0.026666666666666666*(i) -0.2)
                             {
                                 string intstr = to_string(i);
                                 TString num = TString(intstr);
                                 FillHisto(TString("ResolutionTempY") + num, (true_momentum[1] - momentum[1]) / 1000.0);
                             }
-                            if(true_momentum[2] / 1000. < 5*i && true_momentum[2] / 1000. >= 5*(i-1))
+                            if(true_momentum[2] / 1000. < 5*(i+2) && true_momentum[2] / 1000. >= 5*(i+1))
                             {
                                 string intstr = to_string(i);
                                 TString num = TString(intstr);
                                 FillHisto(TString("ResolutionTempZ") + num, (true_momentum[2] - momentum[2]) / 1000.0);
                             }
+
+
                             //cout << "PARAMETER: " << param << endl;
                         }
 
                         true_momentum.RotateY(-BeamAngleFromZAxis);
                         momentum.RotateY(-BeamAngleFromZAxis);
 
-                        for(int i=1;i<=15;i++)
+                        for(int i=0;i<13;i++)
                         {
-                            if(true_xz_angle < 0.0015333*i - 0.008 && true_xz_angle >= 0.0015333*(i-1) -0.008 )
+                            if(true_xz_angle < 0.0015333*(i+1) - 0.008 && true_xz_angle >= 0.0015333*(i) -0.008 )
                             {
                                 string intstr = to_string(i);
                                 TString num = TString(intstr);
-                                FillHisto(TString("xzResolutionTemp") + num, ( true_xz_angle - reco_xz_angle ) );
+                                FillHisto(TString("ResolutionTempXZ") + num, ( true_xz_angle - reco_xz_angle ) );
                             }
-                            if(true_yz_angle < (0.012/7.5)*i -0.012 && true_yz_angle >= (0.012/7.5)*(i-1) -0.012 )
+                            if(true_yz_angle < (0.012/7.5)*(i+1) -0.012 && true_yz_angle >= (0.012/7.5)*(i) -0.012 )
                             {
                                 string intstr = to_string(i);
                                 TString num = TString(intstr);
-                                FillHisto(TString("yzResolutionTemp") + num, ( true_yz_angle - reco_yz_angle ));
+                                FillHisto(TString("ResolutionTempYZ") + num, ( true_yz_angle - reco_yz_angle ));
                             }
                         }
 
@@ -956,7 +950,7 @@ void spectro2::Process( int iEvent )
                     }
                 }
 
-                */
+
 
                 //Reco stuff
 
@@ -1106,223 +1100,103 @@ void spectro2::EndOfRunUser()
     BookHisto(h65);
     fHisto.GetHisto("zMomentumHist")->Copy(*h65);
     h65->Divide(fHisto.GetHisto("DetectorzEfficiencyMomentum"));
-    /*
+
     TH1* h = fHisto.GetHisto("MissingMass");
     h->Fit("gaus");
     h->Draw();
 
-    int n = 15;
-    double x[n],xx[n],xy[n],xz[n], y[n], yx[n], yy[n], yz[n], ry[n], ryx[n], ryy[n], ryz[n],ey[n],eyx[n],eyy[n],eyz[n],ery[n],eryx[n],eryy[n],eryz[n],anglexz[n],angleyz[n],angle_xzy[n],angle_yzy[n],rangle_xzy[n],rangle_yzy[n],eangle_xzy[n],eangle_yzy[n],erangle_xzy[n],erangle_yzy[n];
+    int n = 13;
+    double x[n], y[n], ey[n], ry[n], ery[n];
 
 
-    for(int i=1;i<=15;i++)
+
+    for(int j=0;j<6;j++)
     {
-
-
-        x[i-1] = 5*i;
-        xx[i-1] = 0.026666666666666666*i-0.2;
-        xy[i-1] = 0.026666666666666666*i-0.2;
-        xz[i-1] = 5*i;
-        anglexz[i-1] = 0.0015333*i - 0.008;
-    angleyz[i-1] = (0.012/7.5)*i - 0.012;
-
-        string intstr = to_string(i);
-        TString num = TString(intstr);
-        TH1* res = fHisto.GetHisto(TString("ResolutionTemp") + num);
-        TH1* resx = fHisto.GetHisto(TString("ResolutionTempX") + num);
-        TH1* resy = fHisto.GetHisto(TString("ResolutionTempY") + num);
-        TH1* resz = fHisto.GetHisto(TString("ResolutionTempZ") + num);
-        TH1* angle_xzres = fHisto.GetHisto(TString("xzResolutionTemp") + num);
-        TH1* angle_yzres = fHisto.GetHisto(TString("yzResolutionTemp") + num);
-
-        double integral = res->Integral();
-        double integral_temp = res->Integral(1,500);
-        double xmin = res->GetXaxis()->GetXmin();
-        double xmax = res->GetXaxis()->GetXmax();
-        double xbin = abs(xmin) > abs(xmax) ? abs(xmax) : abs(xmin);
-        int binx1 = res->GetXaxis()->FindBin(-xbin);
-        int binx2 = res->GetXaxis()->FindBin(xbin);
-        integral_temp = res->Integral(binx1,binx2);
-        int res_limits = 0;
-        while(abs(integral_temp) > abs(integral) * 0.98)
+        TString dim;
+        TString num;
+        for(int i=0;i<13;i++)
         {
-            integral_temp = res->Integral(binx1+res_limits,binx2-res_limits);
-            res_limits++;
+            string dimstr = "";
+            switch (j)
+            {
+                case 0:
+                    dimstr = "";
+                    x[i] = 5*(i+2);
+                    break;
+                case 1:
+                    dimstr = "X";
+                    x[i] = 0.026666666666666666*(i+1)-0.2;
+                    break;
+                case 2:
+                    dimstr = "Y";
+                    x[i] = 0.026666666666666666*(i+1)-0.2;
+                    break;
+                case 3:
+                    dimstr = "Z";
+                    x[i] = 5*(i+1);
+                    break;
+                case 4:
+                    dimstr = "XZ";
+                    x[i] = 0.0015333*(i+1) - 0.008;
+                    break;
+                case 5:
+                    dimstr = "YZ";
+                    x[i] = (0.012/7.5)*(i+1) - 0.012;
+                    break;
+                default:
+                    dimstr = "";
+                    x[i] = 5*(i+1);
+                    break;
+            }
+            dim = TString(dimstr);
+            string numstr = to_string(i);
+            num = TString(numstr);
+            TH1* res = fHisto.GetHisto(TString("ResolutionTemp") + dim + num);
+            double integral = res->Integral();
+            double integral_temp = res->Integral(1,500);
+
+            double xmin = res->GetXaxis()->GetXmin();
+            double xmax = res->GetXaxis()->GetXmax();
+            double xbin = abs(xmin) > abs(xmax) ? abs(xmax) : abs(xmin);
+
+            int binx1 = res->GetXaxis()->FindBin(-xbin);
+            int binx2 = res->GetXaxis()->FindBin(xbin);
+
+            integral_temp = res->Integral(binx1,binx2);
+            int res_limits = 0;
+            while(abs(integral_temp) > abs(integral) * 0.98)
+            {
+                integral_temp = res->Integral(binx1+res_limits,binx2-res_limits);
+                res_limits++;
+            }
+            double fitmin = res->GetXaxis()->GetBinLowEdge(binx1+res_limits);
+            double fitmax = res->GetXaxis()->GetBinUpEdge(binx2-res_limits);
+
+            cout << i << endl;
+            res->Fit("gaus","Q","",fitmin,fitmax);
+            res->Draw();
+
+            TF1* fit = res->GetFunction("gaus");
+            y[i] = fit->GetParameter(2);
+            ey[i] = fit->GetParError(2);
+            ry[i] = y[i] / x[i] ;
+            ery[i] = abs(ey[i] / x[i]) ;
+            cout << x[i] << " " << y[i] << endl;
         }
-        double fitmin = res->GetXaxis()->GetBinLowEdge(binx1+res_limits);
-        double fitmax = res->GetXaxis()->GetBinUpEdge(binx2-res_limits);
-
-        double integralx = resx->Integral();
-        double integralx_temp = resx->Integral(1,500);
-        double xminx = resx->GetXaxis()->GetXmin();
-        double xmaxx = resx->GetXaxis()->GetXmax();
-        double xbinx = abs(xminx) > abs(xmaxx) ? abs(xmaxx) : abs(xminx);
-        int binx1x = resx->GetXaxis()->FindBin(-xbinx);
-        int binx2x = resx->GetXaxis()->FindBin(xbinx);
-        integralx_temp = resx->Integral(binx1x,binx2x);
-        int resx_limits = 0;
-        while(abs(integralx_temp) > abs(integralx) * 0.98)
-        {
-            integralx_temp = resx->Integral(binx1x+resx_limits,binx2x-resx_limits);
-            resx_limits++;
-        }
-        double fitminx = resx->GetXaxis()->GetBinLowEdge(binx1x+resx_limits);
-        double fitmaxx = resx->GetXaxis()->GetBinUpEdge(binx2x-resx_limits);
-
-
-        double integraly = resy->Integral();
-        double integraly_temp = resy->Integral(1,500);
-        double xminy = resy->GetXaxis()->GetXmin();
-        double xmaxy = resy->GetXaxis()->GetXmax();
-        double xbiny = abs(xminy) > abs(xmaxy) ? abs(xmaxy) : abs(xminy);
-        int binx1y = resy->GetXaxis()->FindBin(-xbiny);
-        int binx2y = resy->GetXaxis()->FindBin(xbiny);
-        integraly_temp = resy->Integral(binx1y,binx2y);
-        int resy_limits = 0;
-        while(abs(integraly_temp) > abs(integraly) * 0.98)
-        {
-            integraly_temp = resy->Integral(binx1y+resy_limits,binx2y-resy_limits);
-            resy_limits++;
-        }
-        double fitminy = resy->GetXaxis()->GetBinLowEdge(binx1y+resy_limits);
-        double fitmaxy = resy->GetXaxis()->GetBinUpEdge(binx2y-resy_limits);
-
-
-        double integralz = resz->Integral();
-        double integralz_temp = resz->Integral(1,500);
-        double xminz = resz->GetXaxis()->GetXmin();
-        double xmaxz = resz->GetXaxis()->GetXmax();
-        double xbinz = abs(xminz) > abs(xmaxz) ? abs(xmaxz) : abs(xminz);
-        int binx1z = resz->GetXaxis()->FindBin(-xbinz);
-        int binx2z = resz->GetXaxis()->FindBin(xbinz);
-        integralz_temp = resz->Integral(binx1z,binx2z);
-        int resz_limits = 0;
-        while(abs(integralz_temp) > abs(integralz) * 0.98)
-        {
-            integralz_temp = resz->Integral(binx1z+resz_limits,binx2z-resz_limits);
-            resz_limits++;
-        }
-        double fitminz = resz->GetXaxis()->GetBinLowEdge(binx1z+resz_limits);
-        double fitmaxz = resz->GetXaxis()->GetBinUpEdge(binx2z-res_limits);
-
-        double angle_xzintegral = angle_xzres->Integral();
-        double angle_xzintegral_temp = angle_xzres->Integral(1,500);
-        double angle_xzxmin = angle_xzres->GetXaxis()->GetXmin();
-        double angle_xzxmax = angle_xzres->GetXaxis()->GetXmax();
-        double angle_xzxbin = abs(angle_xzxmin) > abs(angle_xzxmax) ? abs(angle_xzxmax) : abs(angle_xzxmin);
-        int angle_xzbinx1 = angle_xzres->GetXaxis()->FindBin(-angle_xzxbin);
-        int angle_xzbinx2 = angle_xzres->GetXaxis()->FindBin(angle_xzxbin);
-        angle_xzintegral_temp = angle_xzres->Integral(angle_xzbinx1,angle_xzbinx2);
-        int angle_xzres_limits = 0;
-        while(abs(angle_xzintegral_temp) > abs(angle_xzintegral) * 0.98)
-        {
-            angle_xzintegral_temp = angle_xzres->Integral(angle_xzbinx1+angle_xzres_limits,angle_xzbinx2-angle_xzres_limits);
-            angle_xzres_limits++;
-        }
-        double angle_xzfitmin = angle_xzres->GetXaxis()->GetBinLowEdge(angle_xzbinx1+angle_xzres_limits);
-        double angle_xzfitmax = angle_xzres->GetXaxis()->GetBinUpEdge(angle_xzbinx2-angle_xzres_limits);
-
-
-        double angle_yzintegral = angle_yzres->Integral();
-        double angle_yzintegral_temp = angle_yzres->Integral(1,500);
-        double angle_yzxmin = angle_yzres->GetXaxis()->GetXmin();
-        double angle_yzxmax = angle_yzres->GetXaxis()->GetXmax();
-        double angle_yzxbin = abs(angle_yzxmin) > abs(angle_yzxmax) ? abs(angle_yzxmax) : abs(angle_yzxmin);
-        int angle_yzbinx1 = angle_yzres->GetXaxis()->FindBin(-angle_yzxbin);
-        int angle_yzbinx2 = angle_yzres->GetXaxis()->FindBin(angle_yzxbin);
-        angle_yzintegral_temp = angle_yzres->Integral(angle_yzbinx1,angle_yzbinx2);
-        int angle_yzres_limits = 0;
-        while(abs(angle_yzintegral_temp) > abs(angle_yzintegral) * 0.98)
-        {
-            angle_yzintegral_temp = angle_yzres->Integral(angle_yzbinx1+angle_yzres_limits,angle_yzbinx2-angle_yzres_limits);
-            angle_yzres_limits++;
-        }
-        double angle_yzfitmin = angle_yzres->GetXaxis()->GetBinLowEdge(angle_yzbinx1+angle_yzres_limits);
-        double angle_yzfitmax = angle_yzres->GetXaxis()->GetBinUpEdge(angle_yzbinx2-angle_yzres_limits);
 
 
 
-        res->Fit("gaus","Q","",fitmin,fitmax);
-        resx->Fit("gaus","Q","",fitminx,fitmaxx);
-        resy->Fit("gaus","Q","",fitminy,fitmaxy);
-        resz->Fit("gaus","Q","",fitminz,fitmaxz);
-        angle_xzres->Fit("gaus","Q","",angle_xzfitmin,angle_xzfitmax);
-        angle_yzres->Fit("gaus","Q","",angle_yzfitmin,angle_yzfitmax);
-        res->Draw();
-        resx->Draw();
-        resy->Draw();
-        resz->Draw();
-        angle_xzres->Draw();
-        angle_yzres->Draw();
-        TF1* fit = res->GetFunction("gaus");
-        TF1* fitx = resx->GetFunction("gaus");
-        TF1* fity = resy->GetFunction("gaus");
-        TF1* fitz = resz->GetFunction("gaus");
-        TF1* angle_xzfit = angle_xzres->GetFunction("gaus");
-        TF1* angle_yzfitz = angle_yzres->GetFunction("gaus");
-
-        y[i-1] = fit->GetParameter(2);
-        ey[i-1] = fit->GetParError(2);
-        yx[i-1] = fitx->GetParameter(2);
-        eyx[i-1] = fitx->GetParError(2);
-        yy[i-1] = fity->GetParameter(2);
-        eyy[i-1] = fity->GetParError(2);
-        yz[i-1] = fitz->GetParameter(2);
-        eyz[i-1] = fitz->GetParError(2);
-        angle_xzy[i-1] = angle_xzfit->GetParameter(2);
-        eangle_xzy[i-1] = angle_xzfit->GetParError(2);
-    angle_yzy[i-1] = angle_yzfitz->GetParameter(2);
-        eangle_yzy[i-1] = angle_yzfitz->GetParError(2);
-
-
-        ry[i-1] = y[i-1] / x[i-1] ;
-        ery[i-1] = abs(ey[i-1] / x[i-1]) ;
-        ryx[i-1] = yx[i-1] / xx[i-1];
-        eryx[i-1] = abs(eyx[i-1] / xx[i-1]) ;
-        ryy[i-1] = yy[i-1] / xy[i-1];
-        eryy[i-1] = abs(eyy[i-1] / xy[i-1]) ;
-        ryz[i-1] = yz[i-1] / xz[i-1];
-        eryz[i-1] = abs(eyz[i-1] / xz[i-1]) ;
-        rangle_xzy[i-1] = angle_xzy[i-1] / anglexz[i-1];
-    erangle_xzy[i-1] = abs(eangle_xzy[i-1] / anglexz[i-1]);
-        rangle_yzy[i-1] = angle_yzy[i-1] / angleyz[i-1];
-    erangle_yzy[i-1] = abs(eangle_yzy[i-1] / angleyz[i-1]);
+        TGraphErrors* graph = new TGraphErrors(n,x,y,0,ey);
+        BookHisto( dim + "MtmResolutionVs" + dim + "Mtm", graph );
+        TGraphErrors* rgraph = new TGraphErrors(n,x,ry,0,ery);
+        BookHisto("Relative" + dim + "MtmResolutionVs" + dim + "Mtm", rgraph );
     }
 
-    TGraphErrors* graph = new TGraphErrors(n,x,y,0,ey);
-    BookHisto("MtmResolutionVsMtm", graph);
-    TGraphErrors* graphx = new TGraphErrors(n,xx,yx,0,eyx);
-    BookHisto("XMtmResolutionVsXMtm", graphx);
-    TGraphErrors* graphy = new TGraphErrors(n,xy,yy,0,eyy);
-    BookHisto("YMtmResolutionVsYMtm", graphy);
-    TGraphErrors* graphz = new TGraphErrors(n,xz,yz,0,eyz);
-    BookHisto("ZMtmResolutionVsZMtm", graphz);
-    TGraphErrors* angle_xzgraph = new TGraphErrors(n,anglexz,angle_xzy,0,eangle_xzy);
-    BookHisto("angle_xzResolutionVsangle_xz", angle_xzgraph);
-    TGraphErrors* angle_yzgraph = new TGraphErrors(n,angleyz,angle_yzy,0,eangle_yzy);
-    BookHisto("angle_yzResolutionVsangle_yz", angle_yzgraph);
-
-
-
-    TGraphErrors* rgraph = new TGraphErrors(n,x,ry,0,ery);
-    BookHisto("RelativeMtmResolutionVsMtm", rgraph);
-    //rgraph->Fit("[0]+[1]x");
-    TGraphErrors* rgraphx = new TGraphErrors(n,xx,ryx,0,eryx);
-    BookHisto("RelativeXMtmResolutionVsXMtm", rgraphx);
-    //rgraphx->Fit("[0]+[1]x");
-    TGraphErrors* rgraphy = new TGraphErrors(n,xy,ryy,0,eryy);
-    BookHisto("RelativeYMtmResolutionVsYMtm", rgraphy);
-    //rgraphy->Fit("[0]+[1]x");
-    TGraphErrors* rgraphz = new TGraphErrors(n,xz,ryz,0,eryz);
-    BookHisto("RelativeZMtmResolutionVsZMtm", rgraphz);
-    //rgraphz->Fit("[0]+[1]x");
-    TGraphErrors* rangle_xzgraph = new TGraphErrors(n,anglexz,rangle_xzy,0,erangle_xzy);
-    BookHisto("Relativeangle_xzResolutionVsangle_xz", rangle_xzgraph);
-
-    TGraphErrors* rangle_yzgraph = new TGraphErrors(n,anglexz,rangle_yzy,0,erangle_yzy);
-    BookHisto("Relativeangle_yzResolutionVsangle_yz", rangle_yzgraph);
-
-*/
+    TF1* f = new TF1("f","sqrt([0]^2+([1]*x)^2)",10,75);
+    f->SetParameter(0,0.01);
+    f->SetParameter(1,0.001);
+    TGraph* g = fHisto.GetTGraph("RelativeMtmResolutionVsMtm");
+    g->Fit("f");
     SaveAllPlots();
 
 }
