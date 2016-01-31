@@ -355,14 +355,25 @@ void spectro2::InitHist()
     CreateHist1D("MUV3candidates", "MUV3candidates", NumberOfBins, 0, 0);
     SetHistAxisLabels("MUV3candidates","numberofcandidates","Number of Entries");
 
-    CreateHist1D("timedifference", "timedifference", NumberOfBins, 0, 0);
+    CreateHist1D("timedifference", "timedifference", 5000, 0, 0);
     SetHistAxisLabels("timedifference","time","Number of Entries");
 
-    CreateHist1D("spectrotime", "spectrotime", NumberOfBins, 0, 0);
+    CreateHist1D("spectrotime", "spectrotime", 5000, 0, 0);
     SetHistAxisLabels("spectrotime","time","Number of Entries");
 
-    CreateHist1D("MUV3time", "MUV3time", NumberOfBins, 0, 0);
+    CreateHist1D("MUV3time", "MUV3time", 5000, 0 , 0 );
     SetHistAxisLabels("MUV3time","time","Number of Entries");
+
+
+    CreateHist1D("LKrTimeDifference", "LKrTimeDifference", 5000, 0 , 0 );
+    SetHistAxisLabels("LKrTimeDifference","time","Number of Entries");
+
+    CreateHist1D("LKrcandidates", "LKrTimeDifference", 5000, 0 , 0 );
+    SetHistAxisLabels("LKrTimeDifference","time","Number of Entries");
+
+    CreateHist1D("LKrtime", "LKrtime", 5000, 0 , 0 );
+    SetHistAxisLabels("LKrtime","time","Number of Entries");
+
 
 
     TH2D* h52 = new TH2D( "SpectrometerXMomentumResolutionAgainstXMomentum", "x Momentum Resolution Against x Momentum", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
@@ -700,15 +711,29 @@ void spectro2::Process( int iEvent )
                     FillHisto( "closestzPointToMUV3", closest_point_MUV3[2] );
 
                     FillHisto( "MUV3Position", closest_point_MUV3[2] / 1000. , closest_point_MUV3[0] );
-                    double MUV3_time = ( MUV3Candidate-> GetTime() );
+                    double MUV3_time = ( MUV3Candidate-> GetTime() ) ;
                     double time_difference = MUV3_time - Spectro_time;
-
+                    cout << setprecision(16) << "Spectro Time:" << Spectro_time << "MUV3 Time:" << MUV3_time << endl;
                     FillHisto( "spectrotime", Spectro_time );
                     FillHisto( "MUV3time", MUV3_time );
 
                     FillHisto( "timedifference", time_difference );
                 }
                 FillHisto( "MUV3candidates", MUV3Event->GetNCandidates() );
+            }
+
+            if ( LKrEvent->GetNCandidates() >= 1 )
+            {
+                for ( int iLKr = 0; iLKr < LKrEvent->GetNCandidates(); iLKr++ )
+                {
+                    TRecoLKrCandidate *LKrCandidate = (TRecoLKrCandidate*)LKrEvent->GetCandidate(iLKr);
+                    LKrCandidate->SetEvent(LKrEvent);
+                    double LKr_time = LKrCandidate->GetTime();
+                    double LKr_time_difference = LKr_time - Spectro_time;
+                    FillHisto( "LKrtime", LKr_time );
+                    FillHisto( "LKrTimeDifference", LKr_time_difference );
+                }
+                FillHisto( "LKrcandidates", LKrEvent->GetNCandidates() );
             }
 
 
@@ -787,8 +812,8 @@ void spectro2::Process( int iEvent )
             if  (   SpectroCandidate->GetCharge() == 1  //Positive Charge
                     && SpectrometerEvent->GetNCandidates() == 1 //Single Detection In Spectrometer
                     && decay_area == 2  //Decay in Fiducial Region //34728 particles when running on 100,000 munu.
-                    && ( LKrEvent->GetNCandidates() >= 1 || Intersect_LKr == false )  // Be detected in LKr, if the muon should hit LKr //27429 with just getncandidates, 31099 with or intersect false.
-                    && ( cluster_energetic_enough == true || Intersect_LKr == false ) //IF a cluster is in the LKr, it should have energy greater than 1/1000 of muon energy and less than 1/140000 //27273, 30943 with or intersect false
+                    && ( LKrEvent->GetNCandidates() >= 1 /*|| Intersect_LKr == false*/ )  // Be detected in LKr, if the muon should hit LKr //27429 with just getncandidates, 31099 with or intersect false.
+                    && ( cluster_energetic_enough == true /*|| Intersect_LKr == false*/ ) //IF a cluster is in the LKr, it should have energy greater than 1/1000 of muon energy and less than 1/140000 //27273, 30943 with or intersect false
                     && ring_correct_size == true //IF a ring is in the RICH, it should be consistent with a muon. //27273, 30943 with or intersect false for LKr
                     && LAVEvent->GetNCandidates() == 0 //No muon should be detected in the LAV. //26112, 27557 with or intersect false for LKr
                     && MUV3Event->GetNCandidates() >= 1 // Be detected in MUV3 IF DETECTED PARTICLE WOULD HIT IT //26076 , 26086 with or intersect false for LKr
