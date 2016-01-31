@@ -21,8 +21,10 @@ class TGraph;
 class TTree;
 class TF1;
 
-const int NumberOfBins = 2000;
-const double    BeamAngleFromZAxis = -1.2E-3, pi = 3.141592653589793, SpeedOfLight = 299792458,refractive_index = 1.160183663671307728521380769209707,RICH_focal_length = 17,
+const int       NumberOfBins = 2000, SpeedOfLight = 299792458;
+
+const double    BeamAngleFromZAxis = -1.2E-3, pi = 3.141592653589793,speed_of_light_2 = 89875517873681764, kaon_mass = 493.667, kaon_mass_2 = 243707.106889, muon_mass = 105.6583715, muon_mass_2 = 11163.691468, speed_of_light_inverse = 1 / SpeedOfLight,
+                refractive_index = 1.160183663671307728521380769209707, refractive_index_inverse = 1 / refractive_index, RICH_focal_length = 17, RICH_focal_length_inverse = 1 / RICH_focal_length,
                 LKr1minx = 0, Lkr1maxx = 1000, Lkr1miny = -1260, LKr1maxy = 1260, LKr1minz = 240388, Lkr1maxz = 243222,
                 LKr2minx = -0, Lkr2maxx = -1225 , Lkr2miny = -1260, LKr2maxy = 1260, LKr2minz = 240388, Lkr2maxz = 243222,
                 LKrhole1minx = -118, Lkrhole1maxx = 118 , Lkrhole1miny = -118, LKrhole1maxy = 118, LKrhole1minz = 240388, Lkrhole1maxz = 240399,
