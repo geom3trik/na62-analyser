@@ -28,6 +28,9 @@ spectro2::spectro2( Core::BaseAnalysis *ba ) : Analyzer( ba, "spectro" )
     RequestTree( "CEDAR", new TRecoCedarEvent );
     RequestTree( "LAV", new TRecoLAVEvent );
     RequestTree( "RICH", new TRecoRICHEvent );
+    RequestTree( "SAC", new TRecoSACEvent );
+    RequestTree( "CHANTI", new TRecoCHANTIEvent );
+    RequestTree( "CEDAR", new TRecoCedarEvent  );
 }
 
 void spectro2::InitOutput()
@@ -608,70 +611,88 @@ void spectro2::Process( int iEvent )
     TRecoCedarEvent *CEDAREvent = ( TRecoCedarEvent* )GetEvent( "CEDAR" );
     TRecoLAVEvent *LAVEvent = ( TRecoLAVEvent* )GetEvent( "LAV" );
     TRecoRICHEvent *RICHEvent = ( TRecoRICHEvent*)GetEvent( "RICH" );
+    TRecoSACEvent *SACEvent = ( TRecoSACEvent*)GetEvent( "SAC" );
+    TRecoCHANTIEvent *CHANTIEvent = ( TRecoCHANTIEvent*)GetEvent( "CHANTI" );
 
     //Get truth event
     Event *MCTruthEvent = GetMCEvent();
     bool cluster_energetic_enough = false;
-    bool ring_correct_size = true;
+    bool ring_correct_size = false;
+    int spectro_charge = 0;
+    int decay_area = 0; //Initialise variable to determine where the particle decayed from. 0 is not in the beam, 1 is before the fiducial, 2 is in the fiducial.
     int LKrCandidates = LKrEvent-> GetNCandidates();
     double cluster_energy[ 100 ] = { 0 };
-    double ring_radius = 0;
+    double ring_radius = { 0 };
+    double LKr_time[ 100 ] = { 0 };
+    double LKr_time_difference[ 100 ] = { 0 };
+
+    double MUV3_time[ 20 ] = { 0 };
+    double MUV3_time_difference[ 20 ] = { 0 };
+    double Spectro_time = 0;
     TVector3 true_muon_velocity_squared;
     bool been_detected = false;
     bool Intersect_LKr = false;
+    bool detection_in_LKr = false;
     bool detection_in_rich = false;
-    TVector3 MUV3_position;
-    TVector3 closest_point_MUV3;
-    TVector3 distance_to_MUV3;
+    bool detection_in_CEDAR = false;
+    bool detection_in_CHANTI = false;
+    bool CEDAR_enough_sectors = false;
+    bool detection_in_MUV3 = false;
+    int sectors [ 20 ] = { 0 };
+    TVector3 MUV3_position[ 20 ];
+    TVector3 closest_point_MUV3[ 20 ];
+    TVector3 distance_to_MUV3[ 20 ];
+    TVector3 position_start;
+    TVector3 position_after;
+    TVector3 momentum;
+    TVector3 momentum_after;
+    TLorentzVector muon_momentum;
+    TVector3 muon_velocity_squared;
+
+    double min_dist_to_baxis_before_fiducial;
+    TVector3 closest_point_from_baxis_before_fiducial;
+    TVector3 closest_point_of_beam_approach_before_fiducial;
+    TVector3 dist_to_baxis_before_fiducial;
+
+    double min_dist_to_baxis_after_fiducial;
+    TVector3 closest_point_from_baxis_after_fiducial;
+    TVector3 closest_point_of_beam_approach_after_fiducial;
+    TVector3 dist_to_baxis_after_fiducial;
+    double reco_xz_angle;
+    double reco_yz_angle;
+    TLorentzVector missing_mass;
     //Check to see if an event was detected in the spectrometer
+
+
     if( SpectrometerEvent->GetNCandidates() >= 1 )
     {
-        if ( LKrEvent->GetNCandidates() >= 1 )
-        {
-            for ( int k = 0; k < LKrEvent-> GetNCandidates(); k++ )
-            {
-                TRecoLKrCandidate *LKrCandidate = ( TRecoLKrCandidate* )LKrEvent->GetCandidate( k );
-                LKrCandidate->SetEvent( LKrEvent );
-                cluster_energy[k] = LKrCandidate->GetClusterEnergy();
-            }
-        }
-        if ( RICHEvent->GetNRingCandidates() == 1 )
-        {
-            TRecoRICHCandidate *RICHCandidate = (TRecoRICHCandidate*)RICHEvent->GetCandidate(0);
-            RICHCandidate->SetEvent(RICHEvent);
-            ring_radius = RICHCandidate->GetRingRadius();
-            bool ring_correct_size = false;
-            detection_in_rich = true;
-        }
         //Loop through each detected particle in the spectrometer
         for ( int k = 0; k < SpectrometerEvent->GetNCandidates(); k++ )
         {
-            int decay_area = 0; //Initialise variable to determine where the particle decayed from. 0 is not in the beam, 1 is before the fiducial, 2 is in the fiducial.
             //Get the candidate from the spectrometer event
             TRecoSpectrometerCandidate *SpectroCandidate = ( TRecoSpectrometerCandidate* )SpectrometerEvent->GetCandidate( k );
             SpectroCandidate->SetEvent( SpectrometerEvent );
 
+            spectro_charge = 1;
             //Get the three momentum of the candidate from the spectrometer before the magnet
-            TVector3 momentum = SpectroCandidate->GetThreeMomentumBeforeMagnet();
-            TVector3 momentum_after = SpectroCandidate->GetThreeMomentumAfterMagnet();
+            momentum = SpectroCandidate->GetThreeMomentumBeforeMagnet();
+            momentum_after = SpectroCandidate->GetThreeMomentumAfterMagnet();
 
             //Get the three position of the candidate from the spectrometer before the magnet
-            TVector3 position_start = SpectroCandidate->GetPositionBeforeMagnet();
-            TVector3 position_after = SpectroCandidate->GetPositionAfterMagnet();
-            TVector3 test;
+            position_start = SpectroCandidate->GetPositionBeforeMagnet();
+            position_after = SpectroCandidate->GetPositionAfterMagnet();
 
-            double Spectro_time = ( SpectroCandidate->GetTime() );
+            Spectro_time = SpectroCandidate->GetTime();
             //Lots of calculations
-            double min_dist_to_baxis_before_fiducial = ( (b.fiducial_entry - position_start ).Dot( b.beam_axis.Cross( momentum ) ) ) / b.beam_axis.Cross( momentum ).Mag();
-            TVector3 closest_point_from_baxis_before_fiducial = ClosestPointOnVectorToOtherVector( position_start, momentum, b.fiducial_entry, b.beam_axis );
-            TVector3 closest_point_of_beam_approach_before_fiducial = ClosestPointOnVectorToOtherVector( b.fiducial_entry, b.beam_axis, position_start, momentum );
-            TVector3 dist_to_baxis_before_fiducial = - closest_point_of_beam_approach_before_fiducial + closest_point_from_baxis_before_fiducial;
+            min_dist_to_baxis_before_fiducial = ( (b.fiducial_entry - position_start ).Dot( b.beam_axis.Cross( momentum ) ) ) / b.beam_axis.Cross( momentum ).Mag();
+            closest_point_from_baxis_before_fiducial = ClosestPointOnVectorToOtherVector( position_start, momentum, b.fiducial_entry, b.beam_axis );
+            closest_point_of_beam_approach_before_fiducial = ClosestPointOnVectorToOtherVector( b.fiducial_entry, b.beam_axis, position_start, momentum );
+            dist_to_baxis_before_fiducial = - closest_point_of_beam_approach_before_fiducial + closest_point_from_baxis_before_fiducial;
 
-            double min_dist_to_baxis_after_fiducial = ( (b.fiducial_entry - position_start ).Dot( b.beam_axis_rotated.Cross( momentum ) ) ) / ( b.beam_axis_rotated.Cross( momentum ) ).Mag();
-            TVector3 closest_point_from_baxis_after_fiducial = ClosestPointOnVectorToOtherVector( position_start, momentum, b.fiducial_entry, b.beam_axis_rotated );
-            TVector3 closest_point_of_beam_approach_after_fiducial = ClosestPointOnVectorToOtherVector( b.fiducial_entry, b.beam_axis_rotated, position_start, momentum );
-            TVector3 dist_to_baxis_after_fiducial = - closest_point_of_beam_approach_after_fiducial + closest_point_from_baxis_after_fiducial;
-
+            min_dist_to_baxis_after_fiducial = ( (b.fiducial_entry - position_start ).Dot( b.beam_axis_rotated.Cross( momentum ) ) ) / ( b.beam_axis_rotated.Cross( momentum ) ).Mag();
+            closest_point_from_baxis_after_fiducial = ClosestPointOnVectorToOtherVector( position_start, momentum, b.fiducial_entry, b.beam_axis_rotated );
+            closest_point_of_beam_approach_after_fiducial = ClosestPointOnVectorToOtherVector( b.fiducial_entry, b.beam_axis_rotated, position_start, momentum );
+            dist_to_baxis_after_fiducial = - closest_point_of_beam_approach_after_fiducial + closest_point_from_baxis_after_fiducial;
             /////////////////////
             // Geometric Stuff //
             /////////////////////
@@ -685,46 +706,8 @@ void spectro2::Process( int iEvent )
             {
                 decay_area = 2;
             }
-            if ( MUV3Event->GetNCandidates() >= 1 )
-            {
-                for ( int iMUV3 = 0; iMUV3 < MUV3Event->GetNCandidates(); iMUV3++ )
-                {
-                    TRecoMUV3Candidate *MUV3Candidate = ( TRecoMUV3Candidate* )MUV3Event->GetCandidate( iMUV3 );
-                    MUV3Candidate->SetEvent( MUV3Event );
-                    MUV3_position = MUV3Candidate->GetPosition();
-                    closest_point_MUV3 = ClosestPointOnVectorToPoint( position_after, momentum_after, MUV3_position );
-                    distance_to_MUV3 = -closest_point_MUV3 + MUV3_position;
-                    FillHisto( "closestxDistanceToMUV3", distance_to_MUV3[0] );
-                    FillHisto( "closestyDistanceToMUV3", distance_to_MUV3[1] );
-                    FillHisto( "closestzDistanceToMUV3", distance_to_MUV3[2] );
-                    FillHisto( "closestDistanceToMUV3", distance_to_MUV3.Mag() );
-                    FillHisto( "closestxPointToMUV3", closest_point_MUV3[0] );
-                    FillHisto( "closestyPointToMUV3", closest_point_MUV3[1] );
-                    FillHisto( "closestzPointToMUV3", closest_point_MUV3[2] );
-                    FillHisto( "MUV3Position", closest_point_MUV3[2] * 0.001 , closest_point_MUV3[0] );
-                    double MUV3_time = ( MUV3Candidate-> GetTime() ) ;
-                    double time_difference = MUV3_time - Spectro_time;
-                    FillHisto( "spectrotime", Spectro_time );
-                    FillHisto( "MUV3time", MUV3_time );
-                    FillHisto( "timedifference", time_difference );
-                }
-                FillHisto( "MUV3candidates", MUV3Event->GetNCandidates() );
-            }
-            if ( LKrEvent->GetNCandidates() >= 1 )
-            {
-                for ( int iLKr = 0; iLKr < LKrEvent->GetNCandidates(); iLKr++ )
-                {
-                    TRecoLKrCandidate *LKrCandidate = ( TRecoLKrCandidate* )LKrEvent->GetCandidate( iLKr );
-                    LKrCandidate->SetEvent( LKrEvent );
-                    double LKr_time = LKrCandidate->GetTime();
-                    double LKr_time_difference = LKr_time - Spectro_time;
-                    FillHisto( "LKrtime", LKr_time );
-                    FillHisto( "LKrTimeDifference", LKr_time_difference );
-                }
-                FillHisto( "LKrcandidates", LKrEvent->GetNCandidates() );
-            }
-            double reco_xz_angle = SpectroCandidate->GetSlopeXBeforeMagnet();
-            double reco_yz_angle = SpectroCandidate->GetSlopeYBeforeMagnet();
+            reco_xz_angle = SpectroCandidate->GetSlopeXBeforeMagnet();
+            reco_yz_angle = SpectroCandidate->GetSlopeYBeforeMagnet();
             ////////////////////////
             // Missing mass stuff //
             ////////////////////////
@@ -736,14 +719,35 @@ void spectro2::Process( int iEvent )
             kaon_momentum.RotateY( -BeamAngleFromZAxis ); //Transform to beam frame
             //Calculate energy of muon
             double muon_energy = sqrt( ( momentum.Mag2() ) + ( muon_mass_2 ) );
-            TLorentzVector muon_momentum;
             muon_momentum.SetVect( momentum ); //Set xyz components to muon 3-momentum
             muon_momentum[3] = muon_energy; //Set time component to muon energy
-            TVector3 muon_velocity_squared;
             muon_velocity_squared = muon_momentum.Vect() * ( speed_of_light_2 / muon_energy );
 
             //Calculate missing mass squared
-            TLorentzVector missing_mass = kaon_momentum - muon_momentum;
+            missing_mass = kaon_momentum - muon_momentum;
+            if  (  decay_area == 2 && been_detected == false )
+            {
+                FillHisto( "TotalDecays", 1);
+                been_detected == true;
+            }
+        }
+    }
+
+    if ( LKrEvent->GetNCandidates() >= 1 )
+        {
+            detection_in_LKr = true;
+            for ( int iLKr = 0; iLKr < LKrEvent->GetNCandidates(); iLKr++ )
+            {
+                TRecoLKrCandidate *LKrCandidate = ( TRecoLKrCandidate* )LKrEvent->GetCandidate( iLKr );
+                LKrCandidate->SetEvent( LKrEvent );
+                cluster_energy[iLKr] = LKrCandidate->GetClusterEnergy();
+                LKr_time[iLKr] = LKrCandidate->GetTime();
+                LKr_time_difference[iLKr] = LKr_time[iLKr] - Spectro_time;
+                if ( cluster_energy[iLKr] <= muon_momentum[3] * 0.001 && cluster_energy[iLKr] >= muon_momentum[3] * 0.000007142857142857142857 )
+                {
+                    cluster_energetic_enough = true;
+                }
+            }
             if  (   intersection( LKr1minx, Lkr1maxx, Lkr1miny, LKr1maxy, LKr1minz, Lkr1maxz, position_after, momentum_after ) == true
                     || intersection( LKr2minx, Lkr2maxx, Lkr2miny, LKr2maxy, LKr2minz, Lkr2maxz, position_after, momentum_after ) == true
                 )
@@ -756,275 +760,339 @@ void spectro2::Process( int iEvent )
                     Intersect_LKr = false; //If ray intersects the entrance to the hole in the LKr AND the exit of the hole, it did not hit the LKr.
                 }
             }
-            for ( int k = 0; k < LKrEvent-> GetNCandidates(); k++ )
-            {
-              if ( cluster_energy[k] <= muon_momentum[3] * 0.001 && cluster_energy[k] >= muon_momentum[3] * 0.000007142857142857142857 )
-                {
-                    cluster_energetic_enough = true;
-                    break;
-                }
-            }
+        }
+
+    if ( RICHEvent->GetNRingCandidates() == 1 )
+        {
+            detection_in_rich = true;
+            TRecoRICHCandidate *RICHCandidate = (TRecoRICHCandidate*)RICHEvent->GetCandidate(0);
+            RICHCandidate->SetEvent(RICHEvent);
+            ring_radius = RICHCandidate->GetRingRadius();
             double velocity = sqrt( ( pow( ( ring_radius * RICH_focal_length_inverse ), 2 ) + 1 ) ) * refractive_index_inverse;
             double RICH_velocity_over_muon_assumption_velocity = ( sqrt( muon_velocity_squared.Mag() ) * speed_of_light_inverse ) / velocity;
-            if ( RICHEvent-> GetNRingCandidates() == 1 )
+            if ( RICH_velocity_over_muon_assumption_velocity <= 1.000002 && RICH_velocity_over_muon_assumption_velocity >= 0.999998 )
             {
-                if ( RICH_velocity_over_muon_assumption_velocity <= 1.000002 && RICH_velocity_over_muon_assumption_velocity >= 0.999998 )
-                {
-                    ring_correct_size = true;
-                }
+                ring_correct_size = true;
             }
-            if  (  decay_area == 2 && been_detected == false )
+        }
+
+    if ( MUV3Event->GetNCandidates() >= 1 )
+        {
+            detection_in_MUV3 = true;
+            for ( int iMUV3 = 0; iMUV3 < MUV3Event->GetNCandidates(); iMUV3++ )
             {
-                FillHisto( "TotalDecays", 1);
-                been_detected == true;
+                TRecoMUV3Candidate *MUV3Candidate = ( TRecoMUV3Candidate* )MUV3Event->GetCandidate( iMUV3 );
+                MUV3Candidate->SetEvent( MUV3Event );
+                MUV3_position[iMUV3] = MUV3Candidate->GetPosition();
+                closest_point_MUV3[iMUV3] = ClosestPointOnVectorToPoint( position_after, momentum_after, MUV3_position[iMUV3] );
+                distance_to_MUV3[iMUV3] = -closest_point_MUV3[iMUV3] + MUV3_position[iMUV3];
+                MUV3_time[iMUV3] = MUV3Candidate-> GetTime() ;
+                MUV3_time_difference[iMUV3] = MUV3_time[iMUV3] - Spectro_time;
             }
+        }
 
-            ///////////////////////////////////
-            // Plot Histos with Restrictions //
-            ///////////////////////////////////
-            //Attempts to select only the muon
-            if  (   SpectroCandidate->GetCharge() == 1  //Positive Charge
-                    && SpectrometerEvent->GetNCandidates() == 1 //Single Detection In Spectrometer
-                    && decay_area == 2  //Decay in Fiducial Region //34728 particles when running on 100,000 munu.
-                    && ( LKrEvent->GetNCandidates() >= 1 /*|| Intersect_LKr == false*/ )  // Be detected in LKr, if the muon should hit LKr //27429 with just getncandidates, 31099 with or intersect false.
-                    && ( cluster_energetic_enough == true /*|| Intersect_LKr == false*/ ) //IF a cluster is in the LKr, it should have energy greater than 1/1000 of muon energy and less than 1/140000 //27273, 30943 with or intersect false
-                    && ring_correct_size == true //IF a ring is in the RICH, it should be consistent with a muon. //27273, 30943 with or intersect false for LKr
-                    && LAVEvent->GetNCandidates() == 0 //No muon should be detected in the LAV. //26112, 27557 with or intersect false for LKr
-                    && MUV3Event->GetNCandidates() >= 1 // Be detected in MUV3 IF DETECTED PARTICLE WOULD HIT IT //26076 , 26086 with or intersect false for LKr
-                    && dist_to_baxis_after_fiducial.Mag() <= 40 && dist_to_baxis_after_fiducial[0] <= 40 && dist_to_baxis_after_fiducial[1] <= 40 && dist_to_baxis_after_fiducial[2] <= 40 //Be linked closely to the beam. // 26069 with or intersect false for LKr
-                    //&& ( momentum.Mag() <= 35000 && momentum.Mag() >= 15000 && detection_in_rich == true ) //RICH can only distinguish in this range. 8211 with or intersect false for LKr
-                    //&& missing_mass.Mag2() / pow( 1000, 2 ) < 2000 //Have Missing Mass Correct for Decay
-                    //&& CEDAREvent->GetNCandidates() >=1 // Be detected in CEDAR
-                    //&& CEDAREvent->GetNHits() >=10 //Have atleast 10 hits in the CEDAR
-                    && detection_in_rich == true
-                )
+    if ( CEDAREvent->GetNCandidates() >= 1 )
+        {
+            detection_in_CEDAR = true;
+            for ( int iCEDAR = 0; iCEDAR<CEDAREvent->GetNCandidates(); iCEDAR++ )
             {
-
-
-                //true stuff here
-
-                if ( MCTruthEvent -> GetNKineParts() >= 1 )
+                TRecoCedarCandidate *CEDARCandidate = (TRecoCedarCandidate*)CEDAREvent->GetCandidate(iCEDAR);
+                CEDARCandidate->SetEvent(CEDAREvent);
+                sectors[iCEDAR] = CEDARCandidate->GetNSectors();
+                if ( sectors[iCEDAR] >= 5 )
                 {
-
-                    //Get the first decay product associated with the decay event (hopefully a muon)
-                    KinePart *TrueCandidate = ( KinePart* )MCTruthEvent -> GetKineParts() -> At( 1 );
-                    //Get the kaon associated with the decay event
-                    KinePart *KaonCandidate = ( KinePart* )MCTruthEvent -> GetKineParts() -> At( 0 );
-
-                    TLorentzVector true_kaon_momentum = KaonCandidate->GetFinal4Momentum();
-
-                    TVector3 true_momentum = TrueCandidate->GetMomAtCheckPoint( 2 ).Vect();
-                    TVector3 true_position_start = TrueCandidate->GetProdPos().Vect();
-                    TVector3 true_position_end = TrueCandidate->GetEndPos().Vect();
-                    TVector3 true_LKr_entry = TrueCandidate ->GetPosLKrEntry();
-                    double true_xz_angle = atan( true_momentum[0] / true_momentum[2] );
-                    double true_yz_angle = atan( true_momentum[1] / true_momentum[2] );
-
-                    //Make sure the first true event decay product is a muon
-                    if ( true_momentum.Mag() != 0 && TrueCandidate -> GetPDGcode() == -13 && abs( true_momentum.Theta() ) > 0 )
-                    {
-                        true_momentum.RotateY( BeamAngleFromZAxis );
-                        momentum.RotateY( BeamAngleFromZAxis );
-                        for( int i = 0; i < 13; i++ )
-                        {
-                            if( true_momentum.Mag() * 0.001 < 5 * ( i + 3 ) && true_momentum.Mag() * 0.001 >= 5 * ( i + 2 ) )
-                            {
-                                string intstr = to_string( i );
-                                TString num = TString( intstr );
-                                FillHisto( TString( "ResolutionTemp" ) + num, ( true_momentum.Mag() - momentum.Mag() ) * 0.001 );
-                            }
-                            if( true_momentum[0] * 0.001 < 0.026666666666666666 * ( i + 1 ) - 0.2 && true_momentum[0] * 0.001 >= 0.026666666666666666 * ( i ) - 0.2 )
-                            {
-                                string intstr = to_string( i );
-                                TString num = TString( intstr );
-                                FillHisto( TString( "ResolutionTempX" ) + num, ( true_momentum[0] - momentum[0] ) * 0.001 );
-                            }
-                            if( true_momentum[1] * 0.001 < 0.026666666666666666 * ( i + 1 ) - 0.2 && true_momentum[1] * 0.001 >= 0.026666666666666666 * ( i ) - 0.2 )
-                            {
-                                string intstr = to_string( i );
-                                TString num = TString( intstr );
-                                FillHisto( TString( "ResolutionTempY" ) + num, ( true_momentum[1] - momentum[1] ) * 0.001 );
-                            }
-                            if( true_momentum[2] * 0.001 < 5 * ( i + 2 ) && true_momentum[2] * 0.001 >= 5 * ( i + 1 ) )
-                            {
-                                string intstr = to_string( i );
-                                TString num = TString( intstr );
-                                FillHisto( TString( "ResolutionTempZ" ) + num, ( true_momentum[2] - momentum[2] ) * 0.001 );
-                            }
-                        }
-                        true_momentum.RotateY(-BeamAngleFromZAxis);
-                        momentum.RotateY(-BeamAngleFromZAxis);
-                        for( int i = 0; i < 13; i++ )
-                        {
-                            if( true_xz_angle < 0.0015333 * ( i + 1 ) - 0.008 && true_xz_angle >= 0.0015333 * ( i ) - 0.008 )
-                            {
-                                string intstr = to_string( i );
-                                TString num = TString( intstr );
-                                FillHisto( TString( "ResolutionTempXZ" ) + num, ( true_xz_angle - reco_xz_angle ) );
-                            }
-                            if( true_yz_angle < ( 0.0016 ) * ( i + 1 ) - 0.012 && true_yz_angle >= ( 0.0016 ) * ( i ) - 0.012 )
-                            {
-                                string intstr = to_string( i );
-                                TString num = TString( intstr );
-                                FillHisto( TString( "ResolutionTempYZ" ) + num, ( true_yz_angle - reco_yz_angle ) );
-                            }
-                        }
-                        ////////////////////////////////////
-                        // Calculate Momentum Resolutions //
-                        ////////////////////////////////////
-                        true_momentum.RotateY( BeamAngleFromZAxis );
-                        momentum.RotateY( BeamAngleFromZAxis );
-                        TVector3 ResolutionTemp = true_momentum - momentum;
-                        FillHisto( "SpectrometerXMomentumResolution",  ResolutionTemp[0] );
-                        FillHisto( "SpectrometerYMomentumResolution", ResolutionTemp[1] );
-                        FillHisto( "SpectrometerZMomentumResolution", ResolutionTemp[2] * 0.001 );
-                        FillHisto( "SpectrometerMomentumResolution", ResolutionTemp.Mag() * 0.001 );
-
-                        FillHisto( "SpectrometerXMomentumResolutionAgainstXMomentum", true_momentum[0], ResolutionTemp[0] );
-                        FillHisto( "SpectrometerYMomentumResolutionAgainstYMomentum", true_momentum[1], ResolutionTemp[1] );
-                        FillHisto( "SpectrometerZMomentumResolutionAgainstZMomentum", true_momentum[2] * 0.001, ResolutionTemp[2] * 0.001 );
-                        FillHisto( "SpectrometerMomentumResolutionAgainstMomentum",  true_momentum.Mag() * 0.001, ResolutionTemp.Mag() * 0.001 );
-
-
-                        FillHisto( "KaonEndingPosition", true_position_end[2] * 0.001, true_position_end[0] );
-                        FillHisto( "TrueMomentumHist",   true_momentum.Mag() * 0.001 );
-                        FillHisto( "TruexMomentumHist",  true_momentum[0] * 0.001 );
-                        FillHisto( "TrueyMomentumHist",  true_momentum[1] * 0.001 );
-                        FillHisto( "TruezMomentumHist",  true_momentum[2] * 0.001 );
-
-
-                        FillHisto( "TrueTransverseMomentumHist",     true_momentum.Perp() );
-                        FillHisto( "TrueAzimuthalMomentumHist",      true_momentum.Phi() );
-                        FillHisto( "TruePolarMomentumHist",          true_momentum.Theta() );
-                        FillHisto( "TrueEnergyVsAzimuthal",          true_momentum.Phi(),   true_momentum.Mag()  * 0.001 );
-                        FillHisto( "TrueEnergyVsPolar",              true_momentum.Theta(), true_momentum.Mag()  * 0.001 );
-                        FillHisto( "TrueTranverseEnergyVsAzimuthal", true_momentum.Phi(),   true_momentum.Perp() * 0.001 );
-
-                        FillHisto( "CompareTrueMomentumHist",  true_momentum.Mag() * 0.001 );
-                        FillHisto( "CompareTruexMomentumHist", true_momentum[0] * 0.001 );
-                        FillHisto( "CompareTrueyMomentumHist", true_momentum[1] * 0.001 );
-                        FillHisto( "CompareTruezMomentumHist", true_momentum[2] * 0.001 );
-
-                        FillHisto( "CompareTrueTransverseMomentumHist", true_momentum.Perp() );
-                        FillHisto( "CompareTrueAzimuthalMomentumHist",  true_momentum.Phi() );
-                        FillHisto( "CompareTruePolarMomentumHist",      true_momentum.Theta() );
-
-                        FillHisto( "CompareTrueEnergyVsAzimuthal",          true_momentum.Phi(),   true_momentum.Mag() * 0.001 );
-                        FillHisto( "CompareTrueEnergyVsPolar",              true_momentum.Theta(), true_momentum.Mag() * 0.001 );
-                        FillHisto( "CompareTrueTranverseEnergyVsAzimuthal", true_momentum.Phi(),   true_momentum.Perp() * 0.001 );
-
-                        FillHisto( "TrueProductionPosition", true_position_start[2] * 0.001, true_position_start[0] );
-
-                        FillHisto( "TrueProductionPositionX", true_position_start[0] );
-                        FillHisto( "TrueProductionPositionY", true_position_start[1] );
-                        FillHisto( "TrueProductionPositionZ", true_position_start[2] * 0.001 );
-
-                        true_momentum.RotateY( -BeamAngleFromZAxis );
-                        momentum.RotateY( -BeamAngleFromZAxis );
-
-                        FillHisto( "TrueXZAngle",   true_xz_angle );
-                        FillHisto( "TrueYZAngle",   true_yz_angle );
-
-
-
-                        TLorentzVector true_muon_momentum = TrueCandidate->GetInitial4Momentum();
-                        //TLorentzVector TrueMuonMomentum = TrueCandidate->GetMomAtCheckPoint(2);
-                        TLorentzVector true_missing_mass = true_kaon_momentum - true_muon_momentum;
-                        true_muon_velocity_squared = true_muon_momentum.Vect() *  ( speed_of_light_2 / true_muon_momentum[3] );
-
-                        FillHisto("TrueMissingMass", true_missing_mass.Mag2() * 0.000001 );
-                        FillHisto( "Energyclusterenergy", true_muon_momentum[3] / cluster_energy[0] );
-                        FillHisto( "LkrEntryx", true_LKr_entry[0] );
-                        FillHisto( "LkrEntryy", true_LKr_entry[1] );
-                        FillHisto( "LkrEntryz", true_LKr_entry[2] );
-                    }
-                }
-                //Reco stuff
-                FillHisto( "XZAngle", reco_xz_angle );
-                FillHisto( "YZAngle", reco_yz_angle );
-                TVector3 Direction;
-                Direction[0] = 1 * tan( reco_xz_angle );
-                Direction[1] = 1 * tan( reco_yz_angle );
-                Direction[2] = 1;
-                Direction = Direction.Unit(); //Normalize
-                TVector3 ReconstructedMomentum = Direction * momentum.Mag();
-
-                ReconstructedMomentum.RotateY( BeamAngleFromZAxis );
-                FillHisto( "ReconstructedMomentumHist", ReconstructedMomentum.Mag() * 0.001 );
-                FillHisto( "ReconstructedxMomentumHist", ReconstructedMomentum[0] * 0.001 );
-                FillHisto( "ReconstructedyMomentumHist", ReconstructedMomentum[1] * 0.001 );
-                FillHisto( "ReconstructedzMomentumHist", ReconstructedMomentum[2] * 0.001 );
-                ReconstructedMomentum.RotateY( -BeamAngleFromZAxis );
-
-                FillHisto( "MissingMass", missing_mass.Mag2() / pow( 1000, 2) );
-
-                momentum.RotateY(BeamAngleFromZAxis);   //Rotate the reference frame to be along the beam
-
-                FillHisto( "MomentumHist",  momentum.Mag() * 0.001 );
-                FillHisto( "xMomentumHist", momentum[0]    * 0.001 );
-                FillHisto( "yMomentumHist", momentum[1]    * 0.001 );
-                FillHisto( "zMomentumHist", momentum[2]    * 0.001 );
-
-
-
-                FillHisto( "TransverseMomentumHist", momentum.Perp()  );
-                FillHisto( "AzimuthalMomentumHist",  momentum.Phi()   );
-                FillHisto( "PolarMomentumHist",      momentum.Theta() );
-
-                FillHisto( "EnergyVsAzimuthal",          momentum.Phi(),   momentum.Mag()  * 0.001 );
-                FillHisto( "EnergyVsPolar",              momentum.Theta(), momentum.Mag()  * 0.001 );
-                FillHisto( "TranverseEnergyVsAzimuthal", momentum.Phi(),   momentum.Perp() * 0.001 );
-
-                double Lkr_intersection_length;
-                momentum.RotateY( -BeamAngleFromZAxis );  //Rotate reference frame back to along the detector
-                if ( intersection( LKr1minx, Lkr1maxx, Lkr1miny, LKr1maxy, LKr1minz, Lkr1maxz, position_after, momentum_after ) == false )
-                {
-                    Lkr_intersection_length = intersection_length( LKr1minx, Lkr1maxx, Lkr1miny, LKr1maxy, LKr1minz, Lkr1maxz, position_after, momentum_after );
-                }
-                else if ( intersection( LKr2minx, Lkr2maxx, Lkr2miny, LKr2maxy, LKr2minz, Lkr2maxz, position_after, momentum_after ) == false )
-                {
-                    Lkr_intersection_length = intersection_length( LKr2minx, Lkr2maxx, Lkr2miny, LKr2maxy, LKr2minz, Lkr2maxz, position_after, momentum_after );
-                }
-
-                if  (   intersection( LKrhole1minx, Lkrhole1maxx, Lkrhole1miny, LKrhole1maxy, LKrhole1minz, Lkrhole1maxz, position_after, momentum_after ) == false
-                        && intersection( LKrhole2minx, Lkrhole2maxx, Lkrhole2miny, LKrhole2maxy, LKrhole2minz, Lkrhole2maxz, position_after, momentum_after ) == false
-                    )
-                {
-                    FillHisto( "ClusterEnergyAndIntersectionLength", Lkr_intersection_length / cluster_energy[0] );
-                }
-
-                if ( decay_area == 1 )    ///This is never true because the first if contains it to decay_area == 2.
-                {
-                    FillHisto( "ClosestPointFromBeamAxis",   closest_point_from_baxis_before_fiducial.Mag() * 0.001 );
-                    FillHisto( "ClosestxPointFromBeamAxis",  closest_point_from_baxis_before_fiducial[0] );
-                    FillHisto( "ClosestyPointFromBeamAxis",  closest_point_from_baxis_before_fiducial[1] );
-                    FillHisto( "ClosestzPointFromBeamAxis",  closest_point_from_baxis_before_fiducial[2] * 0.001 );
-                    FillHisto( "MinimumDistanceToBeamAxis",  min_dist_to_baxis_before_fiducial );
-                    FillHisto( "ClosestDistanceToBeamAxis",  dist_to_baxis_before_fiducial.Mag() );
-                    FillHisto( "ClosestxDistanceToBeamAxis", dist_to_baxis_before_fiducial[0] );
-                    FillHisto( "ClosestyDistanceToBeamAxis", dist_to_baxis_before_fiducial[1] );
-                    FillHisto( "ClosestzDistanceToBeamAxis", dist_to_baxis_before_fiducial[2] );
-                    FillHisto( "DecayPoisition",             closest_point_from_baxis_before_fiducial[2] * 0.001 , closest_point_from_baxis_before_fiducial[0] );
-                    FillHisto("MissingMassVsZPosition",      closest_point_from_baxis_before_fiducial[2] * 0.001 , missing_mass.Mag2() * 0.000001 );
-
-                }
-                if ( decay_area == 2 )
-                {
-                    FillHisto( "ClosestPointFromBeamAxis",   closest_point_from_baxis_after_fiducial.Mag() * 0.001 );
-                    FillHisto( "ClosestxPointFromBeamAxis",  closest_point_from_baxis_after_fiducial[0] );
-                    FillHisto( "ClosestyPointFromBeamAxis",  closest_point_from_baxis_after_fiducial[1] );
-                    FillHisto( "ClosestzPointFromBeamAxis",  closest_point_from_baxis_after_fiducial[2] * 0.001 );
-                    FillHisto( "MinimumDistanceToBeamAxis",  min_dist_to_baxis_after_fiducial );
-                    FillHisto( "ClosestDistanceToBeamAxis",  dist_to_baxis_after_fiducial.Mag() );
-                    FillHisto( "ClosestxDistanceToBeamAxis", dist_to_baxis_after_fiducial[0] );
-                    FillHisto( "ClosestyDistanceToBeamAxis", dist_to_baxis_after_fiducial[1] );
-                    FillHisto( "ClosestzDistanceToBeamAxis", dist_to_baxis_after_fiducial[2] );
-                    FillHisto( "DecayPoisition",             closest_point_from_baxis_after_fiducial[2] * 0.001 , closest_point_from_baxis_after_fiducial[0] );
-                    FillHisto( "MissingMassVsZPosition",     closest_point_from_baxis_after_fiducial[2] * 0.001 , missing_mass.Mag2() * 0.000001 );
+                    CEDAR_enough_sectors = true;
                 }
             }
         }
+
+    if ( CHANTIEvent->GetNCandidates() >= 1 )
+    {
+        detection_in_CHANTI = true;
     }
+    ///////////////////////////////////
+    // Plot Histos with Restrictions //
+    ///////////////////////////////////
+    //Attempts to select only the muon
+    int accepted_number_of_LKr_candidates = 1, accepted_number_of_spectrometer_candidates = 1, accepted_number_of_MUV3_candidates = 1;
+
+    if  (   spectro_charge == 1  //Positive Charge
+            && SpectrometerEvent->GetNCandidates() == accepted_number_of_spectrometer_candidates //Single Detection In Spectrometer
+            && decay_area == 2  //Decay in Fiducial Region //34728 particles when running on 100,000 munu.
+            && ( LKrEvent->GetNCandidates() <= accepted_number_of_LKr_candidates /*|| Intersect_LKr == false*/ )  // Be detected in LKr, if the muon should hit LKr //27429 with just getncandidates, 31099 with or intersect false.
+            && ( cluster_energetic_enough == true /*|| Intersect_LKr == false*/ ) //IF a cluster is in the LKr, it should have energy greater than 1/1000 of muon energy and less than 1/140000 //27273, 30943 with or intersect false
+            && ( ring_correct_size == true || detection_in_rich == false ) //IF a ring is in the RICH, it should be consistent with a muon. //27273, 30943 with or intersect false for LKr
+            && LAVEvent->GetNCandidates() == 0 //No muon should be detected in the LAV. //26112, 27557 with or intersect false for LKr
+            && MUV3Event->GetNCandidates() >= accepted_number_of_MUV3_candidates // Be detected in MUV3 IF DETECTED PARTICLE WOULD HIT IT //26076 , 26086 with or intersect false for LKr
+            && dist_to_baxis_after_fiducial.Mag() <= 40 && dist_to_baxis_after_fiducial[0] <= 40 && dist_to_baxis_after_fiducial[1] <= 40 && dist_to_baxis_after_fiducial[2] <= 40 //Be linked closely to the beam. // 26069 with or intersect false for LKr
+            && abs ( MUV3_time_difference[0] <= 15 )
+            && abs ( LKr_time_difference[0] <= 15 )
+            && SACEvent->GetNCandidates() == 0
+            //&& ( momentum.Mag() <= 35000 && momentum.Mag() >= 15000 && detection_in_rich == true ) //RICH can only distinguish in this range. 8211 with or intersect false for LKr
+            //&& missing_mass.Mag2() / pow( 1000, 2 ) < 2000 //Have Missing Mass Correct for Decay
+            && CEDAREvent->GetNCandidates() >=1 // Be detected in CEDAR
+            && CEDAREvent->GetNHits() >=10 //Have atleast 10 hits in the CEDAR
+            && CEDAR_enough_sectors == true
+            //&& detection_in_CHANTI == false
+            //&& detection_in_rich == true
+        )
+        {
+            /*
+            //true stuff here
+
+            if ( MCTruthEvent -> GetNKineParts() >= 1 )
+            {
+
+                //Get the first decay product associated with the decay event (hopefully a muon)
+                KinePart *TrueCandidate = ( KinePart* )MCTruthEvent -> GetKineParts() -> At( 1 );
+                //Get the kaon associated with the decay event
+                KinePart *KaonCandidate = ( KinePart* )MCTruthEvent -> GetKineParts() -> At( 0 );
+
+                TLorentzVector true_kaon_momentum = KaonCandidate->GetFinal4Momentum();
+
+                TVector3 true_momentum = TrueCandidate->GetMomAtCheckPoint( 2 ).Vect();
+                TVector3 true_position_start = TrueCandidate->GetProdPos().Vect();
+                TVector3 true_position_end = TrueCandidate->GetEndPos().Vect();
+                TVector3 true_LKr_entry = TrueCandidate ->GetPosLKrEntry();
+                double true_xz_angle = atan( true_momentum[0] / true_momentum[2] );
+                double true_yz_angle = atan( true_momentum[1] / true_momentum[2] );
+
+                //Make sure the first true event decay product is a muon
+                if ( true_momentum.Mag() != 0 && TrueCandidate -> GetPDGcode() == -13 && abs( true_momentum.Theta() ) > 0 )
+                {
+                    true_momentum.RotateY( BeamAngleFromZAxis );
+                    momentum.RotateY( BeamAngleFromZAxis );
+                    for( int i = 0; i < 13; i++ )
+                    {
+                        if( true_momentum.Mag() * 0.001 < 5 * ( i + 3 ) && true_momentum.Mag() * 0.001 >= 5 * ( i + 2 ) )
+                        {
+                            string intstr = to_string( i );
+                            TString num = TString( intstr );
+                            FillHisto( TString( "ResolutionTemp" ) + num, ( true_momentum.Mag() - momentum.Mag() ) * 0.001 );
+                        }
+                        if( true_momentum[0] * 0.001 < 0.026666666666666666 * ( i + 1 ) - 0.2 && true_momentum[0] * 0.001 >= 0.026666666666666666 * ( i ) - 0.2 )
+                        {
+                            string intstr = to_string( i );
+                            TString num = TString( intstr );
+                            FillHisto( TString( "ResolutionTempX" ) + num, ( true_momentum[0] - momentum[0] ) * 0.001 );
+                        }
+                        if( true_momentum[1] * 0.001 < 0.026666666666666666 * ( i + 1 ) - 0.2 && true_momentum[1] * 0.001 >= 0.026666666666666666 * ( i ) - 0.2 )
+                        {
+                            string intstr = to_string( i );
+                            TString num = TString( intstr );
+                            FillHisto( TString( "ResolutionTempY" ) + num, ( true_momentum[1] - momentum[1] ) * 0.001 );
+                        }
+                        if( true_momentum[2] * 0.001 < 5 * ( i + 2 ) && true_momentum[2] * 0.001 >= 5 * ( i + 1 ) )
+                        {
+                            string intstr = to_string( i );
+                            TString num = TString( intstr );
+                            FillHisto( TString( "ResolutionTempZ" ) + num, ( true_momentum[2] - momentum[2] ) * 0.001 );
+                        }
+                    }
+                    true_momentum.RotateY(-BeamAngleFromZAxis);
+                    momentum.RotateY(-BeamAngleFromZAxis);
+                    for( int i = 0; i < 13; i++ )
+                    {
+                        if( true_xz_angle < 0.0015333 * ( i + 1 ) - 0.008 && true_xz_angle >= 0.0015333 * ( i ) - 0.008 )
+                        {
+                            string intstr = to_string( i );
+                            TString num = TString( intstr );
+                            FillHisto( TString( "ResolutionTempXZ" ) + num, ( true_xz_angle - reco_xz_angle ) );
+                        }
+                        if( true_yz_angle < ( 0.0016 ) * ( i + 1 ) - 0.012 && true_yz_angle >= ( 0.0016 ) * ( i ) - 0.012 )
+                        {
+                            string intstr = to_string( i );
+                            TString num = TString( intstr );
+                            FillHisto( TString( "ResolutionTempYZ" ) + num, ( true_yz_angle - reco_yz_angle ) );
+                        }
+                    }
+                    ////////////////////////////////////
+                    // Calculate Momentum Resolutions //
+                    ////////////////////////////////////
+                    true_momentum.RotateY( BeamAngleFromZAxis );
+                    momentum.RotateY( BeamAngleFromZAxis );
+                    TVector3 ResolutionTemp = true_momentum - momentum;
+                    FillHisto( "SpectrometerXMomentumResolution",  ResolutionTemp[0] );
+                    FillHisto( "SpectrometerYMomentumResolution", ResolutionTemp[1] );
+                    FillHisto( "SpectrometerZMomentumResolution", ResolutionTemp[2] * 0.001 );
+                    FillHisto( "SpectrometerMomentumResolution", ResolutionTemp.Mag() * 0.001 );
+
+                    FillHisto( "SpectrometerXMomentumResolutionAgainstXMomentum", true_momentum[0], ResolutionTemp[0] );
+                    FillHisto( "SpectrometerYMomentumResolutionAgainstYMomentum", true_momentum[1], ResolutionTemp[1] );
+                    FillHisto( "SpectrometerZMomentumResolutionAgainstZMomentum", true_momentum[2] * 0.001, ResolutionTemp[2] * 0.001 );
+                    FillHisto( "SpectrometerMomentumResolutionAgainstMomentum",  true_momentum.Mag() * 0.001, ResolutionTemp.Mag() * 0.001 );
+
+
+                    FillHisto( "KaonEndingPosition", true_position_end[2] * 0.001, true_position_end[0] );
+                    FillHisto( "TrueMomentumHist",   true_momentum.Mag() * 0.001 );
+                    FillHisto( "TruexMomentumHist",  true_momentum[0] * 0.001 );
+                    FillHisto( "TrueyMomentumHist",  true_momentum[1] * 0.001 );
+                    FillHisto( "TruezMomentumHist",  true_momentum[2] * 0.001 );
+
+
+                    FillHisto( "TrueTransverseMomentumHist",     true_momentum.Perp() );
+                    FillHisto( "TrueAzimuthalMomentumHist",      true_momentum.Phi() );
+                    FillHisto( "TruePolarMomentumHist",          true_momentum.Theta() );
+                    FillHisto( "TrueEnergyVsAzimuthal",          true_momentum.Phi(),   true_momentum.Mag()  * 0.001 );
+                    FillHisto( "TrueEnergyVsPolar",              true_momentum.Theta(), true_momentum.Mag()  * 0.001 );
+                    FillHisto( "TrueTranverseEnergyVsAzimuthal", true_momentum.Phi(),   true_momentum.Perp() * 0.001 );
+
+                    FillHisto( "CompareTrueMomentumHist",  true_momentum.Mag() * 0.001 );
+                    FillHisto( "CompareTruexMomentumHist", true_momentum[0] * 0.001 );
+                    FillHisto( "CompareTrueyMomentumHist", true_momentum[1] * 0.001 );
+                    FillHisto( "CompareTruezMomentumHist", true_momentum[2] * 0.001 );
+
+                    FillHisto( "CompareTrueTransverseMomentumHist", true_momentum.Perp() );
+                    FillHisto( "CompareTrueAzimuthalMomentumHist",  true_momentum.Phi() );
+                    FillHisto( "CompareTruePolarMomentumHist",      true_momentum.Theta() );
+
+                    FillHisto( "CompareTrueEnergyVsAzimuthal",          true_momentum.Phi(),   true_momentum.Mag() * 0.001 );
+                    FillHisto( "CompareTrueEnergyVsPolar",              true_momentum.Theta(), true_momentum.Mag() * 0.001 );
+                    FillHisto( "CompareTrueTranverseEnergyVsAzimuthal", true_momentum.Phi(),   true_momentum.Perp() * 0.001 );
+
+                    FillHisto( "TrueProductionPosition", true_position_start[2] * 0.001, true_position_start[0] );
+
+                    FillHisto( "TrueProductionPositionX", true_position_start[0] );
+                    FillHisto( "TrueProductionPositionY", true_position_start[1] );
+                    FillHisto( "TrueProductionPositionZ", true_position_start[2] * 0.001 );
+
+                    true_momentum.RotateY( -BeamAngleFromZAxis );
+                    momentum.RotateY( -BeamAngleFromZAxis );
+
+                    FillHisto( "TrueXZAngle",   true_xz_angle );
+                    FillHisto( "TrueYZAngle",   true_yz_angle );
+
+
+
+                    TLorentzVector true_muon_momentum = TrueCandidate->GetInitial4Momentum();
+                    //TLorentzVector TrueMuonMomentum = TrueCandidate->GetMomAtCheckPoint(2);
+                    TLorentzVector true_missing_mass = true_kaon_momentum - true_muon_momentum;
+                    true_muon_velocity_squared = true_muon_momentum.Vect() *  ( speed_of_light_2 / true_muon_momentum[3] );
+
+                    FillHisto("TrueMissingMass", true_missing_mass.Mag2() * 0.000001 );
+                    FillHisto( "Energyclusterenergy", true_muon_momentum[3] / cluster_energy[0] );
+                    FillHisto( "LkrEntryx", true_LKr_entry[0] );
+                    FillHisto( "LkrEntryy", true_LKr_entry[1] );
+                    FillHisto( "LkrEntryz", true_LKr_entry[2] );
+                }
+            }
+            */
+            //Reco stuff
+            for ( int iLKr = 0; iLKr < accepted_number_of_LKr_candidates; iLKr++ )
+            {
+                FillHisto( "LKrtime", LKr_time[iLKr] );
+                FillHisto( "LKrTimeDifference", LKr_time_difference[iLKr] );
+            }
+            FillHisto( "LKrcandidates", LKrEvent->GetNCandidates() );
+
+            if
+            for ( int iMUV3 = 0; iMUV3 < accepted_number_of_MUV3_candidates; iMUV3++)
+            {
+                FillHisto( "closestxDistanceToMUV3", distance_to_MUV3[iMUV3][0] );
+                FillHisto( "closestyDistanceToMUV3", distance_to_MUV3[iMUV3][1] );
+                FillHisto( "closestzDistanceToMUV3", distance_to_MUV3[iMUV3][2] );
+                FillHisto( "closestDistanceToMUV3", distance_to_MUV3[iMUV3].Mag() );
+                FillHisto( "closestxPointToMUV3", closest_point_MUV3[iMUV3][0] );
+                FillHisto( "closestyPointToMUV3", closest_point_MUV3[iMUV3][1] );
+                FillHisto( "closestzPointToMUV3", closest_point_MUV3[iMUV3][2] );
+                FillHisto( "MUV3Position", closest_point_MUV3[iMUV3][2] * 0.001 , closest_point_MUV3[iMUV3][0] );
+                FillHisto( "MUV3time", MUV3_time[iMUV3] );
+                FillHisto( "timedifference", MUV3_time_difference[iMUV3] );
+            }
+            FillHisto( "MUV3candidates", MUV3Event->GetNCandidates() );
+            for ( int iCEDAR = 0; CEDAREvent->GetNCandidates(); iCEDAR++ )
+            {
+                FillHisto( "CEDARSectors", sectors[iCEDAR]);
+            }
+            FillHisto( "CEDARCandidates", CEDAREvent->GetNCandidates() );
+
+
+            FillHisto( "XZAngle", reco_xz_angle );
+            FillHisto( "YZAngle", reco_yz_angle );
+            TVector3 Direction;
+            Direction[0] = 1 * tan( reco_xz_angle );
+            Direction[1] = 1 * tan( reco_yz_angle );
+            Direction[2] = 1;
+            Direction = Direction.Unit(); //Normalize
+            TVector3 ReconstructedMomentum = Direction * momentum.Mag();
+
+            ReconstructedMomentum.RotateY( BeamAngleFromZAxis );
+            FillHisto( "ReconstructedMomentumHist", ReconstructedMomentum.Mag() * 0.001 );
+            FillHisto( "ReconstructedxMomentumHist", ReconstructedMomentum[0] * 0.001 );
+            FillHisto( "ReconstructedyMomentumHist", ReconstructedMomentum[1] * 0.001 );
+            FillHisto( "ReconstructedzMomentumHist", ReconstructedMomentum[2] * 0.001 );
+            ReconstructedMomentum.RotateY( -BeamAngleFromZAxis );
+
+            FillHisto( "MissingMass", missing_mass.Mag2() / pow( 1000, 2) );
+
+            momentum.RotateY(BeamAngleFromZAxis);   //Rotate the reference frame to be along the beam
+
+            FillHisto( "MomentumHist",  momentum.Mag() * 0.001 );
+            FillHisto( "xMomentumHist", momentum[0]    * 0.001 );
+            FillHisto( "yMomentumHist", momentum[1]    * 0.001 );
+            FillHisto( "zMomentumHist", momentum[2]    * 0.001 );
+
+
+
+            FillHisto( "TransverseMomentumHist", momentum.Perp()  );
+            FillHisto( "AzimuthalMomentumHist",  momentum.Phi()   );
+            FillHisto( "PolarMomentumHist",      momentum.Theta() );
+
+            FillHisto( "EnergyVsAzimuthal",          momentum.Phi(),   momentum.Mag()  * 0.001 );
+            FillHisto( "EnergyVsPolar",              momentum.Theta(), momentum.Mag()  * 0.001 );
+            FillHisto( "TranverseEnergyVsAzimuthal", momentum.Phi(),   momentum.Perp() * 0.001 );
+
+
+            FillHisto( "spectrotime", Spectro_time );
+
+            double Lkr_intersection_length;
+            momentum.RotateY( -BeamAngleFromZAxis );  //Rotate reference frame back to along the detector
+            if ( intersection( LKr1minx, Lkr1maxx, Lkr1miny, LKr1maxy, LKr1minz, Lkr1maxz, position_after, momentum_after ) == false )
+            {
+                Lkr_intersection_length = intersection_length( LKr1minx, Lkr1maxx, Lkr1miny, LKr1maxy, LKr1minz, Lkr1maxz, position_after, momentum_after );
+            }
+            else if ( intersection( LKr2minx, Lkr2maxx, Lkr2miny, LKr2maxy, LKr2minz, Lkr2maxz, position_after, momentum_after ) == false )
+            {
+                Lkr_intersection_length = intersection_length( LKr2minx, Lkr2maxx, Lkr2miny, LKr2maxy, LKr2minz, Lkr2maxz, position_after, momentum_after );
+            }
+
+            if  (   intersection( LKrhole1minx, Lkrhole1maxx, Lkrhole1miny, LKrhole1maxy, LKrhole1minz, Lkrhole1maxz, position_after, momentum_after ) == false
+                    && intersection( LKrhole2minx, Lkrhole2maxx, Lkrhole2miny, LKrhole2maxy, LKrhole2minz, Lkrhole2maxz, position_after, momentum_after ) == false
+                )
+            {
+                FillHisto( "ClusterEnergyAndIntersectionLength", Lkr_intersection_length / cluster_energy[0] );
+            }
+
+            if ( decay_area == 1 )    ///This is never true because the first if contains it to decay_area == 2.
+            {
+                FillHisto( "ClosestPointFromBeamAxis",   closest_point_from_baxis_before_fiducial.Mag() * 0.001 );
+                FillHisto( "ClosestxPointFromBeamAxis",  closest_point_from_baxis_before_fiducial[0] );
+                FillHisto( "ClosestyPointFromBeamAxis",  closest_point_from_baxis_before_fiducial[1] );
+                FillHisto( "ClosestzPointFromBeamAxis",  closest_point_from_baxis_before_fiducial[2] * 0.001 );
+                FillHisto( "MinimumDistanceToBeamAxis",  min_dist_to_baxis_before_fiducial );
+                FillHisto( "ClosestDistanceToBeamAxis",  dist_to_baxis_before_fiducial.Mag() );
+                FillHisto( "ClosestxDistanceToBeamAxis", dist_to_baxis_before_fiducial[0] );
+                FillHisto( "ClosestyDistanceToBeamAxis", dist_to_baxis_before_fiducial[1] );
+                FillHisto( "ClosestzDistanceToBeamAxis", dist_to_baxis_before_fiducial[2] );
+                FillHisto( "DecayPoisition",             closest_point_from_baxis_before_fiducial[2] * 0.001 , closest_point_from_baxis_before_fiducial[0] );
+                FillHisto("MissingMassVsZPosition",      closest_point_from_baxis_before_fiducial[2] * 0.001 , missing_mass.Mag2() * 0.000001 );
+
+            }
+            if ( decay_area == 2 )
+            {
+                FillHisto( "ClosestPointFromBeamAxis",   closest_point_from_baxis_after_fiducial.Mag() * 0.001 );
+                FillHisto( "ClosestxPointFromBeamAxis",  closest_point_from_baxis_after_fiducial[0] );
+                FillHisto( "ClosestyPointFromBeamAxis",  closest_point_from_baxis_after_fiducial[1] );
+                FillHisto( "ClosestzPointFromBeamAxis",  closest_point_from_baxis_after_fiducial[2] * 0.001 );
+                FillHisto( "MinimumDistanceToBeamAxis",  min_dist_to_baxis_after_fiducial );
+                FillHisto( "ClosestDistanceToBeamAxis",  dist_to_baxis_after_fiducial.Mag() );
+                FillHisto( "ClosestxDistanceToBeamAxis", dist_to_baxis_after_fiducial[0] );
+                FillHisto( "ClosestyDistanceToBeamAxis", dist_to_baxis_after_fiducial[1] );
+                FillHisto( "ClosestzDistanceToBeamAxis", dist_to_baxis_after_fiducial[2] );
+                FillHisto( "DecayPoisition",             closest_point_from_baxis_after_fiducial[2] * 0.001 , closest_point_from_baxis_after_fiducial[0] );
+                FillHisto( "MissingMassVsZPosition",     closest_point_from_baxis_after_fiducial[2] * 0.001 , missing_mass.Mag2() * 0.000001 );
+            }
+        }
 }
 
 void spectro2::PostProcess()
@@ -1088,7 +1156,7 @@ void spectro2::EndOfRunUser()
     TH1* h = fHisto.GetHisto("MissingMass");
     h->Fit("gaus");
     h->Draw();
-
+    /*
     int n = 13;
     double x[n], y[n], ey[n], ry[n], ery[n];
 
@@ -1181,6 +1249,7 @@ void spectro2::EndOfRunUser()
     f->SetParameter( 1, 0.001 );
     TGraph* g = fHisto.GetTGraph( "RelativeMtmResolutionVsMtm" );
     g->Fit( "f" );
+    */
     SaveAllPlots();
 
 }
