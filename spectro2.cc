@@ -425,6 +425,21 @@ void spectro2::InitHist()
     h57 -> GetYaxis() -> SetTitle( "m" );
     BookHisto( h57 );
 
+    TH2D* h66 = new TH2D("ClusterPosition","Cluster Position",NumberOfBins,0,0,NumberOfBins,0,0);
+    h66 -> GetXaxis() -> SetTitle( "mm" );
+    h66 -> GetYaxis() -> SetTitle( "mm" );
+    BookHisto( h66 );
+
+    TH2D* h67 = new TH2D("TrackPosition","Track Position",NumberOfBins,0,0,NumberOfBins,0,0);
+    h67 -> GetXaxis() -> SetTitle( "mm" );
+    h67 -> GetYaxis() -> SetTitle( "mm" );
+    BookHisto( h67 );
+
+    CreateHist1D("ClusterTrackDistanceX", "Distance Between Cluster X & Track X", NumberOfBins, 0 , 0 );
+    SetHistAxisLabels("ClusterTrackDistance","mm","Number of Entries");
+
+    CreateHist1D("ClusterTrackDistanceY", "Distance Between Cluster Y & Track Y", NumberOfBins, 0 , 0 );
+    SetHistAxisLabels("ClusterTrackDistanceY","mm","Number of Entries");
 
 
     /*
@@ -754,28 +769,41 @@ void spectro2::Process( int iEvent )
         }
         TRecoLKrCandidate *LKrCandidate = ( TRecoLKrCandidate* )LKrEvent->GetCandidate( 0 );
         LKrCandidate->SetEvent( LKrEvent );
+
+
         //Project ray onto lkr front face
-        TVector3 ray = position_after + 240000*momentum_after.Unit();
+        TVector3 ray = position_after + (240000-position_after[2])*(momentum_after*(1/momentum_after[2]));
+
+
         //calculate distance between projection point and lkr centre
-        TVector3 LKr_centre(0,0,240000);
+        TVector3 LKr_centre(-7.1,8.975,240000);
         TVector3 rad = ray - LKr_centre;
         double dist = rad.Mag();
-        std::cout << dist << std::endl;
         //make sure is within lkr face
         if( dist >= 150 && dist <= 1200 )
         {
-            double lkr_x = LKrCandidate->GetClusterX();
-            double lkr_y = LKrCandidate->GetClusterY();
-            double clust_dist2 = ((lkr_x-ray[0])*(lkr_x-ray[0]))+((lkr_y-ray[1])*(lkr_y-ray[1]));
-            double clust_dist = sqrt(clust_dist2);
-            if(clust_dist2 <= 40)
+            double lkr_x = LKrCandidate->GetClusterX()*10;
+            double lkr_y = LKrCandidate->GetClusterY()*10;
+            FillHisto("TrackPosition",ray[0],ray[1]);
+            FillHisto("ClusterPosition",lkr_x,lkr_y);
+
+            double clust_dist2 = pow( ( lkr_x-ray[0] ), 2 ) + pow( ( lkr_y-ray[1] ), 2 );
+            double clust_dist = sqrt( clust_dist2 );
+            FillHisto("ClusterTrackDistanceX",lkr_x-ray[0]);
+            FillHisto("ClusterTrackDistanceY",lkr_y-ray[1]);
+            //std::cout << clust_dist << std::endl;
+            if(clust_dist2 <= 2500)
+            {
+
                 Intersect_LKr = true;
+            }
             else Intersect_LKr = false;
         }
         else
         {
             Intersect_LKr = false;
         }
+
         //calculate distance between lkr cluster and
         /*
         if  (   intersection( LKr1minx, Lkr1maxx, Lkr1miny, LKr1maxy, LKr1minz, Lkr1maxz, position_after, momentum_after ) == true
@@ -848,8 +876,9 @@ void spectro2::Process( int iEvent )
     if  (   spectro_charge == 1  //Positive Charge
             && SpectrometerEvent->GetNCandidates() == accepted_number_of_spectrometer_candidates //Single Detection In Spectrometer
             && decay_area == 2  //Decay in Fiducial Region //34728 particles when running on 100,000 munu.
-            && ( LKrEvent->GetNCandidates() <= accepted_number_of_LKr_candidates /*|| Intersect_LKr == false*/ )  // Be detected in LKr, if the muon should hit LKr //27429 with just getncandidates, 31099 with or intersect false.
-            && ( ( cluster_energetic_enough == true || LKrEvent->GetNCandidates() == 0 ) /*|| Intersect_LKr == false*/ ) //IF a cluster is in the LKr, it should have energy greater than 1/1000 of muon energy and less than 1/140000 //27273, 30943 with or intersect false
+            && (LKrEvent->GetNCandidates() == 1 && Intersect_LKr) || (LKrEvent->GetNCandidates() == 0 && !Intersect_LKr)
+            //&& ( LKrEvent->GetNCandidates() <= accepted_number_of_LKr_candidates /*|| Intersect_LKr == false*/ )  // Be detected in LKr, if the muon should hit LKr //27429 with just getncandidates, 31099 with or intersect false.
+            && ( cluster_energetic_enough == true || LKrEvent->GetNCandidates() == 0 /*|| Intersect_LKr == false*/ ) //IF a cluster is in the LKr, it should have energy greater than 1/1000 of muon energy and less than 1/140000 //27273, 30943 with or intersect false
             && ( ring_correct_size == true || detection_in_rich == false ) //IF a ring is in the RICH, it should be consistent with a muon. //27273, 30943 with or intersect false for LKr
             && LAVEvent->GetNCandidates() == 0 //No muon should be detected in the LAV. //26112, 27557 with or intersect false for LKr
             && MUV3Event->GetNCandidates() >= accepted_number_of_MUV3_candidates // Be detected in MUV3 IF DETECTED PARTICLE WOULD HIT IT //26076 , 26086 with or intersect false for LKr
@@ -861,7 +890,6 @@ void spectro2::Process( int iEvent )
             && abs(distance_to_MUV3[0][1]) <= 500
             && abs(distance_to_MUV3[0][2]) <= 10
             && abs(distance_to_MUV3[0].Mag()) <= 500
-            //&& Intersect_LKr
             //&& ( momentum.Mag() <= 35000 && momentum.Mag() >= 15000 && detection_in_rich == true ) //RICH can only distinguish in this range. 8211 with or intersect false for LKr
             //&& missing_mass.Mag2() / pow( 1000, 2 ) < 2000 //Have Missing Mass Correct for Decay
             //&& CEDAREvent->GetNCandidates() >=1 // Be detected in CEDAR
