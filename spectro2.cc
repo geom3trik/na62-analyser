@@ -779,13 +779,16 @@ void spectro2::Process( int iEvent )
         TVector3 LKr_centre(-7.1,8.975,240000);
         TVector3 rad = ray - LKr_centre;
         double dist = rad.Mag();
+
+        double lkr_x = LKrCandidate->GetClusterX()*10;
+        double lkr_y = LKrCandidate->GetClusterY()*10;
+        FillHisto("TrackPosition",ray[0],ray[1]);
+        FillHisto("ClusterPosition",lkr_x,lkr_y);
+
         //make sure is within lkr face
         if( dist >= 150 && dist <= 1200 )
         {
-            double lkr_x = LKrCandidate->GetClusterX()*10;
-            double lkr_y = LKrCandidate->GetClusterY()*10;
-            FillHisto("TrackPosition",ray[0],ray[1]);
-            FillHisto("ClusterPosition",lkr_x,lkr_y);
+
 
             double clust_dist2 = pow( ( lkr_x-ray[0] ), 2 ) + pow( ( lkr_y-ray[1] ), 2 );
             double clust_dist = sqrt( clust_dist2 );
