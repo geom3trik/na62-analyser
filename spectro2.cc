@@ -757,6 +757,7 @@ void spectro2::Process( int iEvent )
         TVector3 LKr_centre(0,0,240000);
         TVector3 rad = ray - LKr_centre;
         double dist = rad.Mag();
+        std::cout << dist << std::endl;
         //make sure is within lkr face
         if( dist >= 150 && dist <= 1200 )
         {
@@ -844,7 +845,7 @@ void spectro2::Process( int iEvent )
     if  (   spectro_charge == 1  //Positive Charge
             && SpectrometerEvent->GetNCandidates() == accepted_number_of_spectrometer_candidates //Single Detection In Spectrometer
             && decay_area == 2  //Decay in Fiducial Region //34728 particles when running on 100,000 munu.
-            && ( LKrEvent->GetNCandidates() <= accepted_number_of_LKr_candidates /*|| Intersect_LKr == false*/ )  // Be detected in LKr, if the muon should hit LKr //27429 with just getncandidates, 31099 with or intersect false.
+            //&& ( LKrEvent->GetNCandidates() <= accepted_number_of_LKr_candidates /*|| Intersect_LKr == false*/ )  // Be detected in LKr, if the muon should hit LKr //27429 with just getncandidates, 31099 with or intersect false.
             && ( cluster_energetic_enough == true /*|| Intersect_LKr == false*/ ) //IF a cluster is in the LKr, it should have energy greater than 1/1000 of muon energy and less than 1/140000 //27273, 30943 with or intersect false
             && ( ring_correct_size == true || detection_in_rich == false ) //IF a ring is in the RICH, it should be consistent with a muon. //27273, 30943 with or intersect false for LKr
             && LAVEvent->GetNCandidates() == 0 //No muon should be detected in the LAV. //26112, 27557 with or intersect false for LKr
@@ -857,7 +858,7 @@ void spectro2::Process( int iEvent )
             && abs(distance_to_MUV3[0][1]) <= 500
             && abs(distance_to_MUV3[0][2]) <= 10
             && abs(distance_to_MUV3[0].Mag()) <= 500
-            && Intersect_LKr
+            //&& Intersect_LKr
             //&& ( momentum.Mag() <= 35000 && momentum.Mag() >= 15000 && detection_in_rich == true ) //RICH can only distinguish in this range. 8211 with or intersect false for LKr
             //&& missing_mass.Mag2() / pow( 1000, 2 ) < 2000 //Have Missing Mass Correct for Decay
             //&& CEDAREvent->GetNCandidates() >=1 // Be detected in CEDAR
