@@ -67,36 +67,36 @@ void spectro2::InitHist()
 
     // Reconstructed x momentum histogram
     CreateHist1D( "xMomentumHist", "Compare x Momentum", NumberOfBins, -0.3, 0.3 );
-    SetHistAxisLabels("xMomentumHist","Momentum GeV","Number of Entries");
+    SetHistAxisLabels("xMomentumHist","Momentum GeV/c","Number of Entries");
 
 
     // True x momentum histogram plotted with same bins as reconstructed x momentum
     CreateHist1D( "CompareTruexMomentumHist", "Compare True x Momentum", NumberOfBins, -0.3, 0.3 );
-    SetHistAxisLabels("CompareTruexMomentumHist","Momentum GeV","Number of Entries");
+    SetHistAxisLabels("CompareTruexMomentumHist","Momentum GeV/c","Number of Entries");
 
     // Reconstructed y momentum histogram
     CreateHist1D( "yMomentumHist", "y Momentum", NumberOfBins, -0.3, 0.3 );
-    SetHistAxisLabels("yMomentumHist","Momentum GeV","Number of Entries");
+    SetHistAxisLabels("yMomentumHist","Momentum GeV/c","Number of Entries");
 
     // True y momentum histogram plotted with same bins as reconstructed y momentum
     CreateHist1D( "CompareTrueyMomentumHist", "Compare True y Momentum", NumberOfBins, -0.3, 0.3 );
-    SetHistAxisLabels("CompareTrueyMomentumHist","Momentum GeV","Number of Entries");
+    SetHistAxisLabels("CompareTrueyMomentumHist","Momentum GeV/c","Number of Entries");
 
     // Reconstructed z momentum histogram
     CreateHist1D( "zMomentumHist", "z Momentum", NumberOfBins, 0, 80 );
-    SetHistAxisLabels("zMomentumHist","Momentum GeV","Number of Entries");
+    SetHistAxisLabels("zMomentumHist","Momentum GeV/c","Number of Entries");
 
     // True z momentum histogram plotted with same bins as reconstructed z momentum
     CreateHist1D( "CompareTruezMomentumHist", "Compare True z Momentum", NumberOfBins, 0, 80 );
-    SetHistAxisLabels("CompareTruezMomentumHist","Momentum GeV","Number of Entries");
+    SetHistAxisLabels("CompareTruezMomentumHist","Momentum GeV/c","Number of Entries");
 
     // Reconstructed transverse momentum histogram
     CreateHist1D( "TransverseMomentumHist", "Transverse Momentum", NumberOfBins, 0, 300 );
-    SetHistAxisLabels("TransverseMomentumHist","Momentum MeV","Number of Entries");
+    SetHistAxisLabels("TransverseMomentumHist","Momentum MeV/c","Number of Entries");
 
     // True transverse momentum histogram plotted with same bins as reconstructed transverse momentum
     CreateHist1D( "CompareTrueTransverseMomentumHist", " Compare True Transverse Momentum", NumberOfBins, 0, 300 );
-    SetHistAxisLabels("CompareTrueTransverseMomentumHist","Momentum MeV","Number of Entries");
+    SetHistAxisLabels("CompareTrueTransverseMomentumHist","Momentum MeV/c","Number of Entries");
 
     // Reconstructed azimuthal angle histogram
     CreateHist1D( "AzimuthalMomentumHist", "Azimuthal Angle", NumberOfBins, -pi, pi );
@@ -116,48 +116,48 @@ void spectro2::InitHist()
 
     TH2D* h7 = new TH2D( "EnergyVsAzimuthal", "Total Momentum and Azimuthal Angle", NumberOfBins, -pi, pi, NumberOfBins, 0, 80 );
     h7 -> GetXaxis() -> SetTitle( "Azimuthal Angle Radians" );
-    h7 -> GetYaxis() -> SetTitle( "Momentum GeV" );
+    h7 -> GetYaxis() -> SetTitle( "Momentum GeV/c" );
     BookHisto( h7 );
 
     TH2D* h107 = new TH2D( "CompareTrueEnergyVsAzimuthal", "Compare True Total Momentum and Azimuthal Angle", NumberOfBins, -pi, pi, NumberOfBins, 0, 80 );
     h107 -> GetXaxis() -> SetTitle( "Azimuthal Angle Radians" );
-    h107 -> GetYaxis() -> SetTitle( "Momentum GeV" );
+    h107 -> GetYaxis() -> SetTitle( "Momentum GeV/c" );
     BookHisto( h107 );
 
     TH2D* h8 = new TH2D( "EnergyVsPolar", "Total Momentum and polar Angle", NumberOfBins, 0, 0.017, NumberOfBins, 0, 80 );
     h8 -> GetXaxis() -> SetTitle( "Polar Angle Radians" );
-    h8 -> GetYaxis() -> SetTitle( "Momentum GeV" );
+    h8 -> GetYaxis() -> SetTitle( "Momentum GeV/c" );
     BookHisto( h8 );
 
     TH2D* h108 = new TH2D( "CompareTrueEnergyVsPolar", "Compare True Total Momentum and Polar Angle", NumberOfBins, 0, 0.017, NumberOfBins, 0, 80 );
     h108 -> GetXaxis() -> SetTitle( "Azimuthal Angle Radians" );
-    h108 -> GetYaxis() -> SetTitle( "Momentum GeV" );
+    h108 -> GetYaxis() -> SetTitle( "Momentum GeV/c" );
     BookHisto( h108 );
 
     TH2D* h9 = new TH2D( "TranverseEnergyVsAzimuthal", "Tranverse Momentum and Azimuthal Angle", NumberOfBins, -pi, pi, NumberOfBins, 0, 0.3 );
     h9 -> GetXaxis() -> SetTitle( "Azimuthal Angle Radians" );
-    h9 -> GetYaxis() -> SetTitle( "Momentum GeV" );
+    h9 -> GetYaxis() -> SetTitle( "Transverse Momentum GeV/c" );
     BookHisto( h9 );
 
     TH2D* h109 = new TH2D( "CompareTrueTranverseEnergyVsAzimuthal", "Compare Tranverse Momentum and Azimuthal Angle", NumberOfBins, -pi, pi, NumberOfBins, 0, 0.3 );
     h109 -> GetXaxis() -> SetTitle( "Azimuthal Angle Radians" );
-    h109 -> GetYaxis() -> SetTitle( "Momentum GeV" );
+    h109 -> GetYaxis() -> SetTitle( "Tranverse Momentum GeV/c" );
     BookHisto( h109 );
 
     CreateHist1D( "TrueMomentumHist", " True Momentum", NumberOfBins, 0, 0 );
-    SetHistAxisLabels("TrueMomentumHist","Momentum GeV","Number of Entries");
+    SetHistAxisLabels("TrueMomentumHist","Momentum GeV/c","Number of Entries");
 
     CreateHist1D( "TruexMomentumHist", "True x Momentum", NumberOfBins, 0, 0 );
-    SetHistAxisLabels("TruexMomentumHist","Momentum GeV","Number of Entries");
+    SetHistAxisLabels("TruexMomentumHist","Momentum GeV/c","Number of Entries");
 
     CreateHist1D( "TrueyMomentumHist", "True y Momentum", NumberOfBins, 0, 0 );
-    SetHistAxisLabels("TrueyMomentumHist","Momentum GeV","Number of Entries");
+    SetHistAxisLabels("TrueyMomentumHist","Momentum GeV/c","Number of Entries");
 
     CreateHist1D( "TruezMomentumHist", "True z Momentum", NumberOfBins, 0, 0 );
-    SetHistAxisLabels("TruezMomentumHist","Momentum GeV","Number of Entries");
+    SetHistAxisLabels("TruezMomentumHist","Momentum GeV/c","Number of Entries");
 
-    CreateHist1D( "TrueTransverseMomentumHist", " True Transverse Momentum", NumberOfBins, 0, 0 );
-    SetHistAxisLabels("TrueTransverseMomentumHist","Momentum MeV","Number of Entries");
+    CreateHist1D( "TrueTransverseMomentumHist", "True Transverse Momentum", NumberOfBins, 0, 0 );
+    SetHistAxisLabels("TrueTransverseMomentumHist","Momentum MeV/c","Number of Entries");
 
     CreateHist1D( "TrueAzimuthalMomentumHist", " True Azimuthal Angle", NumberOfBins, 0, 0 );
     SetHistAxisLabels("TrueAzimuthalMomentumHist","Azimuthal Angle Radians","Number of Entries");
@@ -167,17 +167,17 @@ void spectro2::InitHist()
 
     TH2D* h22 = new TH2D( "TrueEnergyVsAzimuthal", "True Total Momentum and Azimuthal Angle", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
     h22 -> GetXaxis() -> SetTitle( "Azimuthal Angle Radians" );
-    h22 -> GetYaxis() -> SetTitle( "Momentum GeV" );
+    h22 -> GetYaxis() -> SetTitle( "Total Momentum GeV/c" );
     BookHisto( h22 );
 
     TH2D* h23 = new TH2D( "TrueEnergyVsPolar", "True Total Momentum and Polar Angle", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
-    h23 -> GetXaxis() -> SetTitle( "Azimuthal Angle Radians" );
-    h23 -> GetYaxis() -> SetTitle( "Momentum GeV" );
+    h23 -> GetXaxis() -> SetTitle( "Polar Angle Radians" );
+    h23 -> GetYaxis() -> SetTitle( "Total Momentum GeV/c" );
     BookHisto( h23 );
 
     TH2D* h24 = new TH2D( "TrueTranverseEnergyVsAzimuthal", "Tranverse Momentum and Azimuthal Angle", NumberOfBins, 0, 0, NumberOfBins, 0, 0 );
     h24 -> GetXaxis() -> SetTitle( "Azimuthal Angle Radians" );
-    h24 -> GetYaxis() -> SetTitle( "Momentum GeV" );
+    h24 -> GetYaxis() -> SetTitle( "Transverse Momentum GeV/c" );
     BookHisto( h24 );
 
     CreateHist1D( "ClosestPointFromBeamAxis", "Closest Point From Beam Axis", NumberOfBins, 0, 300 );
@@ -270,22 +270,22 @@ void spectro2::InitHist()
     BookHisto( h51 );
 
     CreateHist1D("MissingMass", "Missing Mass Squared", NumberOfBins, -0.2, 0.2);
-    SetHistAxisLabels("MissingMass","Missing Mass Squared, GeV /c","Number of Entries");
+    SetHistAxisLabels("MissingMass","Missing Mass Squared, GeV^2 /c^4","Number of Entries");
 
     CreateHist1D("TrueMissingMass", "True Missing Mass Squared", 1000, 0, 0);
-    SetHistAxisLabels("TrueMissingMass","True Missing Mass Squared","Number of Entries");
+    SetHistAxisLabels("TrueMissingMass","True Missing Mass Squared GeV^2 /c^4","Number of Entries");
 
     CreateHist1D("SpectrometerXMomentumResolution", "Spectrometer x Momentum Resolution", NumberOfBins, 0, 0);
-    SetHistAxisLabels("SpectrometerXMomentumResolution","x Momentum MeV","Number of Entries");
+    SetHistAxisLabels("SpectrometerXMomentumResolution","x Momentum MeV/c","Number of Entries");
 
     CreateHist1D("SpectrometerYMomentumResolution", "Spectrometer y Momentum Resolution", NumberOfBins, 0, 0);
-    SetHistAxisLabels("SpectrometerYMomentumResolution","y Momentum MeV","Number of Entries");
+    SetHistAxisLabels("SpectrometerYMomentumResolution","y Momentum MeV/c","Number of Entries");
 
     CreateHist1D("SpectrometerZMomentumResolution", "Spectrometer z Momentum Resolution", NumberOfBins, 0, 0);
-    SetHistAxisLabels("SpectrometerZMomentumResolution","z Momentum GeV","Number of Entries");
+    SetHistAxisLabels("SpectrometerZMomentumResolution","z Momentum GeV/c","Number of Entries");
 
     CreateHist1D("SpectrometerMomentumResolution", "Spectrometer Momentum Resolution", NumberOfBins, 0, 0);
-    SetHistAxisLabels("SpectrometerMomentumResolution","Momentum GeV","Number of Entries");
+    SetHistAxisLabels("SpectrometerMomentumResolution","Momentum GeV/c","Number of Entries");
 
     CreateHist1D("XZAngle", "XZAngle", NumberOfBins, 0, 0);
     SetHistAxisLabels("XZAngle","Radians","Number of Entries");
@@ -293,18 +293,18 @@ void spectro2::InitHist()
     CreateHist1D("YZAngle", "YZAngle", NumberOfBins, 0, 0);
     SetHistAxisLabels("YZAngle","Radians","Number of Entries");
 
-    CreateHist1D("ReconstructedMomentumHist","Momentum",NumberOfBins,0,80);
-    SetHistAxisLabels("ReconstructedMomentumHist","Momentum GeV","Number of Entries");
+    CreateHist1D("ReconstructedMomentumHist","Momentum From Angle",NumberOfBins,0,80);
+    SetHistAxisLabels("ReconstructedMomentumHist","Momentum GeV/c","Number of Entries");
 
-    CreateHist1D("ReconstructedxMomentumHist","xMomentum",NumberOfBins,-0.3,0.3);
-    SetHistAxisLabels("ReconstructedxMomentumHist","Momentum GeV","Number of Entries");
+    CreateHist1D("ReconstructedxMomentumHist","xMomentum From Angle",NumberOfBins,-0.3,0.3);
+    SetHistAxisLabels("ReconstructedxMomentumHist","Momentum GeV/c","Number of Entries");
 
-    CreateHist1D("ReconstructedyMomentumHist","yMomentum",NumberOfBins,-0.3,0.3);
-    SetHistAxisLabels("ReconstructedyMomentumHist","Momentum GeV","Number of Entries");
+    CreateHist1D("ReconstructedyMomentumHist","yMomentum From Angle",NumberOfBins,-0.3,0.3);
+    SetHistAxisLabels("ReconstructedyMomentumHist","Momentum GeV/c","Number of Entries");
 
 
-    CreateHist1D("ReconstructedzMomentumHist","zMomentum",NumberOfBins,0,80);
-    SetHistAxisLabels("ReconstructedzMomentumHist","Momentum GeV","Number of Entries");
+    CreateHist1D("ReconstructedzMomentumHist","zMomentum From Angle",NumberOfBins,0,80);
+    SetHistAxisLabels("ReconstructedzMomentumHist","Momentum GeV/c","Number of Entries");
 
     CreateHist1D("TrueXZAngle", "TrueXZAngle", NumberOfBins, 0, 0);
     SetHistAxisLabels("TrueXZAngle","Radians","Number of Entries");
@@ -313,16 +313,16 @@ void spectro2::InitHist()
     SetHistAxisLabels("TrueYZAngle","Radians","Number of Entries");
 
     CreateHist1D("cluster energy", "cluster energy", NumberOfBins, 0, 0);
-    SetHistAxisLabels("Cluster Energy GeV","Counts","Number of Entries");
+    SetHistAxisLabels("Cluster Energy","Cluster Energy GeV/c^2","Number of Entries");
 
-    CreateHist1D("Energyclusterenergy", "Energyclusterenergy", NumberOfBins, 0, 0);
-    SetHistAxisLabels("Energy / ClusterEnergy","Counts","Number of Entries");
+    CreateHist1D("Energyclusterenergy", "EnergyOverclusterenergy", NumberOfBins, 0, 0);
+    SetHistAxisLabels("Energy/ClusterEnergy","Energy/ClusterEnergy","Number of Entries");
 
     CreateHist1D("TotalDecays", "TotalDecays", NumberOfBins, 0, 0);
-    SetHistAxisLabels("TotalDecays","Counts","Number of Entries");
+    SetHistAxisLabels("TotalDecays","Just A Counter","Number of Entries");
 
     CreateHist1D("ClusterEnergyAndIntersectionLength", "ClusterEnergyAndIntersectionLength", NumberOfBins, 0, 0);
-    SetHistAxisLabels("ClusterEnergyAndIntersectionLength","Counts","Number of Entries");
+    SetHistAxisLabels("ClusterEnergyAndIntersectionLength","ClusterEnergy/IntersectionLength","Number of Entries");
 
     CreateHist1D("LkrEntryx", "LkrEntryx", NumberOfBins, 0, 0);
     SetHistAxisLabels("LkrEntryx","m","Number of Entries");
@@ -334,47 +334,50 @@ void spectro2::InitHist()
     SetHistAxisLabels("LkrEntryz","m","Number of Entries");
 
     CreateHist1D("closestxDistanceToMUV3", "closestxDistanceToMUV3", NumberOfBins, 0, 0);
-    SetHistAxisLabels("closestxDistanceToMUV3","m","Number of Entries");
+    SetHistAxisLabels("closestxDistanceToMUV3","mm","Number of Entries");
 
     CreateHist1D("closestyDistanceToMUV3", "closestyDistanceToMUV3", NumberOfBins, 0, 0);
-    SetHistAxisLabels("closestyDistanceToMUV3","m","Number of Entries");
+    SetHistAxisLabels("closestyDistanceToMUV3","mm","Number of Entries");
 
     CreateHist1D("closestzDistanceToMUV3", "closestzDistanceToMUV3", NumberOfBins, 0, 0);
-    SetHistAxisLabels("closestzDistanceToMUV3","m","Number of Entries");
+    SetHistAxisLabels("closestzDistanceToMUV3","mm","Number of Entries");
 
     CreateHist1D("closestDistanceToMUV3", "closestDistanceToMUV3", NumberOfBins, 0, 0);
-    SetHistAxisLabels("closestDistanceToMUV3","m","Number of Entries");
+    SetHistAxisLabels("closestDistanceToMUV3","mm","Number of Entries");
 
     CreateHist1D("closestxPointToMUV3", "closestxPointToMUV3", NumberOfBins, 0, 0);
-    SetHistAxisLabels("closestxPointToMUV3","m","Number of Entries");
+    SetHistAxisLabels("closestxPointToMUV3","mm","Number of Entries");
 
     CreateHist1D("closestyPointToMUV3", "closestyPointToMUV3", NumberOfBins, 0, 0);
-    SetHistAxisLabels("closestyPointToMUV3","m","Number of Entries");
+    SetHistAxisLabels("closestyPointToMUV3","mm","Number of Entries");
 
     CreateHist1D("closestzPointToMUV3", "closestzPointToMUV3", NumberOfBins, 0, 0);
-    SetHistAxisLabels("closestzPointToMUV3","m","Number of Entries");
+    SetHistAxisLabels("closestzPointToMUV3","mm","Number of Entries");
 
     CreateHist1D("MUV3candidates", "MUV3candidates", NumberOfBins, 0, 0);
     SetHistAxisLabels("MUV3candidates","numberofcandidates","Number of Entries");
 
-    CreateHist1D("timedifference", "timedifference", 5000, 0, 0);
-    SetHistAxisLabels("timedifference","time","Number of Entries");
+    CreateHist1D("timedifference", "Time difference between MUV3 and Spectro", 5000, 0, 0);
+    SetHistAxisLabels("timedifference","ns","Number of Entries");
 
     CreateHist1D("spectrotime", "spectrotime", 5000, 0, 0);
-    SetHistAxisLabels("spectrotime","time","Number of Entries");
+    SetHistAxisLabels("spectrotime","ns","Number of Entries");
 
     CreateHist1D("MUV3time", "MUV3time", 5000, 0 , 0 );
-    SetHistAxisLabels("MUV3time","time","Number of Entries");
+    SetHistAxisLabels("MUV3time","ns","Number of Entries");
 
 
-    CreateHist1D("LKrTimeDifference", "LKrTimeDifference", 5000, 0 , 0 );
-    SetHistAxisLabels("LKrTimeDifference","time","Number of Entries");
+    CreateHist1D("LKrTimeDifference", "Time Difference Between LKr and Spectro", 5000, 0 , 0 );
+    SetHistAxisLabels("LKrTimeDifference","ns","Number of Entries");
 
     CreateHist1D("LKrcandidates", "LKrTimeDifference", 5000, 0 , 0 );
     SetHistAxisLabels("LKrTimeDifference","time","Number of Entries");
 
     CreateHist1D("LKrtime", "LKrtime", 5000, 0 , 0 );
     SetHistAxisLabels("LKrtime","time","Number of Entries");
+
+    CreateHist1D("CEDARCandidates", "CEDARCandidates", NumberOfBins, 0 , 0 );
+    SetHistAxisLabels("CEDARCandidates","time","Number of Entries");
 
 
 
@@ -845,13 +848,13 @@ void spectro2::Process( int iEvent )
     if  (   spectro_charge == 1  //Positive Charge
             && SpectrometerEvent->GetNCandidates() == accepted_number_of_spectrometer_candidates //Single Detection In Spectrometer
             && decay_area == 2  //Decay in Fiducial Region //34728 particles when running on 100,000 munu.
-            //&& ( LKrEvent->GetNCandidates() <= accepted_number_of_LKr_candidates /*|| Intersect_LKr == false*/ )  // Be detected in LKr, if the muon should hit LKr //27429 with just getncandidates, 31099 with or intersect false.
-            && ( cluster_energetic_enough == true /*|| Intersect_LKr == false*/ ) //IF a cluster is in the LKr, it should have energy greater than 1/1000 of muon energy and less than 1/140000 //27273, 30943 with or intersect false
+            && ( LKrEvent->GetNCandidates() <= accepted_number_of_LKr_candidates /*|| Intersect_LKr == false*/ )  // Be detected in LKr, if the muon should hit LKr //27429 with just getncandidates, 31099 with or intersect false.
+            && ( ( cluster_energetic_enough == true || LKrEvent->GetNCandidates() == 0 ) /*|| Intersect_LKr == false*/ ) //IF a cluster is in the LKr, it should have energy greater than 1/1000 of muon energy and less than 1/140000 //27273, 30943 with or intersect false
             && ( ring_correct_size == true || detection_in_rich == false ) //IF a ring is in the RICH, it should be consistent with a muon. //27273, 30943 with or intersect false for LKr
             && LAVEvent->GetNCandidates() == 0 //No muon should be detected in the LAV. //26112, 27557 with or intersect false for LKr
             && MUV3Event->GetNCandidates() >= accepted_number_of_MUV3_candidates // Be detected in MUV3 IF DETECTED PARTICLE WOULD HIT IT //26076 , 26086 with or intersect false for LKr
             && dist_to_baxis_after_fiducial.Mag() <= 40 && dist_to_baxis_after_fiducial[0] <= 40 && dist_to_baxis_after_fiducial[1] <= 40 && dist_to_baxis_after_fiducial[2] <= 40 //Be linked closely to the beam. // 26069 with or intersect false for LKr
-            && abs ( MUV3_time_difference[0] ) <= 15
+            && abs ( MUV3_time_difference[0] )<= 15
             && abs ( LKr_time_difference[0] ) <= 15
             && SACEvent->GetNCandidates() == 0
             && abs(distance_to_MUV3[0][0]) <= 200
@@ -866,6 +869,11 @@ void spectro2::Process( int iEvent )
             //&& CEDAR_enough_sectors == true
             && detection_in_CHANTI == false
             //&& detection_in_rich == true
+            && abs( distance_to_MUV3[0][0] ) <= 200
+            && abs( distance_to_MUV3[0][1] ) <= 500
+            && abs( distance_to_MUV3[0][2] ) <= 10
+            && abs( distance_to_MUV3[0].Mag() ) <= 500
+
         )
     {
         /*
@@ -1006,16 +1014,15 @@ void spectro2::Process( int iEvent )
                 FillHisto( "LkrEntryy", true_LKr_entry[1] );
                 FillHisto( "LkrEntryz", true_LKr_entry[2] );
             }
-        }
-        */
-        //Reco stuff
-        for ( int iLKr = 0; iLKr < accepted_number_of_LKr_candidates; iLKr++ )
-        {
-            FillHisto( "LKrtime", LKr_time[iLKr] );
-            FillHisto( "LKrTimeDifference", LKr_time_difference[iLKr] );
-        }
-        FillHisto( "LKrcandidates", LKrEvent->GetNCandidates() );
-
+            }
+            */
+            //Reco stuff
+            for ( int iLKr = 0; iLKr < LKrEvent->GetNCandidates(); iLKr++ )
+            {
+                FillHisto( "LKrtime", LKr_time[iLKr] );
+                FillHisto( "LKrTimeDifference", LKr_time_difference[iLKr] );
+            }
+            FillHisto( "LKrcandidates", LKrEvent->GetNCandidates() );
 
         for ( int iMUV3 = 0; iMUV3 < accepted_number_of_MUV3_candidates; iMUV3++)
         {
